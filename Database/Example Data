@@ -1,0 +1,47 @@
+INSERT INTO User (Name, Email, Number, Password, Role) VALUES
+('Alice Smith', 'alice@example.com', '+27831234567', 'password123', 'Customer'),
+('Bob Jones', 'bob@example.com', '+27839876543', 'password123', 'Customer'),
+('Charlie Barber', 'charlie@example.com', '+27830001122', 'password123', 'Barber');
+
+INSERT INTO Admin (UserID, Name, Bio) VALUES
+(3, 'Charlie Barber', 'Experienced barber specializing in modern styles');
+
+INSERT INTO Contact (UserID, Message, ContactInfo) VALUES
+(1, 'I have a question about your services', 'alice@example.com'),
+(2, 'Can I book an appointment for next week?', 'bob@example.com');
+
+INSERT INTO Products (Name, Price, Category, Stock, ImgUrl) VALUES
+('Shampoo', 120.00, 'Hair Care', 50, 'images/shampoo.jpg'),
+('Conditioner', 150.00, 'Hair Care', 40, 'images/conditioner.jpg'),
+('Hair Gel', 80.00, 'Styling', 30, 'images/hairgel.jpg');
+
+INSERT INTO Cart (UserID) VALUES
+(1),
+(2);
+
+INSERT INTO CartItems (CartID, ProductID, Quantity) VALUES
+(1, 1, 2),
+(1, 3, 1),
+(2, 2, 1);
+
+INSERT INTO Reviews (UserID, ProductID, Rating, Comment) VALUES
+(1, 1, 5, 'Excellent shampoo, my hair feels amazing!'),
+(2, 2, 4, 'Good conditioner but a bit pricey');
+
+INSERT INTO Services (Name, Description, Price, Time) VALUES
+('Haircut', 'Professional haircut service', 200.00, 45),
+('Beard Trim', 'Neat beard trimming', 100.00, 20),
+('Hair Coloring', 'Full hair coloring service', 500.00, 90);
+
+INSERT INTO Appointment (UserID, BarberID, ForName, ForAge, Type, Time, Duration, Status, Cost) VALUES
+(1, 3, 'Alice Smith', 28, 'Haircut', '2025-09-20 10:00:00', 45, 'Pending', 200.00),
+(2, 3, 'Bob Jones', 35, 'Beard Trim', '2025-09-21 14:00:00', 20, 'Confirmed', 100.00);
+
+INSERT INTO Orders (UserID, TotalPrice, Status) VALUES
+(1, 320.00, 'Pending'),
+(2, 150.00, 'Completed');
+
+INSERT INTO OrderItems (OrderID, ProductID, Quantity) VALUES
+(1, 1, 2),
+(1, 3, 1),
+(2, 2, 1);
