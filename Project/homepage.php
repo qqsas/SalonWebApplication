@@ -44,9 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bind_param("iss", $userID, $message, $email);
     $stmt->execute();
 
-    // Optional: redirect after success
-    header("Location: thankyou.php");
-    exit();
 }
 ?>
 
