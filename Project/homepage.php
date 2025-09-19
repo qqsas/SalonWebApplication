@@ -63,32 +63,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <a href="services.php" class="btn">Explore Services</a>
   </section>
 
-  <!-- Services Section -->
-  <section class="services">
-    <h2>Our Services</h2>
-    <div class="service-list">
-      <?php foreach ($getServices as $service): ?>
-        <div class="service-card">
+<!-- Services Section -->
+<section class="services">
+  <h2>Our Services</h2>
+  <div class="service-list">
+    <?php foreach ($getServices as $service): ?>
+      <div class="service-card" onclick="window.location.href='service-detail.php?id=<?php echo urlencode($service['ServicesID']); ?>'">
+        <div class="service-image"></div> <!-- Add dynamic class or image if available -->
+        <div class="card-content">
           <h3><?php echo htmlspecialchars($service['Name']); ?></h3>
           <p><?php echo htmlspecialchars($service['Description']); ?></p>
+          <a href="service-detail.php?id=<?php echo urlencode($service['ServicesID']); ?>" class="read-more">Learn more</a>
         </div>
-      <?php endforeach; ?>
-    </div>
-  </section>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</section>
 
-  <!-- Staff Section -->
-  <section class="staff">
-    <h2>Meet Our Team</h2>
-    <div class="staff-list">
-      <?php foreach ($getStaff as $staff): ?>
-        <div class="staff-card">
+<!-- Staff Section -->
+<section class="staff">
+  <h2>Meet Our Team</h2>
+  <div class="staff-list">
+    <?php foreach ($getStaff as $staff): ?>
+      <div class="staff-card" onclick="window.location.href='staff-detail.php?id=<?php echo urlencode($staff['BarberID']); ?>'">
+        <div class="staff-image"></div> <!-- Add dynamic class or image if available -->
+        <div class="card-content">
           <h3><?php echo htmlspecialchars($staff['Name']); ?></h3>
           <p><?php echo htmlspecialchars($staff['Bio']); ?></p>
+          <a href="staff-detail.php?id=<?php echo urlencode($staff['BarberID']); ?>" class="read-more">View profile</a>
         </div>
-      <?php endforeach; ?>
-    </div>
-  </section>
-
+      </div>
+    <?php endforeach; ?>
+  </div>
+</section>
   <!-- Contact Section -->
   <section class="contact">
     <h2>Get in Touch</h2>
