@@ -5,14 +5,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
 include 'db.php';
 
-$user_role = isset($_SESSION['user_id']) ? $_SESSION['role'] ?? null : null;
+$user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] ?? null : null;
 
 // Calculate cart item count
 $cartItemCount = 0;
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT SUM(quantity) AS total_items FROM cart WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
+if (isset($_SESSION['UserID'])) {
+    $user_id = $_SESSION['UserID'];
+    $stmt = $conn->prepare("SELECT SUM(Quantity) AS total_items FROM Cart WHERE UserID = ?");
+    $stmt->bind_param("i", $UserID);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($row = $result->fetch_assoc()) {
