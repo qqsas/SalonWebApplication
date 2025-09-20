@@ -63,7 +63,7 @@ if (isset($_SESSION['UserID'])) {
                                 <?php endif; ?>
                             </a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="buyer_orders.php">Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="orders.php">Orders</a></li>
                     <?php endif; ?>
                     <li class="nav-item"><a class="nav-link" href="Logout.php">Logout</a></li>
                 <?php else: ?>
