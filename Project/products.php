@@ -8,51 +8,50 @@ $searchTerm = $_GET['search'] ?? '';
 $sortOption = $_GET['sort'] ?? 'newest';
 $selectedCategory = $_GET['category'] ?? '';
 
-// Fetch all categories for the dropdown
-$categoryQuery = "SELECT category_id, category_name FROM categories";
+// Fetch distinct categories from Products table
+$categoryQuery = "SELECT DISTINCT Category FROM Products";
 $categoryResult = $conn->query($categoryQuery);
-$categories = $categoryResult->fetch_all(MYSQLI_ASSOC);
+$categories = $categoryResult ? $categoryResult->fetch_all(MYSQLI_ASSOC) : [];
 
-// Build base query
-$query = "SELECT p.*, c.category_name FROM products p
-          LEFT JOIN categories c ON p.category_id = c.category_id
-          WHERE p.is_available = 1 AND p.is_deleted = 0";
+// Base query
+$query = "SELECT ProductID, Name, Price, Category, Stock, ImgUrl, CreatedAt 
+          FROM Products
+          WHERE Stock > 0";
 
 $params = [];
 $types = "";
 
 // Search filter
 if (!empty($searchTerm)) {
-    $query .= " AND (p.name LIKE ? OR p.description LIKE ?)";
+    $query .= " AND Name LIKE ?";
     $searchWildcard = "%{$searchTerm}%";
     $params[] = $searchWildcard;
-    $params[] = $searchWildcard;
-    $types .= "ss";
+    $types .= "s";
 }
 
 // Category filter
 if (!empty($selectedCategory)) {
-    $query .= " AND p.category_id = ?";
+    $query .= " AND Category = ?";
     $params[] = $selectedCategory;
-    $types .= "i";
+    $types .= "s";
 }
 
 // Sort logic
 switch ($sortOption) {
     case 'price_asc':
-        $query .= " ORDER BY p.price ASC";
+        $query .= " ORDER BY Price ASC";
         break;
     case 'price_desc':
-        $query .= " ORDER BY p.price DESC";
+        $query .= " ORDER BY Price DESC";
         break;
     case 'name_asc':
-        $query .= " ORDER BY p.name ASC";
+        $query .= " ORDER BY Name ASC";
         break;
     case 'name_desc':
-        $query .= " ORDER BY p.name DESC";
+        $query .= " ORDER BY Name DESC";
         break;
     default:
-        $query .= " ORDER BY p.created_at DESC"; // newest
+        $query .= " ORDER BY CreatedAt DESC"; // newest first
         break;
 }
 
@@ -65,31 +64,32 @@ if (!empty($params)) {
 
 $stmt->execute();
 $result = $stmt->get_result();
-$products = $result->fetch_all(MYSQLI_ASSOC);
+$products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-@media (min-width: 769px) {
-      .menu-toggle {
-        display: none !important;
-      }
-    }
-        </style>
     <meta charset="UTF-8">
-    <title>All Products - E-Commerce Platform</title>
+    <title>All Products - Kumar Kailey’s Hair & Beauty</title>
     <link href="styles.css" rel="stylesheet">
-    <link href="mobile.css" rel="stylesheet"  media="(max-width: 768px)">
+    <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    @media (min-width: 769px) {
+        .menu-toggle {
+            display: none !important;
+        }
+    }
+    </style>
 </head>
 <body>
 
 <!-- Search and Filter Section -->
 <div class="filter-container">
     <form method="get" class="filter-form">
-        <input type="text" name="search" class="filter-search" placeholder="Search products..." value="<?= htmlspecialchars($searchTerm) ?>">
+        <input type="text" name="search" class="filter-search" placeholder="Search products..." 
+               value="<?= htmlspecialchars($searchTerm) ?>">
 
         <select name="sort" class="filter-sort">
             <option value="newest" <?= $sortOption === 'newest' ? 'selected' : '' ?>>Newest</option>
@@ -102,8 +102,9 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
         <select name="category" class="filter-category">
             <option value="">All Categories</option>
             <?php foreach ($categories as $cat): ?>
-                <option value="<?= $cat['category_id'] ?>" <?= $selectedCategory == $cat['category_id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($cat['category_name']) ?>
+                <option value="<?= htmlspecialchars($cat['Category']) ?>" 
+                        <?= $selectedCategory == $cat['Category'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($cat['Category']) ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -122,24 +123,26 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
         <div class="product-grid">
             <?php foreach ($products as $product): ?>
                 <div class="product-card">
-                    <?php $product_img = !empty($product['image_path']) ? htmlspecialchars($product['image_path']) : 'default.png'; ?>
-                    <img src="<?= $product_img ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="product-image">
+                    <?php $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
+                    <img src="<?= $product_img ?>" alt="<?= htmlspecialchars($product['Name']) ?>" class="product-image">
 
                     <div class="product-details">
-                        <h2 class="product-name"><?= htmlspecialchars($product['name']) ?></h2>
-                        <p class="product-description"><?= htmlspecialchars($product['description']) ?></p>
-
-                        <?php if (!is_null($product['original_price']) && $product['original_price'] > $product['price']): ?>
-                            <p class="product-price">
-                                <span class="original-price">R<?= number_format($product['original_price'], 2) ?></span>
-                                <span class="price-discounted">Now R<?= number_format($product['price'], 2) ?></span>
-                            </p>
-                        <?php else: ?>
-                            <p class="product-price">Price: R<?= number_format($product['price'], 2) ?></p>
-                        <?php endif; ?>
-
-                        <p class="product-category">Category: <?= htmlspecialchars($product['category_name']) ?></p>
-                        <a href="product_details.php?id=<?= $product['product_id'] ?>" class="btn">View Product</a>
+                        <h2 class="product-name"><?= htmlspecialchars($product['Name']) ?></h2>
+                        <p class="product-price">Price: R<?= number_format($product['Price'], 2) ?></p>
+                        <p class="product-category">Category: <?= htmlspecialchars($product['Category']) ?></p>
+                        <p class="product-stock">In Stock: <?= htmlspecialchars($product['Stock']) ?></p>
+                        
+                        <div class="product-buttons" style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <!-- View Product Button -->
+                            <a href="product_details.php?id=<?= $product['ProductID'] ?>" class="btn">View Product</a>
+                            
+                            <!-- Add to Cart Button -->
+                            <form method="POST" action="add_to_cart.php" style="display:inline;">
+                                <input type="hidden" name="product_id" value="<?= $product['ProductID'] ?>">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn">Add to Cart</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -149,3 +152,4 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 
 </body>
 </html>
+

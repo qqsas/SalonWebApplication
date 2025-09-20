@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'buyer') {
+if (!isset($_SESSION['UserID'])) {
     header("Location: login.php");
     exit();
 }
@@ -8,19 +8,35 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'buyer') {
 include 'db.php';
 include 'header.php';
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['UserID'];
 
-$sql = "SELECT cart.cart_id, products.name, products.price, cart.quantity, (products.price * cart.quantity) AS total
-        FROM cart
-        JOIN products ON cart.product_id = products.product_id
-        WHERE cart.user_id = ?";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// Get user's cart
+$cart_stmt = $conn->prepare("SELECT CartID FROM Cart WHERE UserID = ?");
+$cart_stmt->bind_param("i", $user_id);
+$cart_stmt->execute();
+$cart_result = $cart_stmt->get_result();
 
 $grand_total = 0;
+$cart_items = [];
+
+if ($cart_result->num_rows > 0) {
+    $cart = $cart_result->fetch_assoc();
+    $cart_id = $cart['CartID'];
+
+    // Get cart items and product details
+    $items_stmt = $conn->prepare("SELECT ci.CartItemID, ci.Quantity, p.ProductID, p.Name, p.Price, p.ImgUrl, p.Stock, (ci.Quantity * p.Price) AS Total
+                                  FROM CartItems ci
+                                  JOIN Products p ON ci.ProductID = p.ProductID
+                                  WHERE ci.CartID = ?");
+    $items_stmt->bind_param("i", $cart_id);
+    $items_stmt->execute();
+    $items_result = $items_stmt->get_result();
+    $cart_items = $items_result->fetch_all(MYSQLI_ASSOC);
+
+    foreach ($cart_items as $item) {
+        $grand_total += $item['Total'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -32,10 +48,10 @@ $grand_total = 0;
         display: none !important;
       }
     }
-        </style>
-    <title>Your Cart</title>
+    </style>
+    <title>Your Cart - Kumar Kailey Hair & Beauty</title>
     <link href="styles.css" rel="stylesheet">
-    <link href="mobile.css" rel="stylesheet"  media="(max-width: 768px)">
+    <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -45,7 +61,7 @@ $grand_total = 0;
 
     <a href="homepage.php" class="button secondary">Back to homepage</a>
 
-    <?php if ($result->num_rows > 0): ?>
+    <?php if (!empty($cart_items)): ?>
         <table class="cart-table">
             <thead>
                 <tr>
@@ -57,22 +73,21 @@ $grand_total = 0;
                 </tr>
             </thead>
             <tbody>
-                <?php while($row = $result->fetch_assoc()): ?>
-                    <?php $grand_total += $row['total']; ?>
+                <?php foreach ($cart_items as $item): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['name']); ?></td>
-                        <td><?php echo number_format($row['price'], 2); ?></td>
+                        <td><?php echo htmlspecialchars($item['Name']); ?></td>
+                        <td><?php echo number_format($item['Price'], 2); ?></td>
                         <td>
                             <form method="POST" action="update_quantity.php" style="display:inline-flex; gap:5px;">
-                                <input type="hidden" name="cart_id" value="<?php echo $row['cart_id']; ?>">
-                                <input type="number" name="quantity" value="<?php echo $row['quantity']; ?>" min="1" required style="width: 60px;">
+                                <input type="hidden" name="cart_item_id" value="<?php echo $item['CartItemID']; ?>">
+                                <input type="number" name="quantity" value="<?php echo $item['Quantity']; ?>" min="1" max="<?php echo $item['Stock']; ?>" required style="width: 60px;">
                                 <button type="submit" class="button small">Update</button>
                             </form>
                         </td>
-                        <td><?php echo number_format($row['total'], 2); ?></td>
-                        <td><a href="remove_from_cart.php?cart_id=<?php echo $row['cart_id']; ?>" class="button danger">Remove</a></td>
+                        <td><?php echo number_format($item['Total'], 2); ?></td>
+                        <td><a href="remove_from_cart.php?cart_item_id=<?php echo $item['CartItemID']; ?>" class="button danger">Remove</a></td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
         <div class="total-container">
@@ -84,3 +99,4 @@ $grand_total = 0;
     <?php endif; ?>
 </body>
 </html>
+
