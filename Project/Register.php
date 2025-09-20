@@ -1,18 +1,18 @@
 <?php
 include 'db.php';
-
+include 'header.php';
 $message = '';
-$usernameError = '';
-$emailError = '';
+$nameError = '';
+$contactError = '';
 $passwordError = '';
 $confirmPasswordError = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST["username"]);
+    $name = trim($_POST["name"]);
     $email = trim($_POST["email"]);
+    $number = trim($_POST["number"]);
     $password = $_POST["password"];
     $confirm_password = $_POST["confirm_password"];
-    $role = $_POST["role"];
 
     $hasError = false;
 
@@ -20,24 +20,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Database connection failed: " . mysqli_connect_error());
     }
 
-    // Check if email exists
-    $check_sql = "SELECT * FROM users WHERE email = ?";
-    $check_stmt = $conn->prepare($check_sql);
-
-    if ($check_stmt) {
-        $check_stmt->bind_param("s", $email);
-        $check_stmt->execute();
-        $check_stmt->store_result();
-
-        if ($check_stmt->num_rows > 0) {
-            $emailError = "Email is already in use.";
-            $hasError = true;
-        }
-
-        $check_stmt->close();
-    } else {
-        $emailError = "Email check failed: " . $conn->error;
+    // Require name
+    if (empty($name)) {
+        $nameError = "Name is required.";
         $hasError = true;
+    }
+
+    // At least one contact required
+    if (empty($email) && empty($number)) {
+        $contactError = "Please provide either an email or phone number.";
+        $hasError = true;
+    }
+
+    // Check if email exists (only if provided)
+    if (!empty($email)) {
+        $check_sql = "SELECT * FROM User WHERE Email = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        if ($check_stmt) {
+            $check_stmt->bind_param("s", $email);
+            $check_stmt->execute();
+            $check_stmt->store_result();
+            if ($check_stmt->num_rows > 0) {
+                $contactError = "Email is already in use.";
+                $hasError = true;
+            }
+            $check_stmt->close();
+        }
+    }
+
+    // Check if number exists (only if provided)
+    if (!empty($number)) {
+        $check_sql = "SELECT * FROM User WHERE Number = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        if ($check_stmt) {
+            $check_stmt->bind_param("s", $number);
+            $check_stmt->execute();
+            $check_stmt->store_result();
+            if ($check_stmt->num_rows > 0) {
+                $contactError = "Phone number is already in use.";
+                $hasError = true;
+            }
+            $check_stmt->close();
+        }
     }
 
     // Password validation
@@ -63,12 +87,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!$hasError) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $role = "Customer";
 
-        $insert_sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        $insert_sql = "INSERT INTO User (Name, Email, Number, Password, Role) VALUES (?, ?, ?, ?, ?)";
         $insert_stmt = $conn->prepare($insert_sql);
 
         if ($insert_stmt) {
-            $insert_stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
+            $insert_stmt->bind_param("sssss", $name, $email, $number, $hashed_password, $role);
             if ($insert_stmt->execute()) {
                 $insert_stmt->close();
                 $conn->close();
@@ -112,16 +137,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <h2>User Registration</h2>
       <form method="POST" action="">
         <div class="form-group">
-          <label>Username</label>
-          <input type="text" name="username" class="form-control" 
-                 value="<?php echo htmlspecialchars($_POST["username"] ?? '') ?>" required>
+          <label>Full Name</label>
+          <input type="text" name="name" class="form-control" 
+                 value="<?php echo htmlspecialchars($_POST["name"] ?? '') ?>" required>
+          <span class="error"><?= $nameError ?></span>
         </div>
 
         <div class="form-group">
-          <label>Email</label>
+          <label>Email (optional)</label>
           <input type="email" name="email" class="form-control" 
-                 value="<?php echo htmlspecialchars($_POST["email"] ?? '') ?>" required>
-          <span class="error"><?= $emailError ?></span>
+                 value="<?php echo htmlspecialchars($_POST["email"] ?? '') ?>">
+        </div>
+
+        <div class="form-group">
+          <label>Phone (optional)</label>
+          <input type="text" name="number" class="form-control" 
+                 value="<?php echo htmlspecialchars($_POST["number"] ?? '') ?>">
+          <span class="error"><?= $contactError ?></span>
         </div>
 
         <div class="form-group">
@@ -136,21 +168,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <span class="error"><?= $confirmPasswordError ?></span>
         </div>
 
-        <div class="form-group">
-          <label>Role</label>
-          <select name="role" class="form-control">
-            <option value="buyer" <?php if (($_POST["role"] ?? '') == "buyer") echo "selected"; ?>>Buyer</option>
-            <option value="seller" <?php if (($_POST["role"] ?? '') == "seller") echo "selected"; ?>>Seller</option>
-          </select>
-        </div>
-
         <input type="submit" value="Register" class="btn-primary">
       </form>
 
-      <p class="text-center mt-3">Already have an account? <a href="login.php">Login here</a></p>
+      <p class="text-center mt-3">Already have an account? <a href="Login.php">Login here</a></p>
       <p class="text-center" style="color: var(--accent-color);"><?php echo $message; ?></p>
     </div>
   </div>
 </div>
 </body>
 </html>
+

@@ -1,78 +1,102 @@
 <?php
 session_start();
-require_once 'db.php';
-
-$error = '';
+include 'db.php';
+include 'header.php';
+$message = '';
+$loginError = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST["email"]);
+    $identifier = trim($_POST["identifier"]); // can be name, email, or number
     $password = $_POST["password"];
 
-    if (empty($email) || empty($password)) {
-        $error = "Please fill in all fields.";
-    } else {
-        $stmt = $conn->prepare("SELECT user_id, password, role FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows == 1) {
-            $stmt->bind_result($user_id, $hashed_password, $role);
-            $stmt->fetch();
-
-            if (password_verify($password, $hashed_password)) {
-                $_SESSION['user_id'] = $user_id;
-                $_SESSION['role'] = $role;
-
-                if($role === 'admin'){
-                header("Location: admin_dashboard.php");
-                }else{
-                // Redirect all users to homepage.php regardless of role
-                header("Location: homepage.php");
-                }
-                exit;
-            } else {
-                $error = "Invalid password.";
-            }
-        } else {
-            $error = "No account found with that email.";
-        }
-
-        $stmt->close();
+    if (!$conn) {
+        die("Database connection failed: " . mysqli_connect_error());
     }
+
+    if (empty($identifier) || empty($password)) {
+        $loginError = "Please enter your name, email, or phone number and password.";
+    } else {
+        // Look up user by Name OR Email OR Number
+        $sql = "SELECT UserID, Name, Email, Number, Password, Role FROM User 
+                WHERE Name = ? OR Email = ? OR Number = ? LIMIT 1";
+        $stmt = $conn->prepare($sql);
+
+        if ($stmt) {
+            $stmt->bind_param("sss", $identifier, $identifier, $identifier);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($row = $result->fetch_assoc()) {
+                // Verify password
+                if (password_verify($password, $row['Password'])) {
+                    // Store user session
+                    $_SESSION['UserID'] = $row['UserID'];
+                    $_SESSION['Name']   = $row['Name'];
+                    $_SESSION['Role']   = $row['Role'];
+
+                    $stmt->close();
+                    $conn->close();
+
+                    header("Location: homepage.php"); // redirect to home/dashboard
+                    exit;
+                } else {
+                    $loginError = "Invalid password.";
+                }
+            } else {
+                $loginError = "No account found with that name, email, or phone number.";
+            }
+            $stmt->close();
+        } else {
+            $message = "Query failed: " . $conn->error;
+        }
+    }
+    $conn->close();
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Login</title>
     <link href="styles.css" rel="stylesheet">
+    <style>
+        .error { 
+            color: hsl(var(--secondary-hue), var(--saturation), 40%); 
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+            background: hsl(var(--secondary-hue), var(--saturation), 95%);
+            padding: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--secondary-color);
+        }
+    </style>
 </head>
-<body class="login-page">
-    <div class="login-container">
-        <h2>Login</h2>
-
-        <?php if (!empty($error)): ?>
-            <div class="error-message"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
-
-        <form method="POST" action="login.php" class="login-form">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit" class="submit-button">Login</button>
-        </form>
-
-        <div class="register-link">
-            <a href="register.php">Don't have an account? Register</a>
+<body class="bg-light">
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <h2>User Login</h2>
+      <form method="POST" action="">
+        <div class="form-group">
+          <label>Name / Email / Phone</label>
+          <input type="text" name="identifier" class="form-control" 
+                 value="<?php echo htmlspecialchars($_POST["identifier"] ?? '') ?>" required>
         </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" class="form-control" required>
+          <span class="error"><?= $loginError ?></span>
+        </div>
+
+        <input type="submit" value="Login" class="btn-primary">
+      </form>
+
+      <p class="text-center mt-3">Don't have an account? <a href="Register.php">Register here</a></p>
+      <p class="text-center" style="color: var(--accent-color);"><?php echo $message; ?></p>
     </div>
+  </div>
+</div>
 </body>
 </html>
