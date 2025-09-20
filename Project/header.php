@@ -34,7 +34,7 @@ if (isset($_SESSION['UserID'])) {
 <nav class="Header-navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="homepage.php">
-            <img src="Img/logo.jpeg" alt="Logo" style="height: 30px; margin-right: 10px;">
+            <img src="Img/Logo.jpeg" alt="Logo" style="height: 30px; margin-right: 10px;">
             Kumar Kailey Hair & Beauty Salon
         </a>
         <button class="menu-toggle" onclick="document.querySelector('.Header-navbar').classList.toggle('active')">

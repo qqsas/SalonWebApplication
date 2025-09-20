@@ -126,15 +126,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <h3>Other Ways to Reach Us</h3>
         <div class="link-grid">
           <a href="https://wa.me/1234567890" target="_blank">
-            <img src="Img/whatsapp.png" alt="WhatsApp Logo">
+            <img src="Img/Whatsapp.png" alt="WhatsApp Logo">
             WhatsApp
           </a>
           <a href="https://www.facebook.com/YourPage" target="_blank">
-            <img src="Img/facebook.png" alt="Facebook Logo">
+            <img src="Img/FaceBook.png" alt="Facebook Logo">
             Facebook
           </a>
           <a href="https://www.instagram.com/YourPage" target="_blank">
-            <img src="Img/instagram.png" alt="Instagram Logo">
+            <img src="Img/Instagram.png" alt="Instagram Logo">
             Instagram
           </a>
         </div>
