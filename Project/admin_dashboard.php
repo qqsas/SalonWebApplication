@@ -246,7 +246,6 @@ switch($view) {
         break;
 
     case 'reviews':
-        echo '<a href="add_review.php">+ Add Review</a><br><br>';
         $stmt = $conn->prepare("SELECT r.*, u.Name AS UserName, p.Name AS ProductName FROM Reviews r 
                                 LEFT JOIN User u ON r.UserID = u.UserID
                                 LEFT JOIN Products p ON r.ProductID = p.ProductID
@@ -276,37 +275,40 @@ switch($view) {
         echo "</table>";
         break;
 
-    case 'contacts':
-        echo "<h2>Contacts</h2>";
-        $stmt = $conn->prepare("SELECT c.*, u.Name AS UserName FROM Contact c 
-                                LEFT JOIN User u ON c.UserID = u.UserID 
-                                WHERE LOWER(c.ContactInfo) LIKE ? OR LOWER(c.Message) LIKE ?");
-        $stmt->bind_param("ss", $search, $search);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        echo "<table border='1'>
-                <tr>
-                    <th>ID</th><th>User</th><th>Message</th><th>ContactInfo</th><th>CreatedAt</th><th>Deleted?</th><th>Actions</th>
-                </tr>";
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>
-                    <td>".escape($row['ContactID'])."</td>
-                    <td>".escape($row['UserName'])."</td>
-                    <td>".escape($row['Message'])."</td>
-                    <td>".escape($row['ContactInfo'])."</td>
-                    <td>".escape($row['CreatedAt'])."</td>
-                    <td>".($row['IsDeleted'] ? "Deleted" : "Active")."</td>
-                    <td>";
-            if ($row['IsDeleted']) {
-                echo "<a href='restore.php?table=Contact&id=".escape($row['ContactID'])."'>Restore</a>";
-            } else {
-                echo "<a href='reply_contact.php?id=".escape($row['ContactID'])."'>Reply</a> | 
-                      <a href='soft_delete.php?table=Contact&id=".escape($row['ContactID'])."'>Delete</a>";
-            }
-            echo "</td></tr>";
+case 'contacts':
+    echo "<h2>Contacts</h2>";
+    $stmt = $conn->prepare("SELECT c.*, u.Name AS UserName FROM Contact c 
+                            LEFT JOIN User u ON c.UserID = u.UserID 
+                            WHERE LOWER(c.ContactInfo) LIKE ? OR LOWER(c.Message) LIKE ?");
+    $stmt->bind_param("ss", $search, $search);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    echo "<table border='1'>
+            <tr>
+                <th>ID</th><th>User</th><th>Message</th><th>ContactInfo</th><th>CreatedAt</th><th>Deleted?</th><th>Actions</th>
+            </tr>";
+    while ($row = $result->fetch_assoc()) {
+        $contactLink = (strpos($row['ContactInfo'], '@') !== false) 
+                       ? "mailto:".escape($row['ContactInfo']) 
+                       : "tel:".escape($row['ContactInfo']); // if it's a phone number
+        echo "<tr>
+                <td>".escape($row['ContactID'])."</td>
+                <td>".escape($row['UserName'])."</td>
+                <td>".escape($row['Message'])."</td>
+                <td><a href='{$contactLink}'>".escape($row['ContactInfo'])."</a></td>
+                <td>".escape($row['CreatedAt'])."</td>
+                <td>".($row['IsDeleted'] ? "Deleted" : "Active")."</td>
+                <td>";
+        if ($row['IsDeleted']) {
+            echo "<a href='restore.php?table=Contact&id=".escape($row['ContactID'])."'>Restore</a>";
+        } else {
+            echo "<a href='{$contactLink}'>Contact</a> | 
+                  <a href='soft_delete.php?table=Contact&id=".escape($row['ContactID'])."'>Delete</a>";
         }
-        echo "</table>";
-        break;
+        echo "</td></tr>";
+    }
+    echo "</table>";
+    break;
 
     default:
         include 'admin_overview_graphs.php';
