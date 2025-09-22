@@ -47,7 +47,7 @@ if (isset($_SESSION['UserID'])) {
                 <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="services.php">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="staff.php">Staff</a></li>
+		<li class="nav-item"><a class="nav-link" href="staff.php">Staff</a></li>
                 <li class="nav-item"><a class="nav-link" href="homepage.php">Home</a></li>
 
                 <?php if (isset($_SESSION['UserID'])): ?>
@@ -65,6 +65,7 @@ if (isset($_SESSION['UserID'])) {
                         </li>
                         <li class="nav-item"><a class="nav-link" href="orders.php">Orders</a></li>
                     <?php endif; ?>
+		    <li class="nav-item"><a class="nav-link" href="view_profile.php">View Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="Logout.php">Logout</a></li>
                 <?php else: ?>
                     <li class="nav-item"><a class="nav-link" href="Login.php">Login</a></li>
