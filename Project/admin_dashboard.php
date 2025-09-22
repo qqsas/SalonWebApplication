@@ -8,14 +8,12 @@ if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
 include 'db.php';
 include 'header.php';
 
-// Determine which table/view to display
 $view = $_GET['view'] ?? 'overview';
 $search = isset($_GET['search']) ? "%" . strtolower($_GET['search']) . "%" : "%";
 
 function escape($str) {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
-
 ?>
 
 <h1>Admin Dashboard</h1>
@@ -42,6 +40,7 @@ function escape($str) {
 switch($view) {
 
     case 'users':
+        echo '<a href="add_user.php">+ Add Client</a><br><br>';
         $stmt = $conn->prepare("SELECT * FROM User WHERE (LOWER(Name) LIKE ? OR LOWER(Email) LIKE ?)");
         $stmt->bind_param("ss", $search, $search);
         $stmt->execute();
@@ -73,6 +72,7 @@ switch($view) {
         break;
 
     case 'barbers':
+        echo '<a href="add_barber.php">+ Add Barber</a><br><br>';
         $stmt = $conn->prepare("SELECT Barber.*, User.Name AS OwnerName, User.Email FROM Barber 
                                 LEFT JOIN User ON Barber.UserID = User.UserID 
                                 WHERE LOWER(Barber.Name) LIKE ?");
@@ -84,7 +84,7 @@ switch($view) {
                 <tr>
                     <th>ID</th><th>Name</th><th>Owner</th><th>Email</th><th>Bio</th><th>CreatedAt</th><th>Status</th><th>Actions</th>
                 </tr>";
-        while($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc()) {
             echo "<tr>
                     <td>".escape($row['BarberID'])."</td>
                     <td>".escape($row['Name'])."</td>
@@ -106,6 +106,7 @@ switch($view) {
         break;
 
     case 'appointments':
+        echo '<a href="add_appointment.php">+ Add Appointment</a><br><br>';
         $stmt = $conn->prepare("SELECT a.*, u.Name AS UserName, b.Name AS BarberName FROM Appointment a 
                                 LEFT JOIN User u ON a.UserID = u.UserID 
                                 LEFT JOIN Barber b ON a.BarberID = b.BarberID
@@ -118,7 +119,7 @@ switch($view) {
                 <tr>
                     <th>ID</th><th>User</th><th>Barber</th><th>ForName</th><th>ForAge</th><th>Type</th><th>Time</th><th>Duration</th><th>Status</th><th>Cost</th><th>Deleted?</th><th>Actions</th>
                 </tr>";
-        while($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc()) {
             echo "<tr>
                     <td>".escape($row['AppointmentID'])."</td>
                     <td>".escape($row['UserName'])."</td>
@@ -143,39 +144,8 @@ switch($view) {
         echo "</table>";
         break;
 
-    case 'orders':
-        $stmt = $conn->prepare("SELECT o.*, u.Name AS UserName FROM Orders o 
-                                LEFT JOIN User u ON o.UserID = u.UserID 
-                                WHERE LOWER(u.Name) LIKE ?");
-        $stmt->bind_param("s", $search);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        echo "<h2>Orders</h2>";
-        echo "<table border='1'>
-                <tr>
-                    <th>ID</th><th>User</th><th>TotalPrice</th><th>Status</th><th>CreatedAt</th><th>Deleted?</th><th>Actions</th>
-                </tr>";
-        while($row = $result->fetch_assoc()) {
-            echo "<tr>
-                    <td>".escape($row['OrderID'])."</td>
-                    <td>".escape($row['UserName'])."</td>
-                    <td>".escape($row['TotalPrice'])."</td>
-                    <td>".escape($row['Status'])."</td>
-                    <td>".escape($row['CreatedAt'])."</td>
-                    <td>".($row['IsDeleted'] ? "Deleted" : "Active")."</td>
-                    <td>";
-            if ($row['IsDeleted']) {
-                echo "<a href='restore.php?table=Orders&id=".escape($row['OrderID'])."'>Restore</a>";
-            } else {
-                echo "<a href='edit_order.php?id=".escape($row['OrderID'])."'>Edit</a> | 
-                      <a href='soft_delete.php?table=Orders&id=".escape($row['OrderID'])."'>Delete</a>";
-            }
-            echo "</td></tr>";
-        }
-        echo "</table>";
-        break;
-
     case 'products':
+        echo '<a href="add_product.php">+ Add Product</a><br><br>';
         $stmt = $conn->prepare("SELECT * FROM Products WHERE LOWER(Name) LIKE ?");
         $stmt->bind_param("s", $search);
         $stmt->execute();
@@ -185,7 +155,7 @@ switch($view) {
                 <tr>
                     <th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Stock</th><th>Deleted?</th><th>Actions</th>
                 </tr>";
-        while($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc()) {
             echo "<tr>
                     <td>".escape($row['ProductID'])."</td>
                     <td>".escape($row['Name'])."</td>
@@ -206,6 +176,7 @@ switch($view) {
         break;
 
     case 'services':
+        echo '<a href="add_service.php">+ Add Service</a><br><br>';
         $stmt = $conn->prepare("SELECT * FROM Services WHERE LOWER(Name) LIKE ?");
         $stmt->bind_param("s", $search);
         $stmt->execute();
@@ -215,7 +186,7 @@ switch($view) {
                 <tr>
                     <th>ID</th><th>Name</th><th>Description</th><th>Price</th><th>Time</th><th>Deleted?</th><th>Actions</th>
                 </tr>";
-        while($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc()) {
             echo "<tr>
                     <td>".escape($row['ServicesID'])."</td>
                     <td>".escape($row['Name'])."</td>
@@ -235,9 +206,49 @@ switch($view) {
         echo "</table>";
         break;
 
+    case 'orders':
+        echo '<a href="add_order.php">+ Add Order</a><br><br>';
+        $stmt = $conn->prepare("SELECT o.*, u.Name AS UserName FROM Orders o 
+                                LEFT JOIN User u ON o.UserID = u.UserID
+                                WHERE LOWER(u.Name) LIKE ?");
+        $stmt->bind_param("s", $search);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        echo "<h2>Orders</h2>";
+        echo "<table border='1'>
+                <tr>
+                    <th>ID</th><th>User</th><th>TotalPrice</th><th>Status</th><th>CreatedAt</th><th>Actions</th>
+                </tr>";
+        while($row = $result->fetch_assoc()) {
+            echo "<tr>
+                    <td>".escape($row['OrderID'])."</td>
+                    <td>".escape($row['UserName'])."</td>
+                    <td>".escape($row['TotalPrice'])."</td>
+                    <td>
+                        <form method='POST' action='update_order_status.php' style='margin:0;'>
+                            <input type='hidden' name='OrderID' value='".escape($row['OrderID'])."'>
+                            <select name='Status' onchange='this.form.submit()'>
+                                <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option>
+                                <option value='Processing' ".($row['Status']=='Processing'?'selected':'').">Processing</option>
+                                <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option>
+                                <option value='Cancelled' ".($row['Status']=='Cancelled'?'selected':'').">Cancelled</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>".escape($row['CreatedAt'])."</td>
+                    <td>
+                        <a href='edit_order.php?id=".escape($row['OrderID'])."'>Edit</a> | 
+                        <a href='soft_delete.php?table=Orders&id=".escape($row['OrderID'])."'>Delete</a>
+                    </td>
+                  </tr>";
+        }
+        echo "</table>";
+        break;
+
     case 'reviews':
+        echo '<a href="add_review.php">+ Add Review</a><br><br>';
         $stmt = $conn->prepare("SELECT r.*, u.Name AS UserName, p.Name AS ProductName FROM Reviews r 
-                                LEFT JOIN User u ON r.UserID = u.UserID 
+                                LEFT JOIN User u ON r.UserID = u.UserID
                                 LEFT JOIN Products p ON r.ProductID = p.ProductID
                                 WHERE LOWER(u.Name) LIKE ? OR LOWER(p.Name) LIKE ?");
         $stmt->bind_param("ss", $search, $search);
@@ -246,7 +257,7 @@ switch($view) {
         echo "<h2>Reviews</h2>";
         echo "<table border='1'>
                 <tr>
-                    <th>ID</th><th>User</th><th>Product</th><th>Rating</th><th>Comment</th><th>CreatedAt</th><th>Deleted?</th><th>Actions</th>
+                    <th>ID</th><th>User</th><th>Product</th><th>Rating</th><th>Comment</th><th>CreatedAt</th><th>Actions</th>
                 </tr>";
         while($row = $result->fetch_assoc()) {
             echo "<tr>
@@ -256,32 +267,28 @@ switch($view) {
                     <td>".escape($row['Rating'])."</td>
                     <td>".escape($row['Comment'])."</td>
                     <td>".escape($row['CreatedAt'])."</td>
-                    <td>".($row['IsDeleted'] ? "Deleted" : "Active")."</td>
-                    <td>";
-            if ($row['IsDeleted']) {
-                echo "<a href='restore.php?table=Reviews&id=".escape($row['ReviewID'])."'>Restore</a>";
-            } else {
-                echo "<a href='edit_review.php?id=".escape($row['ReviewID'])."'>Edit</a> | 
-                      <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."'>Delete</a>";
-            }
-            echo "</td></tr>";
+                    <td>
+                        <a href='edit_review.php?id=".escape($row['ReviewID'])."'>Edit</a> | 
+                        <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."'>Delete</a>
+                    </td>
+                  </tr>";
         }
         echo "</table>";
         break;
 
     case 'contacts':
+        echo "<h2>Contacts</h2>";
         $stmt = $conn->prepare("SELECT c.*, u.Name AS UserName FROM Contact c 
                                 LEFT JOIN User u ON c.UserID = u.UserID 
                                 WHERE LOWER(c.ContactInfo) LIKE ? OR LOWER(c.Message) LIKE ?");
         $stmt->bind_param("ss", $search, $search);
         $stmt->execute();
         $result = $stmt->get_result();
-        echo "<h2>Contacts</h2>";
         echo "<table border='1'>
                 <tr>
                     <th>ID</th><th>User</th><th>Message</th><th>ContactInfo</th><th>CreatedAt</th><th>Deleted?</th><th>Actions</th>
                 </tr>";
-        while($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc()) {
             echo "<tr>
                     <td>".escape($row['ContactID'])."</td>
                     <td>".escape($row['UserName'])."</td>
@@ -293,124 +300,17 @@ switch($view) {
             if ($row['IsDeleted']) {
                 echo "<a href='restore.php?table=Contact&id=".escape($row['ContactID'])."'>Restore</a>";
             } else {
-                echo "<a href='soft_delete.php?table=Contact&id=".escape($row['ContactID'])."'>Delete</a>";
+                echo "<a href='reply_contact.php?id=".escape($row['ContactID'])."'>Reply</a> | 
+                      <a href='soft_delete.php?table=Contact&id=".escape($row['ContactID'])."'>Delete</a>";
             }
             echo "</td></tr>";
         }
         echo "</table>";
         break;
-default:
-    echo "<h2>Overview</h2>";
-    echo "<p>Welcome, admin! Below are statistics for line graphs based on creation dates.</p>";
 
-    // Define tables and labels
-    $tables = [
-        'User' => 'Users',
-        'Barber' => 'Barbers',
-        'Appointment' => 'Appointments',
-        'Orders' => 'Orders',
-        'Products' => 'Products',
-        'Reviews' => 'Reviews'
-    ];
-
-    $overviewData = [];
-
-    foreach ($tables as $table => $label) {
-        // Group by date (YYYY-MM-DD) to count creations per day
-        $stmt = $conn->prepare("
-            SELECT DATE(CreatedAt) as date, COUNT(*) as count
-            FROM $table
-            GROUP BY DATE(CreatedAt)
-            ORDER BY DATE(CreatedAt) ASC
-        ");
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $dates = [];
-        $counts = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $dates[] = $row['date'];
-            $counts[] = $row['count'];
-        }
-
-        $overviewData[$label] = [
-            'dates' => $dates,
-            'counts' => $counts
-        ];
-    }
-
-    // Output raw JSON for use in JavaScript chart library
-echo '<canvas id="overviewChart" width="1000" height="400"></canvas>';
-
-echo "<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
-<script>
-const overviewData = " . json_encode($overviewData) . ";
-
-// Prepare datasets for Chart.js
-const datasets = [];
-const colors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'];
-let colorIndex = 0;
-
-for (const table in overviewData) {
-    datasets.push({
-        label: table,
-        data: overviewData[table].counts,
-        fill: false,
-        borderColor: colors[colorIndex % colors.length],
-        tension: 0.1
-    });
-    colorIndex++;
-}
-
-// Use the first table's dates as X-axis (assuming all tables have roughly similar dates)
-const labels = overviewData[Object.keys(overviewData)[0]]?.dates || [];
-
-const ctx = document.getElementById('overviewChart').getContext('2d');
-const overviewChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: datasets
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            title: {
-                display: true,
-                text: 'Daily Creations Overview'
-            },
-            tooltip: {
-                mode: 'index',
-                intersect: false
-            }
-        },
-        interaction: {
-            mode: 'nearest',
-            axis: 'x',
-            intersect: false
-        },
-        scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: 'Date'
-                }
-            },
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Number of Records'
-                }
-            }
-        }
-    }
-});
-</script>";
-
-echo "<p>Line graph showing daily creations of Users, Barbers, Appointments, Orders, Products, and Reviews.</p>";
-break;
-
+    default:
+        include 'admin_overview_graphs.php';
+        break;
 }
 ?>
+

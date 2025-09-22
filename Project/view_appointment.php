@@ -26,7 +26,7 @@ $sql = "
         b.Name AS BarberName,
         s.Name AS ServiceName
     FROM Appointment a
-    JOIN Admin b ON a.BarberID = b.BarberID
+    JOIN Barber b ON a.BarberID = b.BarberID
     LEFT JOIN BarberServices bs ON b.BarberID = bs.BarberID
     LEFT JOIN Services s ON bs.ServicesID = s.ServicesID
     WHERE a.UserID = ? AND (a.IsDeleted IS NULL OR a.IsDeleted = 0)
@@ -55,19 +55,34 @@ $result = $stmt->get_result();
                 <th>Status</th>
                 <th>Cost</th>
                 <th>Created At</th>
+                <th>Actions</th>
             </tr>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($row['AppointmentID']); ?></td>
-                    <td><?php echo htmlspecialchars($row['ForName']) . " (" . htmlspecialchars($row['ForAge']) . ")"; ?></td>
-                    <td><?php echo htmlspecialchars($row['BarberName']); ?></td>
-                    <td><?php echo htmlspecialchars($row['ServiceName'] ?? 'N/A'); ?></td>
-                    <td><?php echo htmlspecialchars($row['Type']); ?></td>
-                    <td><?php echo date("d M Y H:i", strtotime($row['Time'])); ?></td>
-                    <td><?php echo htmlspecialchars($row['Duration']); ?></td>
-                    <td><?php echo htmlspecialchars($row['Status']); ?></td>
-                    <td><?php echo "R" . number_format($row['Cost'], 2); ?></td>
-                    <td><?php echo date("d M Y H:i", strtotime($row['CreatedAt'])); ?></td>
+                    <td><?= htmlspecialchars($row['AppointmentID']); ?></td>
+                    <td><?= htmlspecialchars($row['ForName']) . " (" . htmlspecialchars($row['ForAge']) . ")"; ?></td>
+                    <td><?= htmlspecialchars($row['BarberName']); ?></td>
+                    <td><?= htmlspecialchars($row['ServiceName'] ?? 'N/A'); ?></td>
+                    <td><?= htmlspecialchars($row['Type']); ?></td>
+                    <td><?= date("d M Y H:i", strtotime($row['Time'])); ?></td>
+                    <td><?= htmlspecialchars($row['Duration']); ?></td>
+                    <td><?= htmlspecialchars($row['Status']); ?></td>
+                    <td><?= "R" . number_format($row['Cost'], 2); ?></td>
+                    <td><?= date("d M Y H:i", strtotime($row['CreatedAt'])); ?></td>
+                    <td>
+                        <?php
+                        $appointmentDate = date('Y-m-d', strtotime($row['Time']));
+                        $today = date('Y-m-d');
+                        // Only allow cancel if appointment is future-dated and not already cancelled
+                        if ($appointmentDate > $today && $row['Status'] !== 'Cancelled'): ?>
+                            <a href="cancel_appointment.php?AppointmentID=<?= $row['AppointmentID']; ?>" class="btn" 
+                               onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                               Cancel
+                            </a>
+                        <?php else: ?>
+                            <span style="color: gray;">Cannot cancel</span>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endwhile; ?>
         </table>

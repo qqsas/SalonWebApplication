@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php'; // Composer autoload for PHPMailer
 include 'db.php';
 
 if (!isset($_SESSION['UserID'])) {
@@ -44,7 +48,7 @@ $service = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 if (!$service) die("Service not found.");
 
-// Fetch barber info from Barber table
+// Fetch barber info
 $stmt = $conn->prepare("SELECT Name FROM Barber WHERE BarberID = ?");
 $stmt->bind_param("i", $BarberID);
 $stmt->execute();
@@ -83,8 +87,42 @@ $insertStmt->bind_param("iissssid", $UserID, $BarberID, $for_name, $for_age, $ty
 
 if ($insertStmt->execute()) {
     $appointment_id = $conn->insert_id;
-    // Optionally send email
-    // sendConfirmationEmail($userData['Email'], $for_name, $barberData['Name'], $type, $selected_time);
+
+    // --- Send confirmation email using PHPMailer ---
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.example.com';  // Replace with your SMTP server
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'your_email@example.com'; // Replace with your email
+        $mail->Password   = 'your_email_password';    // Replace with your email password
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        // Recipients
+        $mail->setFrom('your_email@example.com', 'Kumar Kailey Hair & Beauty');
+        $mail->addAddress($userData['Email'], $userData['Name']);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Appointment Confirmation';
+        $mail->Body    = "
+            <h2>Appointment Confirmed!</h2>
+            <p>Dear {$userData['Name']},</p>
+            <p>Your appointment has been successfully booked with <strong>{$barberData['Name']}</strong> for the service <strong>{$type}</strong>.</p>
+            <p><strong>Date & Time:</strong> " . date('F j, Y \a\t g:i A', strtotime($selected_time)) . "</p>
+            <p><strong>Duration:</strong> {$duration} minutes</p>
+            <p><strong>Cost:</strong> $" . number_format($cost, 2) . "</p>
+            <p>Thank you for choosing Kumar Kailey Hair & Beauty!</p>
+        ";
+        $mail->AltBody = "Appointment Confirmed! Your appointment with {$barberData['Name']} for {$type} is on " . date('F j, Y \a\t g:i A', strtotime($selected_time)) . ".";
+
+        $mail->send();
+        $email_sent = true;
+    } catch (Exception $e) {
+        $email_sent = false;
+    }
 
     include 'header.php';
     ?>
@@ -98,7 +136,13 @@ if ($insertStmt->execute()) {
             <p><strong>Duration:</strong> <?= $duration ?> minutes</p>
             <p><strong>Cost:</strong> $<?= number_format($cost, 2) ?></p>
         </div>
-        <p>A confirmation email has been sent to <?= htmlspecialchars($userData['Email']) ?></p>
+        <p>
+            <?php if ($email_sent): ?>
+                A confirmation email has been sent to <?= htmlspecialchars($userData['Email']) ?>.
+            <?php else: ?>
+                Appointment confirmed, but the confirmation email could not be sent.
+            <?php endif; ?>
+        </p>
         <div style="margin-top: 30px;">
             <a href="view_appointment.php" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
                 View My Appointments
@@ -110,6 +154,7 @@ if ($insertStmt->execute()) {
     </div>
     <?php
     include 'footer.php';
+
 } else {
     die("Error booking appointment: " . $conn->error);
 }

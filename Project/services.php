@@ -26,6 +26,7 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
     }
     .service-card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; }
     .service-buttons { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .controls { margin-bottom: 20px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
     </style>
 </head>
 <body>
@@ -33,12 +34,28 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
 <div class="services-container">
     <h1>Our Services</h1>
 
+    <!-- Search and Sort Controls -->
+    <div class="controls">
+        <input type="text" id="serviceSearch" placeholder="Search services...">
+        <select id="serviceSort">
+            <option value="name-asc">Name A → Z</option>
+            <option value="name-desc">Name Z → A</option>
+            <option value="price-asc">Price Low → High</option>
+            <option value="price-desc">Price High → Low</option>
+            <option value="time-asc">Duration Short → Long</option>
+            <option value="time-desc">Duration Long → Short</option>
+        </select>
+    </div>
+
     <?php if(empty($services)): ?>
         <p>No services available at the moment.</p>
     <?php else: ?>
-        <div class="services-grid">
+        <div class="services-grid" id="servicesGrid">
             <?php foreach($services as $service): ?>
-                <div class="service-card">
+                <div class="service-card" 
+                     data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
+                     data-price="<?= $service['Price'] ?>" 
+                     data-time="<?= $service['Time'] ?>">
                     <h2><?= htmlspecialchars($service['Name']) ?></h2>
                     <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
                     <p><strong>Price:</strong> R<?= number_format($service['Price'],2) ?></p>
@@ -46,7 +63,6 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
 
                     <div class="service-buttons">
                         <?php
-                        // Fetch barbers who can perform this service
                         $barberStmt = $conn->prepare("
                             SELECT b.BarberID, b.Name 
                             FROM Barber b
@@ -75,6 +91,56 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+// SEARCH AND SORT FUNCTIONALITY
+const searchInput = document.getElementById('serviceSearch');
+const sortSelect = document.getElementById('serviceSort');
+const servicesGrid = document.getElementById('servicesGrid');
+const serviceCards = Array.from(servicesGrid.children);
+
+// FILTER FUNCTION
+function filterServices() {
+    const searchTerm = searchInput.value.toLowerCase();
+    serviceCards.forEach(card => {
+        const name = card.dataset.name;
+        const description = card.querySelector('p').innerText.toLowerCase();
+        if(name.includes(searchTerm) || description.includes(searchTerm)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// SORT FUNCTION
+function sortServices() {
+    const sortValue = sortSelect.value;
+    let sortedCards = [...serviceCards];
+
+    sortedCards.sort((a,b) => {
+        switch(sortValue) {
+            case 'name-asc': return a.dataset.name.localeCompare(b.dataset.name);
+            case 'name-desc': return b.dataset.name.localeCompare(a.dataset.name);
+            case 'price-asc': return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+            case 'price-desc': return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+            case 'time-asc': return parseInt(a.dataset.time) - parseInt(b.dataset.time);
+            case 'time-desc': return parseInt(b.dataset.time) - parseInt(a.dataset.time);
+            default: return 0;
+        }
+    });
+
+    // Re-append sorted cards
+    sortedCards.forEach(card => servicesGrid.appendChild(card));
+}
+
+// EVENT LISTENERS
+searchInput.addEventListener('input', () => {
+    filterServices();
+    sortServices(); // keep sorted after filtering
+});
+sortSelect.addEventListener('change', sortServices);
+</script>
 
 </body>
 </html>
