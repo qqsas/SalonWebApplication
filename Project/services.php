@@ -4,10 +4,12 @@ include 'db.php';
 include 'header.php';
 
 // Fetch all services
-$serviceQuery = "SELECT ServicesID, Name, Description, Price, Time FROM Services ORDER BY Name ASC";
+$serviceQuery = "SELECT ServicesID, Name, Description, Price, Time 
+                 FROM Services 
+                 WHERE IsDeleted = 0 
+                 ORDER BY Name ASC";
 $serviceResult = $conn->query($serviceQuery);
 $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
-
 ?>
 
 <!DOCTYPE html>
@@ -46,16 +48,17 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
                         <?php
                         // Fetch barbers who can perform this service
                         $barberStmt = $conn->prepare("
-                            SELECT a.BarberID, a.Name 
-                            FROM Admin a
-                            JOIN BarberServices bs ON a.BarberID = bs.BarberID
-                            WHERE bs.ServicesID = ?
-                            ORDER BY a.Name ASC
+                            SELECT b.BarberID, b.Name 
+                            FROM Barber b
+                            JOIN BarberServices bs ON b.BarberID = bs.BarberID
+                            WHERE bs.ServicesID = ? AND bs.IsDeleted = 0
+                            ORDER BY b.Name ASC
                         ");
                         $barberStmt->bind_param("i", $service['ServicesID']);
                         $barberStmt->execute();
                         $barberResult = $barberStmt->get_result();
                         $barbers = $barberResult ? $barberResult->fetch_all(MYSQLI_ASSOC) : [];
+                        $barberStmt->close();
 
                         if(!empty($barbers)):
                             foreach($barbers as $barber): ?>

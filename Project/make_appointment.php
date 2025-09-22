@@ -43,7 +43,7 @@ if (!$service) {
 }
 
 // Fetch barber info
-$barberStmt = $conn->prepare("SELECT Name FROM Admin WHERE BarberID = ?");
+$barberStmt = $conn->prepare("SELECT Name FROM Barber WHERE BarberID = ?");
 $barberStmt->bind_param("i", $BarberID);
 $barberStmt->execute();
 $barberResult = $barberStmt->get_result();

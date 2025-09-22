@@ -64,6 +64,7 @@ if (isset($_SESSION['UserID'])) {
                             </a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="orders.php">Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="view_appointment.php">Appointments</a></li>
                     <?php endif; ?>
 		    <li class="nav-item"><a class="nav-link" href="view_profile.php">View Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="Logout.php">Logout</a></li>
