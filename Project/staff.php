@@ -5,7 +5,7 @@ include 'header.php';
 
 // Fetch all barbers
 $barberQuery = "SELECT a.BarberID, a.Name, a.Bio, u.Email, u.Number 
-                FROM Admin a
+                FROM Barber a
                 JOIN User u ON a.UserID = u.UserID
                 ORDER BY a.Name ASC";
 $barberResult = $conn->query($barberQuery);

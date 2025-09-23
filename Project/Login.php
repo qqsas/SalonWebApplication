@@ -5,6 +5,14 @@ include 'header.php';
 $message = '';
 $loginError = '';
 
+// If no redirect target is set yet, capture the referring page
+if (!isset($_SESSION['redirect_after_login']) && isset($_SERVER['HTTP_REFERER'])) {
+    // Avoid setting the login page itself as the redirect target
+    if (strpos($_SERVER['HTTP_REFERER'], 'login.php') === false) {
+        $_SESSION['redirect_after_login'] = $_SERVER['HTTP_REFERER'];
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $identifier = trim($_POST["identifier"]); // can be name, email, or number
     $password = $_POST["password"];
@@ -34,10 +42,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['Name']   = $row['Name'];
                     $_SESSION['Role']   = $row['Role'];
 
+                    // Determine where to redirect
+                    $redirect = $_SESSION['redirect_after_login'] ?? 'homepage.php';
+                    unset($_SESSION['redirect_after_login']); // clear after use
+
                     $stmt->close();
                     $conn->close();
 
-                    header("Location: homepage.php"); // redirect to home/dashboard
+                    header("Location: " . $redirect);
                     exit;
                 } else {
                     $loginError = "Invalid password.";
@@ -100,3 +112,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </body>
 </html>
+
