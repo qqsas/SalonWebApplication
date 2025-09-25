@@ -1,9 +1,10 @@
 Admin page, mustnt redirect after actions
 add service img admin dashboard
 add feature for lunch breaks
-add feature tab for admindashboard
-add barber dashboard
+add feature tab for admin dashboard
+fix errors and wron routing i barber dashboard
 deal with category sorts and searches
 admin dashboard select previous categroies
 change all "login.php" to "Login.php"
 add "payment gateway for demonstration"
+set up all messageing services for each action
