@@ -14,29 +14,6 @@ if (!$product_id) {
     exit();
 }
 
-// --- Handle form submission ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $price = floatval($_POST['price']);
-    $category = trim($_POST['category']);
-    $stock = intval($_POST['stock']);
-    $imgUrl = trim($_POST['imgUrl']);
-
-    if ($name && $price >= 0 && $stock >= 0 && $category) {
-        $stmt = $conn->prepare("UPDATE Products SET Name=?, Price=?, Category=?, Stock=?, ImgUrl=? WHERE ProductID=?");
-        $stmt->bind_param("sdsisi", $name, $price, $category, $stock, $imgUrl, $product_id);
-
-        if ($stmt->execute()) {
-            echo "<p style='color:green;'>Product updated successfully.</p>";
-        } else {
-            echo "<p style='color:red;'>Error updating product: " . $conn->error . "</p>";
-        }
-        $stmt->close();
-    } else {
-        echo "<p style='color:red;'>All fields except image are required.</p>";
-    }
-}
-
 // --- Fetch product details ---
 $stmt = $conn->prepare("SELECT * FROM Products WHERE ProductID=?");
 $stmt->bind_param("i", $product_id);
@@ -49,13 +26,90 @@ if (!$product) {
     echo "Product not found.";
     exit();
 }
+
+// --- Handle form submission ---
+$errors = [];
+$success = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name']);
+    $price = floatval($_POST['price']);
+    $category = trim($_POST['category']);
+    $stock = intval($_POST['stock']);
+    $imgUrl = $product['ImgUrl']; // default to existing image
+
+    // Validate fields
+    if (!$name) $errors[] = "Product name is required.";
+    if ($price < 0) $errors[] = "Price must be a non-negative number.";
+    if (!$category) $errors[] = "Category is required.";
+    if ($stock < 0) $errors[] = "Stock must be a non-negative number.";
+
+    // Handle image upload
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+        $fileTmp = $_FILES['product_image']['tmp_name'];
+        $fileType = mime_content_type($fileTmp);
+        $allowedTypes = ['image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif'];
+
+        if (!isset($allowedTypes[$fileType])) {
+            $errors[] = "Only JPG, PNG, or GIF images are allowed.";
+        } elseif ($_FILES['product_image']['size'] > 2 * 1024 * 1024) {
+            $errors[] = "Image must be less than 2MB.";
+        } else {
+            $targetDir = "Img/";
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+
+            // Generate a unique number filename
+            $ext = $allowedTypes[$fileType];
+            $newFileName = uniqid() . $ext; 
+            $targetFile = $targetDir . $newFileName;
+
+            if (move_uploaded_file($fileTmp, $targetFile)) {
+                $imgUrl = $targetFile; // update image path for DB
+            } else {
+                $errors[] = "Failed to move uploaded file.";
+            }
+        }
+    }
+
+    // Update database if no errors
+    if (empty($errors)) {
+        $stmt = $conn->prepare("UPDATE Products SET Name=?, Price=?, Category=?, Stock=?, ImgUrl=? WHERE ProductID=?");
+        $stmt->bind_param("sdsisi", $name, $price, $category, $stock, $imgUrl, $product_id);
+        if ($stmt->execute()) {
+            $success = "Product updated successfully.";
+            // Refresh product info
+            $product['Name'] = $name;
+            $product['Price'] = $price;
+            $product['Category'] = $category;
+            $product['Stock'] = $stock;
+            $product['ImgUrl'] = $imgUrl;
+        } else {
+            $errors[] = "Error updating product: " . $stmt->error;
+        }
+        $stmt->close();
+    }
+}
 ?>
 
 <?php include 'header.php'; ?>
 <div class="container">
     <h2>Edit Product</h2>
 
-    <form method="post">
+    <?php if ($errors): ?>
+        <div style="color:red;">
+            <ul>
+            <?php foreach ($errors as $e) echo "<li>".htmlspecialchars($e)."</li>"; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div style="color:green;"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
+
+    <form method="post" enctype="multipart/form-data">
         <div>
             <label for="name">Product Name:</label><br>
             <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($product['Name']); ?>" required>
@@ -77,8 +131,17 @@ if (!$product) {
         </div>
 
         <div>
-            <label for="imgUrl">Image URL (optional):</label><br>
-            <input type="text" name="imgUrl" id="imgUrl" value="<?php echo htmlspecialchars($product['ImgUrl']); ?>">
+            <label>Current Image:</label><br>
+            <?php if ($product['ImgUrl']): ?>
+                <img src="<?php echo htmlspecialchars($product['ImgUrl']); ?>" style="max-width:150px;"><br>
+            <?php else: ?>
+                <span>No image uploaded.</span><br>
+            <?php endif; ?>
+        </div>
+
+        <div>
+            <label for="product_image">Upload New Image (optional):</label><br>
+            <input type="file" name="product_image" id="product_image" accept="image/*">
         </div>
 
         <br>
@@ -86,4 +149,3 @@ if (!$product) {
     </form>
 </div>
 <?php include 'footer.php'; ?>
-

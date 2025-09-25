@@ -2,7 +2,7 @@
 session_start();
 include 'db.php';
 
-// --- Access Control: only admin or review owner ---
+// --- Access Control: only admin ---
 if (!isset($_SESSION['UserID'])) {
     header("Location: Login.php");
     exit();
@@ -26,50 +26,56 @@ if (!$review) {
     exit();
 }
 
-// Optional: Restrict editing to admin or the original user
-if ($_SESSION['Role'] !== 'admin' && $_SESSION['UserID'] != $review['UserID']) {
-    echo "You do not have permission to edit this review.";
+// Optional: Restrict editing to admin only
+if ($_SESSION['Role'] !== 'admin') {
+    echo "You do not have permission to change review status.";
     exit();
 }
 
 // --- Handle form submission ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $rating = intval($_POST['rating']);
-    $comment = trim($_POST['comment']);
+    $status = $_POST['status'] ?? 'pending';
 
-    if ($rating >= 1 && $rating <= 5) {
-        $stmt = $conn->prepare("UPDATE Reviews SET Rating=?, Comment=? WHERE ReviewID=?");
-        $stmt->bind_param("isi", $rating, $comment, $review_id);
+    // Validate status
+    $allowedStatuses = ['pending', 'cancelled', 'approved'];
+    if (!in_array($status, $allowedStatuses)) {
+        echo "<p style='color:red;'>Invalid status value.</p>";
+    } else {
+        $stmt = $conn->prepare("UPDATE Reviews SET Status=? WHERE ReviewID=?");
+        $stmt->bind_param("si", $status, $review_id);
 
         if ($stmt->execute()) {
-            echo "<p style='color:green;'>Review updated successfully.</p>";
+            echo "<p style='color:green;'>Review status updated successfully.</p>";
+            // Refresh the review data
+            $stmt->close();
+            $stmt = $conn->prepare("SELECT * FROM Reviews WHERE ReviewID=?");
+            $stmt->bind_param("i", $review_id);
+            $stmt->execute();
+            $review = $stmt->get_result()->fetch_assoc();
         } else {
-            echo "<p style='color:red;'>Error updating review: " . $conn->error . "</p>";
+            echo "<p style='color:red;'>Error updating status: " . $conn->error . "</p>";
         }
         $stmt->close();
-    } else {
-        echo "<p style='color:red;'>Rating must be between 1 and 5.</p>";
     }
 }
 ?>
 
 <?php include 'header.php'; ?>
 <div class="container">
-    <h2>Edit Review</h2>
+    <h2>Edit Review Status</h2>
 
     <form method="post">
         <div>
-            <label for="rating">Rating (1-5):</label><br>
-            <input type="number" name="rating" id="rating" min="1" max="5" value="<?php echo htmlspecialchars($review['Rating']); ?>" required>
-        </div>
-
-        <div>
-            <label for="comment">Comment:</label><br>
-            <textarea name="comment" id="comment"><?php echo htmlspecialchars($review['Comment']); ?></textarea>
+            <label for="status">Status:</label><br>
+            <select name="status" id="status" required>
+                <option value="pending" <?php if ($review['Status'] === 'pending') echo 'selected'; ?>>Pending</option>
+                <option value="approved" <?php if ($review['Status'] === 'approved') echo 'selected'; ?>>Approved</option>
+                <option value="cancelled" <?php if ($review['Status'] === 'cancelled') echo 'selected'; ?>>Cancelled</option>
+            </select>
         </div>
 
         <br>
-        <button type="submit">Update Review</button>
+        <button type="submit">Update Status</button>
     </form>
 </div>
 <?php include 'footer.php'; ?>
