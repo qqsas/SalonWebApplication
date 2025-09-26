@@ -1,5 +1,8 @@
 Admin page, mustnt redirect after actions
-fix errors and wron routing i barber dashboard
+    Orders delete doesnt work
+fix errors and wrong routing in barber dashboard
 add "payment gateway for demonstration"
 set up all messageing services for each action
+    Done with the vendor php plugin added to the project (needs to be online to test)
 add feature tab for admin dashboard (do at end as not all features are ready)
+    Turn payment gateway on and off
