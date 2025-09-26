@@ -4,7 +4,7 @@ include 'db.php';
 
 // --- Access Control: Only admin or logged-in user can edit ---
 if (!isset($_SESSION['UserID'])) {
-    header("Location: login.php");
+    header("Location: Login.php");
     exit();
 }
 

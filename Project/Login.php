@@ -8,7 +8,7 @@ $loginError = '';
 // If no redirect target is set yet, capture the referring page
 if (!isset($_SESSION['redirect_after_login']) && isset($_SERVER['HTTP_REFERER'])) {
     // Avoid setting the login page itself as the redirect target
-    if (strpos($_SERVER['HTTP_REFERER'], 'login.php') === false) {
+    if (strpos($_SERVER['HTTP_REFERER'], 'Login.php') === false) {
         $_SESSION['redirect_after_login'] = $_SERVER['HTTP_REFERER'];
     }
 }

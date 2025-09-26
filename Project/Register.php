@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($insert_stmt->execute()) {
                 $insert_stmt->close();
                 $conn->close();
-                header("Location: login.php");
+                header("Location: Login.php");
                 exit;
             } else {
                 $message = "Insert error: " . $insert_stmt->error;

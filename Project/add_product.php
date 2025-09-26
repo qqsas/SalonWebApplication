@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
-    header("Location: login.php");
+    header("Location: Login.php");
     exit();
 }
 
@@ -11,14 +11,30 @@ include 'header.php';
 $errors = [];
 $success = '';
 $name = $price = $category = $stock = "";
+$newCategory = "";
+
+// Fetch distinct existing categories
+$categories = [];
+$catResult = $conn->query("SELECT DISTINCT Category FROM Products ORDER BY Category ASC");
+if ($catResult && $catResult->num_rows > 0) {
+    while ($row = $catResult->fetch_assoc()) {
+        $categories[] = $row['Category'];
+    }
+}
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['Name']);
     $price = trim($_POST['Price']);
     $category = trim($_POST['Category']);
+    $newCategory = trim($_POST['NewCategory']);
     $stock = trim($_POST['Stock']);
     $imgUrl = null;
+
+    // If new category is provided, use it instead
+    if (!empty($newCategory)) {
+        $category = $newCategory;
+    }
 
     if (empty($name)) $errors[] = "Product name is required.";
     if (!is_numeric($price) || $price < 0) $errors[] = "Price must be a positive number.";
@@ -64,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sdiss", $name, $price, $category, $stock, $imgUrl);
         if ($stmt->execute()) {
             $success = "Product added successfully!";
-            $name = $price = $category = $stock = '';
+            $name = $price = $category = $stock = $newCategory = '';
         } else {
             $errors[] = "Database error: " . $stmt->error;
         }
@@ -96,8 +112,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <label>Price:</label><br>
     <input type="number" step="0.01" name="Price" value="<?= htmlspecialchars($price) ?>" required><br><br>
 
-    <label>Category:</label><br>
-    <input type="text" name="Category" value="<?= htmlspecialchars($category) ?>" required><br><br>
+    <label>Category (choose existing):</label><br>
+    <select name="Category">
+        <option value="">-- Select a category --</option>
+        <?php foreach ($categories as $cat): ?>
+            <option value="<?= htmlspecialchars($cat) ?>" <?= ($category === $cat) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($cat) ?>
+            </option>
+        <?php endforeach; ?>
+    </select><br><br>
+
+    <label>Or Add New Category:</label><br>
+    <input type="text" name="NewCategory" value="<?= htmlspecialchars($newCategory) ?>"><br><br>
 
     <label>Stock:</label><br>
     <input type="number" name="Stock" value="<?= htmlspecialchars($stock) ?>" required><br><br>
