@@ -1,3 +1,4 @@
-set up all messageing services for each action
-    Done with the vendor php plugin added to the project (needs to be online to test)
 Test and improve user-friendliness
+Ensure every word displayed is proffesional and every email sent is proffesional
+Do the CSS for every page
+Test Email Services when deployed
