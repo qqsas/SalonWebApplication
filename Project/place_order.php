@@ -9,11 +9,6 @@ if (!isset($_SESSION['UserID'])) {
 
 $userID = $_SESSION['UserID'];
 
-// Ensure user clicked "Confirm Reservation"
-if (!isset($_POST['confirm']) || $_POST['confirm'] != 1) {
-    header("Location: cart.php");
-    exit;
-}
 
 // Fetch user's cart
 $stmt = $conn->prepare("SELECT CartID FROM Cart WHERE UserID = ?");
@@ -74,4 +69,5 @@ $stmt->close();
 // Redirect to orders page with success message
 header("Location: orders.php?msg=OrderPlaced");
 exit;
+
 

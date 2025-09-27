@@ -1,5 +1,8 @@
 <?php
 session_start();
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 if (!isset($_SESSION['UserID'])) {
     header("Location: Login.php");
     exit();
@@ -9,6 +12,8 @@ include 'db.php';
 include 'header.php';
 
 $user_id = $_SESSION['UserID'];
+$cart_items = [];
+$grand_total = 0;
 
 // Get user's cart
 $cart_stmt = $conn->prepare("SELECT CartID FROM Cart WHERE UserID = ?");
@@ -16,18 +21,16 @@ $cart_stmt->bind_param("i", $user_id);
 $cart_stmt->execute();
 $cart_result = $cart_stmt->get_result();
 
-$grand_total = 0;
-$cart_items = [];
-
-if ($cart_result->num_rows > 0) {
+if ($cart_result && $cart_result->num_rows > 0) {
     $cart = $cart_result->fetch_assoc();
     $cart_id = $cart['CartID'];
 
-    // Get cart items and product details
-    $items_stmt = $conn->prepare("SELECT ci.CartItemID, ci.Quantity, p.ProductID, p.Name, p.Price, p.ImgUrl, p.Stock, (ci.Quantity * p.Price) AS Total
-                                  FROM CartItems ci
-                                  JOIN Products p ON ci.ProductID = p.ProductID
-                                  WHERE ci.CartID = ?");
+    $items_stmt = $conn->prepare("
+        SELECT ci.CartItemID, ci.Quantity, p.ProductID, p.Name, p.Price, p.ImgUrl, p.Stock, (ci.Quantity * p.Price) AS Total
+        FROM CartItems ci
+        JOIN Products p ON ci.ProductID = p.ProductID
+        WHERE ci.CartID = ?
+    ");
     $items_stmt->bind_param("i", $cart_id);
     $items_stmt->execute();
     $items_result = $items_stmt->get_result();
@@ -37,6 +40,16 @@ if ($cart_result->num_rows > 0) {
         $grand_total += $item['Total'];
     }
 }
+
+// --- Check if Payment Gateway feature is enabled ---
+$payment_gateway_enabled = false;
+$feat_stmt = $conn->prepare("SELECT IsEnabled FROM Features WHERE FeatureName = 'Payment Gateway' LIMIT 1");
+$feat_stmt->execute();
+$feat_result = $feat_stmt->get_result();
+if ($feat_row = $feat_result->fetch_assoc()) {
+    $payment_gateway_enabled = (bool)$feat_row['IsEnabled'];
+}
+$feat_stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +105,11 @@ if ($cart_result->num_rows > 0) {
         </table>
         <div class="total-container">
             <h4>Total: R<?php echo number_format($grand_total, 2); ?></h4>
-            <a href="payment.php?total=<?php echo number_format($grand_total, 2, '.', ''); ?>" class="button primary">Proceed to Payment</a>
+ <a href="<?php 
+    echo $payment_gateway_enabled 
+        ? 'payment_gateway.php?total='.number_format($grand_total, 2, '.', '') 
+        : 'payment.php?total='.number_format($grand_total, 2, '.', ''); 
+?>" class="button primary">Proceed to Payment</a>
         </div>
     <?php else: ?>
         <div class="alert">Your cart is empty.</div>
