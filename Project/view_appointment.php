@@ -23,6 +23,7 @@ $sql = "
         a.Status,
         a.Cost,
         a.CreatedAt,
+        a.ReviewID,
         b.Name AS BarberName,
         s.Name AS ServiceName
     FROM Appointment a
@@ -56,6 +57,7 @@ $result = $stmt->get_result();
                 <th>Cost</th>
                 <th>Created At</th>
                 <th>Actions</th>
+                <th>Review</th>
             </tr>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
@@ -73,8 +75,7 @@ $result = $stmt->get_result();
                         <?php
                         $appointmentDate = date('Y-m-d', strtotime($row['Time']));
                         $today = date('Y-m-d');
-                        // Only allow cancel if appointment is future-dated and not already cancelled
-                        if ($appointmentDate > $today && $row['Status'] !== 'Cancelled'): ?>
+                        if ($appointmentDate > $today && strtolower($row['Status']) !== 'cancelled'): ?>
                             <a href="cancel_appointment.php?AppointmentID=<?= $row['AppointmentID']; ?>" class="btn" 
                                onclick="return confirm('Are you sure you want to cancel this appointment?');">
                                Cancel
@@ -82,6 +83,30 @@ $result = $stmt->get_result();
                         <?php else: ?>
                             <span style="color: gray;">Cannot cancel</span>
                         <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php
+                        if (strtolower($row['Status']) === 'completed') {
+                            if (!empty($row['ReviewID'])) {
+                                $reviewCheck = $conn->prepare("SELECT Rating, Comment, CreatedAt, Status FROM Reviews WHERE ReviewID = ?");
+                                $reviewCheck->bind_param("i", $row['ReviewID']);
+                                $reviewCheck->execute();
+                                $reviewRes = $reviewCheck->get_result();
+
+                                if ($reviewRes->num_rows > 0) {
+                                    $rev = $reviewRes->fetch_assoc();
+                                    echo "<strong>Rated:</strong> " . htmlspecialchars($rev['Rating']) . "/5<br>";
+                                    echo "<em>" . nl2br(htmlspecialchars($rev['Comment'])) . "</em><br>";
+                                    echo "<small>" . date("d M Y H:i", strtotime($rev['CreatedAt'])) . "</small><br>";
+                                    echo "<span>Status: " . htmlspecialchars($rev['Status']) . "</span>";
+                                }
+                            } else {
+                                echo '<a href="make_review.php?AppointmentID=' . $row['AppointmentID'] . '" class="btn">Add Review</a>';
+                            }
+                        } else {
+                            echo "<span style='color: gray;'>Available after completion</span>";
+                        }
+                        ?>
                     </td>
                 </tr>
             <?php endwhile; ?>
