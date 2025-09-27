@@ -1,4 +1,3 @@
-fix errors and wrong routing in barber dashboard
 add "payment gateway for demonstration"
 set up all messageing services for each action
     Done with the vendor php plugin added to the project (needs to be online to test)
@@ -7,3 +6,4 @@ add feature tab for admin dashboard (do at end as not all features are ready)
     Allow barbers to edit/add new services/products
 Remove name from barber sql or automate the link between user name and barber name
 Edit review sql so they can make a review for product or for appointment
+Add display/sort options for view_appointment.php

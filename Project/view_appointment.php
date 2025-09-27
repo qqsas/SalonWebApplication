@@ -28,8 +28,7 @@ $sql = "
         s.Name AS ServiceName
     FROM Appointment a
     JOIN Barber b ON a.BarberID = b.BarberID
-    LEFT JOIN BarberServices bs ON b.BarberID = bs.BarberID
-    LEFT JOIN Services s ON bs.ServicesID = s.ServicesID
+    LEFT JOIN Services s ON a.Type = s.Name
     WHERE a.UserID = ? AND (a.IsDeleted IS NULL OR a.IsDeleted = 0)
     ORDER BY a.Time DESC
 ";
