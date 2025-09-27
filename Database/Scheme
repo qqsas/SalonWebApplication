@@ -1,6 +1,7 @@
-CREATE DATABASE IF NOT EXISTS SalonDB;
-USE SalonDB;
+CREATE DATABASE IF NOT EXISTS BarberShopDB;
+USE BarberShopDB;
 
+-- ====== User Table ======
 CREATE TABLE User (
     UserID INT(11) NOT NULL AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE User (
     PRIMARY KEY (UserID)
 );
 
+-- ====== Admin Table ======
 CREATE TABLE Admin (
     BarberID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -20,10 +22,11 @@ CREATE TABLE Admin (
     Bio TEXT DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (BarberID),
-    INDEX idx_userid (UserID),
+    KEY UserID (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
+-- ====== Barber Table ======
 CREATE TABLE Barber (
     BarberID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -32,21 +35,24 @@ CREATE TABLE Barber (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberID),
-    UNIQUE KEY uniq_userid (UserID),
+    UNIQUE KEY UserID (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
+-- ====== Services Table ======
 CREATE TABLE Services (
     ServicesID INT(11) NOT NULL AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
     Description TEXT DEFAULT NULL,
     Price DECIMAL(10,2) NOT NULL,
     Time INT(11) NOT NULL,
+    ImgUrl VARCHAR(255) DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (ServicesID)
 );
 
+-- ====== BarberServices Table ======
 CREATE TABLE BarberServices (
     BarberServiceID INT(11) NOT NULL AUTO_INCREMENT,
     BarberID INT(11) NOT NULL,
@@ -54,11 +60,12 @@ CREATE TABLE BarberServices (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberServiceID),
-    UNIQUE KEY uniq_barber_service (BarberID, ServicesID),
+    UNIQUE KEY Barber_Service (BarberID, ServicesID),
     FOREIGN KEY (BarberID) REFERENCES Admin(BarberID),
     FOREIGN KEY (ServicesID) REFERENCES Services(ServicesID)
 );
 
+-- ====== BarberWorkingHours Table ======
 CREATE TABLE BarberWorkingHours (
     BarberID INT(11) NOT NULL,
     DayOfWeek INT(11) NOT NULL,
@@ -68,6 +75,7 @@ CREATE TABLE BarberWorkingHours (
     FOREIGN KEY (BarberID) REFERENCES Admin(BarberID)
 );
 
+-- ====== Products Table ======
 CREATE TABLE Products (
     ProductID INT(11) NOT NULL AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -80,15 +88,18 @@ CREATE TABLE Products (
     PRIMARY KEY (ProductID)
 );
 
+-- ====== Cart Table ======
 CREATE TABLE Cart (
     CartID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (CartID),
+    KEY UserID (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
+-- ====== CartItems Table ======
 CREATE TABLE CartItems (
     CartItemID INT(11) NOT NULL AUTO_INCREMENT,
     CartID INT(11) NOT NULL,
@@ -97,10 +108,13 @@ CREATE TABLE CartItems (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (CartItemID),
+    KEY CartID (CartID),
+    KEY ProductID (ProductID),
     FOREIGN KEY (CartID) REFERENCES Cart(CartID),
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
 );
 
+-- ====== Orders Table ======
 CREATE TABLE Orders (
     OrderID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -109,9 +123,11 @@ CREATE TABLE Orders (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (OrderID),
+    KEY UserID (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
+-- ====== OrderItems Table ======
 CREATE TABLE OrderItems (
     OrderItemID INT(11) NOT NULL AUTO_INCREMENT,
     OrderID INT(11) NOT NULL,
@@ -120,23 +136,13 @@ CREATE TABLE OrderItems (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (OrderItemID),
+    KEY OrderID (OrderID),
+    KEY ProductID (ProductID),
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
 );
 
-CREATE TABLE Reviews (
-    ReviewID INT(11) NOT NULL AUTO_INCREMENT,
-    UserID INT(11) NOT NULL,
-    ProductID INT(11) NOT NULL,
-    Rating INT(11) NOT NULL,
-    Comment TEXT DEFAULT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (ReviewID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-);
-
+-- ====== Appointment Table ======
 CREATE TABLE Appointment (
     AppointmentID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -152,11 +158,32 @@ CREATE TABLE Appointment (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (AppointmentID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID),
-    FOREIGN KEY (ReviewID) REFERENCES Reviews(ReviewID)
+    KEY UserID (UserID),
+    KEY ReviewID (ReviewID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
+-- ====== Reviews Table ======
+CREATE TABLE Reviews (
+    ReviewID INT(11) NOT NULL AUTO_INCREMENT,
+    UserID INT(11) NOT NULL,
+    ProductID INT(11) NOT NULL,
+    AppointmentID INT(11) DEFAULT NULL,
+    Rating INT(11) NOT NULL,
+    Comment TEXT DEFAULT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    Status ENUM('pending', 'cancelled', 'approved') NOT NULL DEFAULT 'pending',
+    PRIMARY KEY (ReviewID),
+    KEY UserID (UserID),
+    KEY ProductID (ProductID),
+    KEY fk_reviews_appointment (AppointmentID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
+    FOREIGN KEY (AppointmentID) REFERENCES Appointment(AppointmentID)
+);
+
+-- ====== Contact Table ======
 CREATE TABLE Contact (
     ContactID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) DEFAULT NULL,
@@ -165,5 +192,15 @@ CREATE TABLE Contact (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (ContactID),
+    KEY UserID (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+-- ====== Features Table ======
+CREATE TABLE Features (
+    FeatureID INT(11) NOT NULL AUTO_INCREMENT,
+    FeatureName VARCHAR(100) NOT NULL,
+    IsEnabled TINYINT(1) NOT NULL DEFAULT 0,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (FeatureID)
 );
