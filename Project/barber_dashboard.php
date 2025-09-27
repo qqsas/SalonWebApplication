@@ -70,6 +70,13 @@ function displayPagination($totalPages, $page, $view, $searchParam) {
     }
     echo "</div>";
 }
+$features = [];
+$stmt = $conn->prepare("SELECT FeatureName, IsEnabled FROM Features WHERE FeatureName IN ('allow services','allow products')");
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $features[$row['FeatureName']] = (bool)$row['IsEnabled'];
+}
 ?>
 
 <h1>Barber Dashboard</h1>
@@ -81,6 +88,9 @@ function displayPagination($totalPages, $page, $view, $searchParam) {
     <a href="?view=workinghours">Working Hours</a> |
     <a href="?view=profile">My Profile</a> |
     <a href="?view=reviews">My Reviews</a>
+    <?php if ($features['allow products'] ?? false): ?>
+        | <a href="?view=products">My Products</a>
+    <?php endif; ?>
 </nav>
 
 <form method="GET">
@@ -169,55 +179,71 @@ switch($view) {
         break;
 
     case 'services':
-        $where = "bs.BarberID = ? AND (LOWER(s.Name) LIKE ? OR LOWER(s.Description) LIKE ?) AND bs.IsDeleted = 0";
-        $params = [$barberID, $searchLike, $searchLike];
-        $types = "iss";
-        $totalRecords = getRecordCount($conn, 'BarberServices bs 
-                                LEFT JOIN Services s ON bs.ServicesID = s.ServicesID', 
-                                $where, $params, $types);
-        $totalPages = ceil($totalRecords / $limit);
-        
+    $where = "bs.BarberID = ? AND (LOWER(s.Name) LIKE ? OR LOWER(s.Description) LIKE ?) AND bs.IsDeleted = 0";
+    $params = [$barberID, $searchLike, $searchLike];
+    $types = "iss";
+    $totalRecords = getRecordCount($conn, 'BarberServices bs 
+                            LEFT JOIN Services s ON bs.ServicesID = s.ServicesID', 
+                            $where, $params, $types);
+    $totalPages = ceil($totalRecords / $limit);
+    
+    // Only show "Add Service" if allowed
+    if (!empty($features['allow services'])) {
         echo '<a href="add_barber_service.php?barberID='.$barberID.'&view=services&search='.$searchParam.'">+ Add Service</a><br><br>';
-        echo "<h2>My Services (Total: $totalRecords)</h2>";
-        
-        $stmt = $conn->prepare("SELECT bs.*, s.Name, s.Description, s.Price, s.Time 
-                                FROM BarberServices bs 
-                                LEFT JOIN Services s ON bs.ServicesID = s.ServicesID 
-                                WHERE $where ORDER BY s.Name LIMIT ? OFFSET ?");
-        $params[] = $limit;
-        $params[] = $offset;
-        $types .= "ii";
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows === 0) {
-            echo "<p>No services found. <a href='add_barber_service.php?barberID=$barberID'>Add your first service</a></p>";
-            break;
-        }
-        
-        echo "<table border='1'>
-                <tr>
-                    <th>Service</th><th>Description</th><th>Price</th><th>Duration</th><th>Actions</th>
-                </tr>";
-        while ($row = $result->fetch_assoc()) {
-            $descPreview = strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description'];
-            echo "<tr>
-                    <td>".escape($row['Name'])."</td>
-                    <td title='".escape($row['Description'])."'>".escape($descPreview)."</td>
-                    <td>$".escape($row['Price'])."</td>
-                    <td>".escape($row['Time'])." minutes</td>
-                    <td>
-                        <a href='edit_barber_service.php?id=".escape($row['BarberServiceID'])."&view=services&search=$searchParam&page=$page'>Edit</a> | 
-                        <a href='remove_barber_service.php?id=".escape($row['BarberServiceID'])."&view=services&search=$searchParam&page=$page' onclick='return confirm(\"Remove this service from your offerings?\")'>Remove</a>
-                    </td>
-                  </tr>";
-        }
-        echo "</table>";
-        displayPagination($totalPages, $page, 'services', $searchParam);
-        break;
+    }
 
-    case 'workinghours':
+    echo "<h2>My Services (Total: $totalRecords)</h2>";
+    
+    $stmt = $conn->prepare("SELECT bs.*, s.Name, s.Description, s.Price, s.Time 
+                            FROM BarberServices bs 
+                            LEFT JOIN Services s ON bs.ServicesID = s.ServicesID 
+                            WHERE $where ORDER BY s.Name LIMIT ? OFFSET ?");
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        echo "<p>No services found.";
+        if (!empty($features['allow services'])) {
+            echo " <a href='add_barber_service.php?barberID=$barberID'>Add your first service</a>";
+        }
+        echo "</p>";
+        break;
+    }
+    
+    echo "<table border='1'>
+            <tr>
+                <th>Service</th><th>Description</th><th>Price</th><th>Duration</th><th>Actions</th>
+            </tr>";
+    while ($row = $result->fetch_assoc()) {
+        $descPreview = strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description'];
+
+        echo "<tr>
+                <td>".escape($row['Name'])."</td>
+                <td title='".escape($row['Description'])."'>".escape($descPreview)."</td>
+                <td>$".escape($row['Price'])."</td>
+                <td>".escape($row['Time'])." minutes</td>
+                <td>";
+        
+        // Show buttons only if allow services is true
+        if (!empty($features['allow services'])) {
+            echo "<a href='edit_barber_service.php?id=".escape($row['BarberServiceID'])."&view=services&search=$searchParam&page=$page'>Edit</a> | 
+                  <a href='remove_barber_service.php?id=".escape($row['BarberServiceID'])."&view=services&search=$searchParam&page=$page' onclick='return confirm(\"Remove this service from your offerings?\")'>Remove</a>";
+        } else {
+            echo "-";
+        }
+
+        echo "</td>
+              </tr>";
+    }
+    echo "</table>";
+    displayPagination($totalPages, $page, 'services', $searchParam);
+    break;
+
+case 'workinghours':
         echo "<h2>My Working Hours</h2>";
         
         // Get current working hours
@@ -349,6 +375,63 @@ switch($view) {
         echo "</table>";
         displayPagination($totalPages, $page, 'reviews', $searchParam);
         break;
+
+
+
+
+case 'products':
+    if (!($features['allow products'] ?? false)) {
+        echo "<p>You are not allowed to manage products.</p>";
+        break;
+    }
+
+    $where = "(LOWER(p.Name) LIKE ? OR LOWER(p.Category) LIKE ?)";
+    $params = [$searchLike, $searchLike];
+    $types = "ss";
+
+    // Count total products for pagination
+    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM Products p WHERE $where AND p.IsDeleted = 0");
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $totalRecords = $stmt->get_result()->fetch_assoc()['total'];
+    $totalPages = ceil($totalRecords / $limit);
+
+    echo '<a href="add_product.php?view=products&search='.$searchParam.'">+ Add Product</a><br><br>';
+    echo "<h2>All Products (Total: $totalRecords)</h2>";
+
+    // Fetch products
+    $stmt = $conn->prepare("SELECT * FROM Products p WHERE $where AND p.IsDeleted = 0 ORDER BY p.Name LIMIT ? OFFSET ?");
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        echo "<p>No products found.</p>";
+        break;
+    }
+
+    echo "<table border='1'>
+            <tr>
+                <th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th>
+            </tr>";
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr>
+                <td>".escape($row['Name'])."</td>
+                <td>".escape($row['Category'])."</td>
+                <td>$".escape($row['Price'])."</td>
+                <td>".escape($row['Stock'])."</td>
+                <td>
+                    <a href='edit_product.php?id=".escape($row['ProductID'])."&view=products&search=$searchParam&page=$page'>Edit</a>
+                </td>
+              </tr>";
+    }
+    echo "</table>";
+
+    displayPagination($totalPages, $page, 'products', $searchParam);
+    break;
 
     default:
         // Overview - Show statistics for the barber

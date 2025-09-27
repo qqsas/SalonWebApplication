@@ -67,6 +67,7 @@ function displayPagination($totalPages, $page, $view, $searchParam) {
     <a href="?view=services">Services</a> |
     <a href="?view=reviews">Reviews</a> |
     <a href="?view=contacts">Contacts</a>
+    <a href="?view=features">Features</a>
 </nav>
 
 <form method="GET">
@@ -537,6 +538,30 @@ switch($view) {
         echo "</table>";
         displayPagination($totalPages, $page, 'contacts', $searchParam);
         break;
+
+
+case 'features':
+    $result = $conn->query("SELECT * FROM Features ORDER BY FeatureName");
+    echo "<h2>Manage Features</h2>";
+    if ($result->num_rows === 0) {
+        echo "<p>No features found.</p>";
+        break;
+    }
+    echo "<form method='POST' action='update_features.php'>";
+    echo "<table border='1'>
+            <tr><th>Feature</th><th>Enabled</th></tr>";
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr>
+                <td>".escape($row['FeatureName'])."</td>
+                <td>
+                    <input type='checkbox' name='features[]' value='".escape($row['FeatureID'])."' ".($row['IsEnabled'] ? 'checked' : '').">
+                </td>
+              </tr>";
+    }
+    echo "</table><br>
+          <button type='submit'>Save Changes</button>
+          </form>";
+    break;
 
     default:
         include 'admin_overview_graphs.php';

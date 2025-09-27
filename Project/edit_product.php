@@ -2,8 +2,16 @@
 session_start();
 include 'db.php';
 
-// --- Only allow admin access ---
-if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
+$features = $_SESSION['Features'] ?? [];
+
+// Only allow admin or barber with allowed products
+if (!isset($_SESSION['UserID']) || 
+    !(
+        $_SESSION['Role'] === 'admin' || 
+        ($_SESSION['Role'] === 'barber' && empty($features['allow products']))
+    )
+) {
+    echo "Redirecting to login.php"; // for debug
     header("Location: Login.php");
     exit();
 }
@@ -56,17 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Image must be less than 2MB.";
         } else {
             $targetDir = "Img/";
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0777, true);
-            }
+            if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
 
-            // Generate a unique number filename
             $ext = $allowedTypes[$fileType];
             $newFileName = uniqid() . $ext; 
             $targetFile = $targetDir . $newFileName;
 
             if (move_uploaded_file($fileTmp, $targetFile)) {
-                $imgUrl = $targetFile; // update image path for DB
+                $imgUrl = $targetFile;
             } else {
                 $errors[] = "Failed to move uploaded file.";
             }
@@ -79,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sdsisi", $name, $price, $category, $stock, $imgUrl, $product_id);
         if ($stmt->execute()) {
             $success = "Product updated successfully.";
-            // Refresh product info
             $product['Name'] = $name;
             $product['Price'] = $price;
             $product['Category'] = $category;
@@ -149,3 +153,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 </div>
 <?php include 'footer.php'; ?>
+

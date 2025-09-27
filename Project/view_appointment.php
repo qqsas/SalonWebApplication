@@ -43,21 +43,39 @@ $result = $stmt->get_result();
     <h1>My Appointments</h1>
 
     <?php if ($result->num_rows > 0): ?>
-        <table border="1" cellpadding="10" cellspacing="0">
+        <!-- Sort Dropdown -->
+        <label for="sortColumn">Sort by:</label>
+        <select id="sortColumn">
+            <option value="0">Appointment ID</option>
+            <option value="1">Booked For</option>
+            <option value="2">Barber</option>
+            <option value="3">Service</option>
+            <option value="4">Type</option>
+            <option value="5">Time</option>
+            <option value="6">Duration</option>
+            <option value="7">Status</option>
+            <option value="8">Cost</option>
+            <option value="9">Created At</option>
+        </select>
+
+        <table id="appointmentsTable" border="1" cellpadding="10" cellspacing="0">
+            <thead>
             <tr>
-                <th>Appointment ID</th>
-                <th>Booked For</th>
-                <th>Barber</th>
-                <th>Service</th>
-                <th>Type</th>
-                <th>Time</th>
-                <th>Duration (mins)</th>
-                <th>Status</th>
-                <th>Cost</th>
-                <th>Created At</th>
+                <th data-type="number">Appointment ID</th>
+                <th data-type="string">Booked For</th>
+                <th data-type="string">Barber</th>
+                <th data-type="string">Service</th>
+                <th data-type="string">Type</th>
+                <th data-type="date">Time</th>
+                <th data-type="number">Duration (mins)</th>
+                <th data-type="string">Status</th>
+                <th data-type="number">Cost</th>
+                <th data-type="date">Created At</th>
                 <th>Actions</th>
                 <th>Review</th>
             </tr>
+            </thead>
+            <tbody>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><?= htmlspecialchars($row['AppointmentID']); ?></td>
@@ -109,7 +127,40 @@ $result = $stmt->get_result();
                     </td>
                 </tr>
             <?php endwhile; ?>
+            </tbody>
         </table>
+
+        <!-- JS Sorting -->
+        <script>
+            const table = document.getElementById('appointmentsTable');
+            const select = document.getElementById('sortColumn');
+            let asc = true; // ascending order toggle
+
+            select.addEventListener('change', function() {
+                const tbody = table.tBodies[0];
+                const rows = Array.from(tbody.rows);
+                const colIndex = parseInt(this.value);
+                const type = table.tHead.rows[0].cells[colIndex].dataset.type;
+
+                rows.sort((a, b) => {
+                    let valA = a.cells[colIndex].innerText.trim();
+                    let valB = b.cells[colIndex].innerText.trim();
+
+                    if (type === 'number') {
+                        valA = parseFloat(valA.replace(/[^\d.-]/g,''));
+                        valB = parseFloat(valB.replace(/[^\d.-]/g,''));
+                        return asc ? valA - valB : valB - valA;
+                    } else if (type === 'date') {
+                        return asc ? new Date(valA) - new Date(valB) : new Date(valB) - new Date(valA);
+                    } else {
+                        return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    }
+                });
+
+                rows.forEach(row => tbody.appendChild(row));
+                asc = !asc; // toggle order for next sort
+            });
+        </script>
     <?php else: ?>
         <p>You have no appointments booked yet.</p>
     <?php endif; ?>

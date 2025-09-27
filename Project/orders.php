@@ -16,30 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['Ord
     $orderID = (int)$_POST['OrderID'];
     $action = $_POST['action'];
 
-    // Fetch order date and user
     $stmt = $conn->prepare("SELECT UserID, Status, CreatedAt FROM Orders WHERE OrderID = ?");
     $stmt->bind_param("i", $orderID);
     $stmt->execute();
     $orderData = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    if (!$orderData) {
-        die("Order not found.");
-    }
+    if (!$orderData) die("Order not found.");
+    if ($orderData['UserID'] != $userID) die("Unauthorized action.");
 
-    // Check ownership for non-admin users
-    if ( $orderData['UserID'] != $userID) {
-        die("Unauthorized action.");
-    }
-
-    // Check 2-day restriction
     $createdTime = strtotime($orderData['CreatedAt']);
-    $now = time();
-    if (($now - $createdTime) > 2 * 24 * 60 * 60) {
-        die("You cannot modify orders older than 2 days.");
-    }
+    if (($action !== 'edit') && ((time() - $createdTime) > 2 * 24 * 60 * 60)) die("Cannot modify orders older than 2 days.");
 
-    // Perform action
     if ($action === 'cancel' && $orderData['Status'] !== 'Cancelled') {
         $stmt = $conn->prepare("UPDATE Orders SET Status='Cancelled' WHERE OrderID=?");
         $stmt->bind_param("i", $orderID);
@@ -51,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['Ord
         $stmt->execute();
         $stmt->close();
     } elseif ($action === 'edit') {
-        // Redirect to edit page
         header("Location: edit_orderC.php?OrderID=" . $orderID);
         exit;
     }
@@ -59,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['Ord
 
 // Fetch orders
 if ($isAdmin) {
-    // Admin sees all orders
     $stmt = $conn->prepare("
         SELECT o.OrderID, o.UserID, o.TotalPrice, o.Status, o.CreatedAt, u.Name AS UserName
         FROM Orders o
@@ -67,7 +53,6 @@ if ($isAdmin) {
         ORDER BY o.CreatedAt DESC
     ");
 } else {
-    // Regular user sees only their orders
     $stmt = $conn->prepare("
         SELECT o.OrderID, o.TotalPrice, o.Status, o.CreatedAt
         FROM Orders o
@@ -76,32 +61,12 @@ if ($isAdmin) {
     ");
     $stmt->bind_param("i", $userID);
 }
-
 $stmt->execute();
 $result = $stmt->get_result();
 $orders = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Your Orders</title>
-<link rel="stylesheet" href="styles.css">
-<style>
-    table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
-    th, td { padding: 10px; border: 1px solid #ddd; }
-    th { background: #f4f4f4; }
-    .btn { padding: 5px 10px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px; display:inline-block; }
-    .btn:hover { background: #0056b3; }
-    .btn-cancel { background: #dc3545; }
-    .btn-cancel:hover { background: #b02a37; }
-    .btn-restore { background: #28a745; }
-    .btn-restore:hover { background: #1e7e34; }
-</style>
-</head>
-<body>
 <div class="container">
     <h2>Your Orders</h2>
 
@@ -113,18 +78,18 @@ $stmt->close();
             $canModify = (time() - strtotime($order['CreatedAt'])) <= 2 * 24 * 60 * 60;
         ?>
             <div class="order-card">
-                <h3>Order #<?php echo $order['OrderID']; ?></h3>
+                <h3>Order #<?= $order['OrderID']; ?></h3>
                 <?php if ($isAdmin): ?>
-                    <p>Customer: <?php echo htmlspecialchars($order['UserName']); ?></p>
+                    <p>Customer: <?= htmlspecialchars($order['UserName']); ?></p>
                 <?php endif; ?>
-                <p>Status: <?php echo htmlspecialchars($order['Status']); ?></p>
-                <p>Total: $<?php echo number_format($order['TotalPrice'], 2); ?></p>
-                <p>Date: <?php echo $order['CreatedAt']; ?></p>
+                <p>Status: <?= htmlspecialchars($order['Status']); ?></p>
+                <p>Total: $<?= number_format($order['TotalPrice'], 2); ?></p>
+                <p>Date: <?= $order['CreatedAt']; ?></p>
 
                 <!-- Fetch order items -->
                 <?php
                 $stmt = $conn->prepare("
-                    SELECT p.Name, p.Price, oi.Quantity
+                    SELECT p.ProductID, p.Name, p.Price, oi.Quantity
                     FROM OrderItems oi
                     JOIN Products p ON oi.ProductID = p.ProductID
                     WHERE oi.OrderID = ?
@@ -142,15 +107,31 @@ $stmt->close();
                             <th>Price</th>
                             <th>Quantity</th>
                             <th>Subtotal</th>
+                            <th>Review</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($items as $item): ?>
+                        <?php foreach ($items as $item): 
+                            // Check if review exists for this product & user
+                            $stmt = $conn->prepare("SELECT ReviewID FROM Reviews WHERE ProductID=? AND UserID=? AND IsDeleted=0");
+                            $stmt->bind_param("ii", $item['ProductID'], $userID);
+                            $stmt->execute();
+                            $reviewRes = $stmt->get_result();
+                            $hasReview = $reviewRes->num_rows > 0;
+                            $stmt->close();
+                        ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($item['Name']); ?></td>
-                                <td>$<?php echo number_format($item['Price'], 2); ?></td>
-                                <td><?php echo $item['Quantity']; ?></td>
-                                <td>$<?php echo number_format($item['Price'] * $item['Quantity'], 2); ?></td>
+                                <td><?= htmlspecialchars($item['Name']); ?></td>
+                                <td>$<?= number_format($item['Price'], 2); ?></td>
+                                <td><?= $item['Quantity']; ?></td>
+                                <td>$<?= number_format($item['Price'] * $item['Quantity'], 2); ?></td>
+                                <td>
+                                    <?php if ($hasReview): ?>
+                                        <span style="color:green;">Reviewed</span>
+                                    <?php else: ?>
+                                        <a href="make_review.php?ProductID=<?= $item['ProductID']; ?>" class="btn">Make Review</a>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -158,7 +139,7 @@ $stmt->close();
 
                 <?php if ($canModify): ?>
                     <form method="post" style="margin-top:10px;">
-                        <input type="hidden" name="OrderID" value="<?php echo $order['OrderID']; ?>">
+                        <input type="hidden" name="OrderID" value="<?= $order['OrderID']; ?>">
                         <?php if ($order['Status'] !== 'Cancelled'): ?>
                             <button type="submit" name="action" value="cancel" class="btn btn-cancel">Cancel</button>
                             <button type="submit" name="action" value="edit" class="btn">Edit</button>
@@ -174,6 +155,4 @@ $stmt->close();
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
-</body>
-</html>
 
