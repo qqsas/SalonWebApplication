@@ -1,5 +1,3 @@
-Admin page, mustnt redirect after actions
-    Orders delete doesnt work
 fix errors and wrong routing in barber dashboard
 add "payment gateway for demonstration"
 set up all messageing services for each action

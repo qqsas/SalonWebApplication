@@ -408,11 +408,16 @@ switch($view) {
                         </form>
                     </td>
                     <td>".escape($row['CreatedAt'])."</td>
-                    <td>
-                        <a href='edit_order.php?id=".escape($row['OrderID'])."&view=orders&search=$searchParam&page=$page'>Edit</a> | 
-                        <a href='soft_delete.php?table=Orders&id=".escape($row['OrderID'])."&view=orders&search=$searchParam&page=$page' onclick='return confirm(\"Are you sure?\")'>Delete</a>
-                    </td>
-                  </tr>";
+                    <td>";
+            
+            if ($row['IsDeleted']) {
+                echo "<a href='restore.php?table=Orders&id=".escape($row['OrderID'])."&view=orders&search=$searchParam&page=$page'>Restore</a>";
+            } else {
+                echo "<a href='edit_order.php?id=".escape($row['OrderID'])."&view=orders&search=$searchParam&page=$page'>Edit</a> | 
+                      <a href='soft_delete.php?table=Orders&id=".escape($row['OrderID'])."&view=orders&search=$searchParam&page=$page' onclick='return confirm(\"Are you sure?\")'>Delete</a>";
+            }
+
+            echo "</td></tr>";
         }
         echo "</table>";
         displayPagination($totalPages, $page, 'orders', $searchParam);
