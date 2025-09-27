@@ -74,10 +74,33 @@ $stmt->close();
         <p>No orders found.</p>
         <a href="products.php" class="btn">Browse Products</a>
     <?php else: ?>
+        <!-- Filters -->
+        <div class="filters" style="margin-bottom:15px;">
+            <label for="status_filter">Filter by Status:</label>
+            <select id="status_filter">
+                <option value="">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Reserved">Reserved</option>
+            </select>
+
+            <label for="sort_orders">Sort by:</label>
+            <select id="sort_orders">
+                <option value="date_desc">Date Descending</option>
+                <option value="date_asc">Date Ascending</option>
+                <option value="total_desc">Total Descending</option>
+                <option value="total_asc">Total Ascending</option>
+                <option value="status_asc">Status A-Z</option>
+                <option value="status_desc">Status Z-A</option>
+            </select>
+        </div>
+
+        <div id="orders_container">
         <?php foreach ($orders as $order): 
             $canModify = (time() - strtotime($order['CreatedAt'])) <= 2 * 24 * 60 * 60;
         ?>
-            <div class="order-card">
+            <div class="order-card" data-status="<?= htmlspecialchars($order['Status']); ?>" data-date="<?= strtotime($order['CreatedAt']); ?>" data-total="<?= $order['TotalPrice']; ?>">
                 <h3>Order #<?= $order['OrderID']; ?></h3>
                 <?php if ($isAdmin): ?>
                     <p>Customer: <?= htmlspecialchars($order['UserName']); ?></p>
@@ -112,7 +135,6 @@ $stmt->close();
                     </thead>
                     <tbody>
                         <?php foreach ($items as $item): 
-                            // Check if review exists for this product & user
                             $stmt = $conn->prepare("SELECT ReviewID FROM Reviews WHERE ProductID=? AND UserID=? AND IsDeleted=0");
                             $stmt->bind_param("ii", $item['ProductID'], $userID);
                             $stmt->execute();
@@ -153,6 +175,49 @@ $stmt->close();
             </div>
             <hr>
         <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 </div>
+
+<script>
+const ordersContainer = document.getElementById('orders_container');
+const statusFilter = document.getElementById('status_filter');
+const sortSelect = document.getElementById('sort_orders');
+
+function filterAndSortOrders() {
+    const statusValue = statusFilter.value;
+    const sortValue = sortSelect.value;
+
+    // Get order cards
+    const cards = Array.from(ordersContainer.querySelectorAll('.order-card'));
+
+    // Filter
+    cards.forEach(card => {
+        if (!statusValue || card.dataset.status === statusValue) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Sort
+    const visibleCards = cards.filter(card => card.style.display !== 'none');
+    visibleCards.sort((a,b) => {
+        switch(sortValue) {
+            case 'date_asc': return a.dataset.date - b.dataset.date;
+            case 'date_desc': return b.dataset.date - a.dataset.date;
+            case 'total_asc': return a.dataset.total - b.dataset.total;
+            case 'total_desc': return b.dataset.total - a.dataset.total;
+            case 'status_asc': return a.dataset.status.localeCompare(b.dataset.status);
+            case 'status_desc': return b.dataset.status.localeCompare(a.dataset.status);
+            default: return 0;
+        }
+    });
+
+    visibleCards.forEach(card => ordersContainer.appendChild(card));
+}
+
+statusFilter.addEventListener('change', filterAndSortOrders);
+sortSelect.addEventListener('change', filterAndSortOrders);
+</script>
 
