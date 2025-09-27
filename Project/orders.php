@@ -11,7 +11,7 @@ if (!isset($_SESSION['UserID'])) {
 
 $userID = $_SESSION['UserID'];
 
-// Handle actions: cancel, restore, edit
+// Handle actions: cancel, restore
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['OrderID'])) {
     $orderID = (int)$_POST['OrderID'];
     $action = $_POST['action'];
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['Ord
     if ($orderData['UserID'] != $userID) die("Unauthorized action.");
 
     $createdTime = strtotime($orderData['CreatedAt']);
-    if (($action !== 'edit') && ((time() - $createdTime) > 2 * 24 * 60 * 60)) die("Cannot modify orders older than 2 days.");
+    if ((time() - $createdTime) > 2 * 24 * 60 * 60) die("Cannot modify orders older than 2 days.");
 
     if ($action === 'cancel' && $orderData['Status'] !== 'Cancelled') {
         $stmt = $conn->prepare("UPDATE Orders SET Status='Cancelled' WHERE OrderID=?");
@@ -38,9 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['Ord
         $stmt->bind_param("i", $orderID);
         $stmt->execute();
         $stmt->close();
-    } elseif ($action === 'edit') {
-        header("Location: edit_orderC.php?OrderID=" . $orderID);
-        exit;
     }
 }
 
@@ -164,7 +161,6 @@ $stmt->close();
                         <input type="hidden" name="OrderID" value="<?= $order['OrderID']; ?>">
                         <?php if ($order['Status'] !== 'Cancelled'): ?>
                             <button type="submit" name="action" value="cancel" class="btn btn-cancel">Cancel</button>
-                            <button type="submit" name="action" value="edit" class="btn">Edit</button>
                         <?php else: ?>
                             <button type="submit" name="action" value="restore" class="btn btn-restore">Restore</button>
                         <?php endif; ?>

@@ -1,11 +1,7 @@
 <?php
 session_start();
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require 'vendor/autoload.php'; // Composer autoload for PHPMailer
 include 'db.php';
+include 'mail.php'; // Include your mail setup
 
 if (!isset($_SESSION['UserID'])) {
     header("Location: Login.php");
@@ -30,7 +26,6 @@ $ServicesID = (int)$_POST['ServicesID'];
 $BarberID = (int)$_POST['BarberID'];
 $selected_time = $_POST['selected_time'];
 
-// Validate datetime
 if (!strtotime($selected_time)) die("Invalid time format.");
 
 // Verify barber offers this service
@@ -88,23 +83,11 @@ $insertStmt->bind_param("iissssid", $UserID, $BarberID, $for_name, $for_age, $ty
 if ($insertStmt->execute()) {
     $appointment_id = $conn->insert_id;
 
-    // --- Send confirmation email using PHPMailer ---
-    $mail = new PHPMailer(true);
+    // --- Send confirmation email using mail.php ---
+    $mail = getMailer(); // Get PHPMailer object from mail.php
+
     try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.example.com';  // Replace with your SMTP server
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'your_email@example.com'; // Replace with your email
-        $mail->Password   = 'your_email_password';    // Replace with your email password
-        $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
-
-        // Recipients
-        $mail->setFrom('your_email@example.com', 'Kumar Kailey Hair & Beauty');
         $mail->addAddress($userData['Email'], $userData['Name']);
-
-        // Content
         $mail->isHTML(true);
         $mail->Subject = 'Appointment Confirmation';
         $mail->Body    = "
@@ -122,6 +105,7 @@ if ($insertStmt->execute()) {
         $email_sent = true;
     } catch (Exception $e) {
         $email_sent = false;
+        error_log("Mail Error: {$mail->ErrorInfo}");
     }
 
     include 'header.php';
@@ -154,7 +138,6 @@ if ($insertStmt->execute()) {
     </div>
     <?php
     include 'footer.php';
-
 } else {
     die("Error booking appointment: " . $conn->error);
 }

@@ -1,6 +1,7 @@
 <?php
 include 'db.php';
-include 'header.php';
+include 'mail.php'; // Make sure this contains PHPMailer setup (sendEmail function)
+
 $message = '';
 $nameError = '';
 $contactError = '';
@@ -16,95 +17,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $hasError = false;
 
-    if (!$conn) {
-        die("Database connection failed: " . mysqli_connect_error());
-    }
+    if (!$conn) die("Database connection failed: " . mysqli_connect_error());
 
     // Require name
-    if (empty($name)) {
-        $nameError = "Name is required.";
-        $hasError = true;
-    }
+    if (empty($name)) { $nameError = "Name is required."; $hasError = true; }
 
     // At least one contact required
-    if (empty($email) && empty($number)) {
-        $contactError = "Please provide either an email or phone number.";
-        $hasError = true;
-    }
+    if (empty($email) && empty($number)) { $contactError = "Please provide either an email or phone number."; $hasError = true; }
 
-    // Check if email exists (only if provided)
+    // Check email uniqueness
     if (!empty($email)) {
-        $check_sql = "SELECT * FROM User WHERE Email = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        if ($check_stmt) {
-            $check_stmt->bind_param("s", $email);
-            $check_stmt->execute();
-            $check_stmt->store_result();
-            if ($check_stmt->num_rows > 0) {
-                $contactError = "Email is already in use.";
-                $hasError = true;
-            }
-            $check_stmt->close();
-        }
+        $stmt = $conn->prepare("SELECT * FROM User WHERE Email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) { $contactError = "Email is already in use."; $hasError = true; }
+        $stmt->close();
     }
 
-    // Check if number exists (only if provided)
+    // Check number uniqueness
     if (!empty($number)) {
-        $check_sql = "SELECT * FROM User WHERE Number = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        if ($check_stmt) {
-            $check_stmt->bind_param("s", $number);
-            $check_stmt->execute();
-            $check_stmt->store_result();
-            if ($check_stmt->num_rows > 0) {
-                $contactError = "Phone number is already in use.";
-                $hasError = true;
-            }
-            $check_stmt->close();
-        }
+        $stmt = $conn->prepare("SELECT * FROM User WHERE Number = ?");
+        $stmt->bind_param("s", $number);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) { $contactError = "Phone number is already in use."; $hasError = true; }
+        $stmt->close();
     }
 
     // Password validation
     if (empty($password)) {
-        $passwordError = "Password is required.";
-        $hasError = true;
+        $passwordError = "Password is required."; $hasError = true;
     } else {
-        if (strlen($password) < 8) {
-            $passwordError = "Password must be at least 8 characters long.";
-            $hasError = true;
-        }
-
-        if (!preg_match('/[\W_]/', $password)) {
-            $passwordError .= "<br>Password must include at least one special character.";
-            $hasError = true;
-        }
+        if (strlen($password) < 8) { $passwordError = "Password must be at least 8 characters long."; $hasError = true; }
+        if (!preg_match('/[\W_]/', $password)) { $passwordError .= "<br>Password must include at least one special character."; $hasError = true; }
     }
 
-    if ($password !== $confirm_password) {
-        $confirmPasswordError = "Passwords do not match.";
-        $hasError = true;
-    }
+    if ($password !== $confirm_password) { $confirmPasswordError = "Passwords do not match."; $hasError = true; }
 
     if (!$hasError) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $role = "Customer";
 
-        $insert_sql = "INSERT INTO User (Name, Email, Number, Password, Role) VALUES (?, ?, ?, ?, ?)";
-        $insert_stmt = $conn->prepare($insert_sql);
+        $stmt = $conn->prepare("INSERT INTO User (Name, Email, Number, Password, Role) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $name, $email, $number, $hashed_password, $role);
 
-        if ($insert_stmt) {
-            $insert_stmt->bind_param("sssss", $name, $email, $number, $hashed_password, $role);
-            if ($insert_stmt->execute()) {
-                $insert_stmt->close();
-                $conn->close();
-                header("Location: Login.php");
-                exit;
-            } else {
-                $message = "Insert error: " . $insert_stmt->error;
+        if ($stmt->execute()) {
+            // Send welcome email to user
+            if (!empty($email)) {
+                $subject = "Welcome to Our Store!";
+                $body = "<p>Hi " . htmlspecialchars($name) . ",</p>
+                         <p>Thank you for registering at our store. Your account is now active!</p>
+                         <p>We look forward to serving you.</p>";
+                $adminEmails = ['store@example.com']; // Optional: notify admin(s)
+                sendEmail($email, $subject, $body, $adminEmails);
             }
-            $insert_stmt->close();
+
+            $stmt->close();
+            $conn->close();
+
+            header("Location: Login.php?msg=Registered");
+            exit;
         } else {
-            $message = "Insert prepare failed: " . $conn->error;
+            $message = "Insert error: " . $stmt->error;
         }
     }
 

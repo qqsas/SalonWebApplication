@@ -4,6 +4,7 @@ ini_set('display_errors', 1);
 session_start();
 include 'db.php';
 include 'header.php';
+include 'mail.php'; // PHPMailer setup
 
 // Fetch the user's role
 $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
@@ -25,16 +26,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($stmt->execute()) {
             $userID = $stmt->insert_id;
         }
+        $stmt->close();
     }
 
     // Insert into Contact table
     $stmt = $conn->prepare("INSERT INTO Contact (UserID, Message, ContactInfo) VALUES (?, ?, ?)");
     $stmt->bind_param("iss", $userID, $message, $email);
     $stmt->execute();
+    $stmt->close();
 
+    // Send email notification to your support/admin
+    try {
+        $mail->addAddress('support@yourbusiness.com', 'Support Team'); // change to your email
+        $mail->Subject = "New Contact Message from $name";
+        $mail->Body = "You have received a new message from your website contact form.\n\n".
+                      "Name: $name\nEmail: $email\nPhone: $number\n\nMessage:\n$message";
+
+        if(!$mail->send()) {
+            error_log("Mailer Error: " . $mail->ErrorInfo);
+        }
+    } catch (Exception $e) {
+        error_log("Mail Exception: " . $e->getMessage());
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,3 +110,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </footer>
 </body>
 </html>
+

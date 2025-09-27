@@ -6,6 +6,7 @@ if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
 }
 
 include 'db.php';
+include 'mail.php'; // PHPMailer setup
 include 'header.php';
 
 $errors = [];
@@ -48,6 +49,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
 
             $success = "Order with multiple items added successfully!";
+
+            // --- Send confirmation email ---
+            $stmt2 = $conn->prepare("
+                SELECT u.Name AS UserName, u.Email AS UserEmail, p.Name AS ProductName, oi.Quantity
+                FROM OrderItems oi
+                JOIN Products p ON oi.ProductID = p.ProductID
+                JOIN Orders o ON oi.OrderID = o.OrderID
+                JOIN User u ON o.UserID = u.UserID
+                WHERE oi.OrderID = ?
+            ");
+            $stmt2->bind_param("i", $orderID);
+            $stmt2->execute();
+            $result = $stmt2->get_result();
+            $userInfo = null;
+            $itemsList = "";
+            while ($row = $result->fetch_assoc()) {
+                if (!$userInfo) $userInfo = $row;
+                $itemsList .= "<li>" . htmlspecialchars($row['ProductName']) . " - Qty: " . intval($row['Quantity']) . "</li>";
+            }
+            $stmt2->close();
+
+            if ($userInfo) {
+                $mail = getMailer(); // PHPMailer object
+
+                try {
+                    $mail->addAddress($userInfo['UserEmail'], $userInfo['UserName']);
+                    $mail->isHTML(true);
+                    $mail->Subject = "Order Confirmation - Order #$orderID";
+                    $mail->Body = "
+                        <h2>Order Confirmation</h2>
+                        <p>Dear {$userInfo['UserName']},</p>
+                        <p>Your order has been successfully placed with the following items:</p>
+                        <ul>$itemsList</ul>
+                        <p><strong>Status:</strong> {$status}</p>
+                        <p>Thank you for shopping with us!</p>
+                    ";
+                    $mail->AltBody = "Your order #$orderID has been placed. Items: " . strip_tags(str_replace("<li>", "- ", $itemsList));
+
+                    $mail->send();
+                } catch (Exception $e) {
+                    error_log("Mail Error: {$mail->ErrorInfo}");
+                }
+            }
+
         } else {
             $errors[] = "Database error: " . $stmt->error;
         }
@@ -61,34 +106,31 @@ $products = $conn->query("SELECT ProductID, Name FROM Products WHERE IsDeleted=0
 
 <h2>Add New Order</h2>
 
-<?php
-if ($errors) {
-    echo "<div style='color:red;'><ul>";
-    foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>";
-    echo "</ul></div>";
-}
-if ($success) {
-    echo "<div style='color:green;'>" . htmlspecialchars($success) . "</div>";
-}
-?>
+<?php if ($errors): ?>
+    <div style="color:red;"><ul>
+    <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
+    </ul></div>
+<?php endif; ?>
+
+<?php if ($success): ?>
+    <div style="color:green;"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
 <form method="POST">
     <label>User:</label><br>
     <select name="UserID" required>
-        <?php while($u = $users->fetch_assoc()) {
-            echo "<option value='{$u['UserID']}'>" . htmlspecialchars($u['Name']) . "</option>";
-        } ?>
+        <?php while($u = $users->fetch_assoc()): ?>
+            <option value="<?= $u['UserID'] ?>"><?= htmlspecialchars($u['Name']) ?></option>
+        <?php endwhile; ?>
     </select><br><br>
 
     <div id="productContainer">
         <div class="productRow">
             <label>Product:</label><br>
             <select name="ProductID[]" required>
-                <?php
-                $products->data_seek(0); // rewind result set
-                while($p = $products->fetch_assoc()) {
-                    echo "<option value='{$p['ProductID']}'>" . htmlspecialchars($p['Name']) . "</option>";
-                } ?>
+                <?php $products->data_seek(0); while($p = $products->fetch_assoc()): ?>
+                    <option value="<?= $p['ProductID'] ?>"><?= htmlspecialchars($p['Name']) ?></option>
+                <?php endwhile; ?>
             </select><br>
 
             <label>Quantity:</label><br>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'mail.php'; // PHPMailer setup
 
 // --- Access Control: only admins ---
 if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
@@ -25,6 +26,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             echo "<p style='color:green;'>Order updated successfully.</p>";
+
+            // --- Send email notification to customer ---
+            $stmtUser = $conn->prepare("SELECT u.Name, u.Email FROM Orders o JOIN User u ON o.UserID = u.UserID WHERE o.OrderID=?");
+            $stmtUser->bind_param("i", $order_id);
+            $stmtUser->execute();
+            $user = $stmtUser->get_result()->fetch_assoc();
+            $stmtUser->close();
+
+            if ($user) {
+                $mail = getMailer(); // PHPMailer object
+                try {
+                    $mail->addAddress($user['Email'], $user['Name']);
+                    $mail->isHTML(true);
+                    $mail->Subject = "Your Order #{$order_id} has been updated";
+                    $mail->Body = "
+                        <h2>Order Update</h2>
+                        <p>Dear {$user['Name']},</p>
+                        <p>Your order <strong>#{$order_id}</strong> has been updated.</p>
+                        <p><strong>Status:</strong> {$status}</p>
+                        <p><strong>Total Price:</strong> R" . number_format($totalPrice, 2) . "</p>
+                        <p>Thank you for shopping with us!</p>
+                    ";
+                    $mail->AltBody = "Dear {$user['Name']},\nYour order #{$order_id} has been updated.\nStatus: {$status}\nTotal Price: R" . number_format($totalPrice, 2);
+
+                    $mail->send();
+                } catch (Exception $e) {
+                    error_log("Mail Error: {$mail->ErrorInfo}");
+                }
+            }
+
         } else {
             echo "<p style='color:red;'>Error updating order: " . $conn->error . "</p>";
         }

@@ -6,6 +6,7 @@ if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
 }
 
 include 'db.php';
+include 'mail.php'; // PHPMailer setup
 include 'header.php';
 
 // Check if we got a UserID
@@ -29,6 +30,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         echo "<p style='color: green;'>User updated successfully.</p>";
+
+        // --- Send email notification ---
+        $mail = getMailer();
+        try {
+            $mail->addAddress($email, $name);
+            $mail->isHTML(true);
+            $mail->Subject = "Your Account Details Have Been Updated";
+            $mail->Body = "
+                <h2>Account Updated</h2>
+                <p>Dear {$name},</p>
+                <p>Your account details have been updated by an administrator. Here are your current details:</p>
+                <ul>
+                    <li><strong>Name:</strong> {$name}</li>
+                    <li><strong>Email:</strong> {$email}</li>
+                    <li><strong>Phone Number:</strong> {$number}</li>
+                    <li><strong>Role:</strong> {$role}</li>
+                </ul>
+                <p>If you did not request this change, please contact support immediately.</p>
+            ";
+            $mail->AltBody = "Dear {$name},\nYour account details have been updated.\nName: {$name}\nEmail: {$email}\nPhone Number: {$number}\nRole: {$role}";
+
+            $mail->send();
+        } catch (Exception $e) {
+            error_log("Mail Error: {$mail->ErrorInfo}");
+        }
+
     } else {
         echo "<p style='color: red;'>Error updating user: " . $stmt->error . "</p>";
     }

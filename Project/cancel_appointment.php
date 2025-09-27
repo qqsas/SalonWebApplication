@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'mail.php'; // Include your PHPMailer setup
 
 if (!isset($_SESSION['UserID'])) {
     header("Location: Login.php");
@@ -15,8 +16,16 @@ if (!isset($_GET['AppointmentID'])) {
 
 $appointmentID = (int)$_GET['AppointmentID'];
 
-// Fetch appointment
-$stmt = $conn->prepare("SELECT UserID, Time, Status FROM Appointment WHERE AppointmentID=?");
+// Fetch appointment details including barber and user emails
+$stmt = $conn->prepare("
+    SELECT a.UserID, a.BarberID, a.Time, a.Status, u.Name AS UserName, u.Email AS UserEmail, 
+           b.Name AS BarberName, bu.Email AS BarberEmail
+    FROM Appointment a
+    JOIN User u ON a.UserID = u.UserID
+    JOIN Barber b ON a.BarberID = b.BarberID
+    JOIN User bu ON b.UserID = bu.UserID
+    WHERE a.AppointmentID = ?
+");
 $stmt->bind_param("i", $appointmentID);
 $stmt->execute();
 $appointment = $stmt->get_result()->fetch_assoc();
@@ -36,6 +45,26 @@ $stmt->bind_param("i", $appointmentID);
 $stmt->execute();
 $stmt->close();
 
+// Send emails
+$mail = getMailer();
+
+try {
+    // To customer
+    $mail->addAddress($appointment['UserEmail'], $appointment['UserName']);
+    // To barber
+    $mail->addAddress($appointment['BarberEmail'], $appointment['BarberName']);
+
+    $mail->Subject = "Appointment Cancelled";
+    $mail->Body    = "Hello,\n\nThe appointment scheduled on " . date('d M Y H:i', strtotime($appointment['Time'])) . 
+                     " has been cancelled.\n\nRegards,\nYour Company";
+
+    $mail->send();
+} catch (Exception $e) {
+    // You can log errors instead of showing them to users
+    error_log("Mailer Error: {$mail->ErrorInfo}");
+}
+
+// Redirect
 header("Location: view_appointment.php?message=Appointment+cancelled+successfully");
 exit;
 ?>

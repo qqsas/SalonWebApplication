@@ -1,6 +1,8 @@
 <?php
 session_start();
 include 'db.php';
+include 'header.php';
+include 'mail.php'; // PHPMailer setup
 
 // Redirect if not logged in
 if (!isset($_SESSION['UserID'])) {
@@ -44,6 +46,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = $new_name;
         $email = $new_email;
         $number = $new_number;
+
+        // Send email notification to user
+        try {
+            $mail->addAddress($new_email, $new_name); // send to the user
+            $mail->Subject = "Your Profile Has Been Updated";
+            $mail->Body = "Hello $new_name,\n\nYour profile information has been successfully updated.\n\n".
+                          "Name: $new_name\nEmail: $new_email\nPhone: $new_number\n\nIf you did not make this change, please contact support immediately.";
+            $mail->send();
+        } catch (Exception $e) {
+            error_log("Mail Error: " . $mail->ErrorInfo);
+        }
+
     } else {
         $message = "Error updating profile: " . $update->error;
     }
@@ -51,8 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update->close();
 }
 ?>
-
-<?php include 'header.php'; ?>
 
 <div class="container">
     <h2>Edit Profile</h2>

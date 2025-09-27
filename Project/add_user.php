@@ -6,6 +6,7 @@ if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
 }
 
 include 'db.php';
+include 'mail.php'; // PHPMailer setup
 include 'header.php';
 
 $errors = [];
@@ -42,6 +43,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $success = "User added successfully!";
             $name = $email = $number = $role = $password = '';
+
+            // --- Send welcome email ---
+            $mail = getMailer(); // PHPMailer object
+
+            try {
+                $mail->addAddress($email, $name);
+                $mail->isHTML(true);
+                $mail->Subject = "Welcome to Kumar Kailey Hair & Beauty";
+                $mail->Body = "
+                    <h2>Welcome, {$name}!</h2>
+                    <p>Your account has been created successfully.</p>
+                    <p><strong>Email:</strong> {$email}</p>
+                    <p>You can now log in and start using our services.</p>
+                    <p>Thank you for joining us!</p>
+                ";
+                $mail->AltBody = "Welcome, {$name}! Your account has been created successfully. Email: {$email}";
+
+                $mail->send();
+            } catch (Exception $e) {
+                error_log("Mail Error: {$mail->ErrorInfo}");
+            }
+
         } else {
             $errors[] = "Database error: " . $stmt->error;
         }
@@ -52,27 +75,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <h2>Add New User</h2>
 
-<?php
-if (!empty($errors)) {
-    echo "<div style='color:red;'><ul>";
-    foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>";
-    echo "</ul></div>";
-}
+<?php if (!empty($errors)): ?>
+    <div style='color:red;'><ul>
+    <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
+    </ul></div>
+<?php endif; ?>
 
-if ($success) {
-    echo "<div style='color:green;'>" . htmlspecialchars($success) . "</div>";
-}
-?>
+<?php if ($success): ?>
+    <div style='color:green;'><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
 <form method="POST" action="">
     <label>Name:</label><br>
-    <input type="text" name="Name" value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>" required><br><br>
+    <input type="text" name="Name" value="<?= isset($name) ? htmlspecialchars($name) : '' ?>" required><br><br>
 
     <label>Email:</label><br>
-    <input type="email" name="Email" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required><br><br>
+    <input type="email" name="Email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required><br><br>
 
     <label>Phone Number:</label><br>
-    <input type="text" name="Number" value="<?php echo isset($number) ? htmlspecialchars($number) : ''; ?>"><br><br>
+    <input type="text" name="Number" value="<?= isset($number) ? htmlspecialchars($number) : '' ?>"><br><br>
 
     <label>Password:</label><br>
     <input type="password" name="Password" required><br><br>
