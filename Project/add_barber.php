@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_password = trim($_POST['Password']);
 
     // --- BARBER DATA ---
-    $barber_name = trim($_POST['BarberName']);
     $barber_bio = trim($_POST['Bio']);
 
     // --- SERVICES ---
@@ -29,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($user_name)) $errors[] = "User name is required.";
     if (empty($user_email)) $errors[] = "Email is required.";
     if (empty($user_password)) $errors[] = "Password is required.";
-    if (empty($barber_name)) $errors[] = "Barber name is required.";
 
     if (empty($errors)) {
         $conn->begin_transaction();
@@ -43,9 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $stmt->insert_id;
             $stmt->close();
 
-            // Insert into Barber table
+            // Insert into Barber table using User.Name
             $stmt = $conn->prepare("INSERT INTO Barber (UserID, Name, Bio) VALUES (?, ?, ?)");
-            $stmt->bind_param("iss", $user_id, $barber_name, $barber_bio);
+            $stmt->bind_param("iss", $user_id, $user_name, $barber_bio); // <-- Name comes from User.Name
             $stmt->execute();
             $barber_id = $stmt->insert_id;
             $stmt->close();
@@ -64,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "Barber and user created successfully!";
             // Reset fields
             $user_name = $user_email = $user_number = $user_password = '';
-            $barber_name = $barber_bio = '';
+            $barber_bio = '';
             $services = [];
         } catch (Exception $e) {
             $conn->rollback();
@@ -109,9 +107,6 @@ if ($success) {
     <input type="password" name="Password" value="" required><br><br>
 
     <h3>Barber Profile</h3>
-    <label>Barber Name:</label><br>
-    <input type="text" name="BarberName" value="<?php echo htmlspecialchars($barber_name ?? ''); ?>" required><br><br>
-
     <label>Bio:</label><br>
     <textarea name="Bio"><?php echo htmlspecialchars($barber_bio ?? ''); ?></textarea><br><br>
 
