@@ -101,7 +101,6 @@ if (empty($items)) {
 <head>
 <meta charset="UTF-8">
 <title>Edit Order #<?= $orderID ?></title>
-<link rel="stylesheet" href="styles.css">
 <style>
 table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
 th, td { padding: 10px; border: 1px solid #ddd; }

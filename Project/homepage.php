@@ -54,10 +54,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
   <meta charset="UTF-8">
   <title>Home - My Business</title>
-  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
+  
   <!-- Hero Section -->
   <section class="hero">
     <h2>Your trusted partner in quality services</h2>

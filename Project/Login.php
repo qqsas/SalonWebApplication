@@ -70,7 +70,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Login</title>
-    <link href="styles.css" rel="stylesheet">
     <style>
         .error { 
             color: hsl(var(--secondary-hue), var(--saturation), 40%); 

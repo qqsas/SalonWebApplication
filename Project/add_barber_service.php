@@ -47,7 +47,6 @@ $services = $conn->query("SELECT * FROM Services WHERE IsDeleted = 0 ORDER BY Na
 <html>
 <head>
     <title>Add Service</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <?php include 'header.php'; ?>

@@ -29,20 +29,23 @@ if (isset($_SESSION['UserID'])) {
     }
 }
 ?>
-
+<head>
+<link href="styles.css" rel="stylesheet">
+</head>
 <!-- Header -->
 <nav class="Header-navbar">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="homepage.php">
+    <ul>
+        <li>
+        <a class="navbar-brand" href="homepage.php" id="logo">
             <img src="Img/Logo.jpeg" alt="Logo" style="height: 30px; margin-right: 10px;">
-            Kumar Kailey Hair & Beauty Salon
         </a>
-        <button class="menu-toggle" onclick="document.querySelector('.Header-navbar').classList.toggle('active')">
-            ☰
-        </button>
-        
-        <div class="HeaderNavBody" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+        <label for="logo">Kumar Kailey Hair & Beauty Salon</label>
+        </li>
+        <li class="HeaderNavBody" id="navbarNav">
+            <button class="menu-toggle" onclick="document.querySelector('.Header-navbar').classList.toggle('active')">
+                ☰
+            </button>
+            <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="support.php">Contact</a></li>
                 <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="services.php">Services</a></li>
@@ -78,7 +81,7 @@ if (isset($_SESSION['UserID'])) {
                     <li class="nav-item"><a class="nav-link" href="Register.php">Register</a></li>
                 <?php endif; ?>
             </ul>
-        </div>
-    </div>
+        </li>
+    </ul>
 </nav>
 

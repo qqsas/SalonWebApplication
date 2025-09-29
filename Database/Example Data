@@ -6,6 +6,9 @@ INSERT INTO User (Name, Email, Number, Password, Role) VALUES
 INSERT INTO Admin (UserID, Name, Bio) VALUES
 (3, 'Charlie Barber', 'Experienced barber specializing in modern styles');
 
+INSERT INTO Barber (BarberID, UserID, Name, Bio) VALUES
+(1, 3, 'Charlie Barber', 'Experienced barber specializing in modern styles');
+
 INSERT INTO Contact (UserID, Message, ContactInfo) VALUES
 (1, 'I have a question about your services', 'alice@example.com'),
 (2, 'Can I book an appointment for next week?', 'bob@example.com');
@@ -34,8 +37,8 @@ INSERT INTO Services (Name, Description, Price, Time) VALUES
 ('Hair Coloring', 'Full hair coloring service', 500.00, 90);
 
 INSERT INTO Appointment (UserID, BarberID, ForName, ForAge, Type, Time, Duration, Status, Cost) VALUES
-(1, 3, 'Alice Smith', 28, 'Haircut', '2025-09-20 10:00:00', 45, 'Pending', 200.00),
-(2, 3, 'Bob Jones', 35, 'Beard Trim', '2025-09-21 14:00:00', 20, 'Confirmed', 100.00);
+(1, 1, 'Alice Smith', 28, 'Haircut', '2025-09-20 10:00:00', 45, 'Pending', 200.00),
+(2, 1, 'Bob Jones', 35, 'Beard Trim', '2025-09-21 14:00:00', 20, 'Confirmed', 100.00);
 
 INSERT INTO Orders (UserID, TotalPrice, Status) VALUES
 (1, 320.00, 'Pending'),

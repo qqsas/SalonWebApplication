@@ -152,7 +152,6 @@ $debug_info .= "Available slots found: " . count($available_slots) . "<br>";
 <head>
     <meta charset="UTF-8">
     <title>Book Appointment - <?= htmlspecialchars($service['Name']) ?></title>
-    <link href="styles.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>

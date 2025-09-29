@@ -116,7 +116,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Register</title>
-    <link href="styles.css" rel="stylesheet">
     <style>
         .error { 
             color: hsl(var(--secondary-hue), var(--saturation), 40%); 
@@ -134,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="container">
   <div class="card">
     <div class="card-body">
-      <h2>User Registration</h2>
+      <h2>Register</h2>
       <form method="POST" action="">
         <div class="form-group">
           <label>Full Name</label>
@@ -147,6 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Email (optional)</label>
           <input type="email" name="email" class="form-control" 
                  value="<?php echo htmlspecialchars($_POST["email"] ?? '') ?>">
+                 <span class="error"><?= $emailError ?></span>
         </div>
 
         <div class="form-group">

@@ -41,7 +41,6 @@ $barbers = $barbersResult->fetch_all(MYSQLI_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($service['Name']) ?> - Service Details</title>
-    <link href="styles.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>

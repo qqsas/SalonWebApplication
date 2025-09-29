@@ -67,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 <head>
     <title>Edit Service</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <?php include 'header.php'; ?>

@@ -34,7 +34,6 @@ foreach ($cartItems as $item) {
 <head>
     <meta charset="UTF-8">
     <title>Confirm Your Order</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         .container { max-width: 800px; margin: auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }

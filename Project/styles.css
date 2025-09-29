@@ -1,0 +1,127 @@
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+
+ul li a {
+    display: block;
+    color: rgb(0, 0, 0);
+    padding: 14px 16px;
+    text-decoration: none;
+}
+body {
+  background-color: #ebebeb;
+}
+#logo {
+    display: inline-block;
+}
+
+.card{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+}
+.card-body{
+  border: 3px solid rgb(15, 21, 27);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.form-group{
+  text-align: start;
+}
+
+input.form-control{
+  width: 100%;
+  margin: 2px 0px 10px;
+}
+
+ul li a:hover {
+    background-color: #929191;
+}
+
+.HeaderNavBody {
+    display: block;
+    margin-left: auto;
+}
+.Header-navbar{
+  margin-bottom: 4%;
+  position: sticky;
+  top: 0
+}
+.HeaderNavBody ul {
+    display: flex;
+    flex-direction: row-reverse;
+    margin-left: auto;
+}
+
+.link-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.link-grid a{
+    width: fit-content;/
+}
+.link-grid img{
+    width: 200px;
+}
+
+@media (min-width: 960px) {
+    .menu-toggle {
+        display: none;
+    }
+}
+@media (max-width: 960px){
+    .menu-toggle {
+        display: block;
+    }
+    .HeaderNavBody{
+        position: relative;
+    }
+    .menu-toggle{
+        background-color: #262726;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+      }
+      .navbar-nav li{
+        display: none;
+      }
+
+      .navbar-nav{
+        display: none;
+        position: absolute;
+        right: 0px;
+        background-color: #f9f9f9;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      }
+      .navbar-nav a{
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+      .navbar-nav a:hover {
+        background-color: #f1f1f1
+      }
+
+      .HeaderNavBody:hover .navbar-nav{
+        display: block;
+      }
+      .HeaderNavBody:hover .navbar-nav li {
+        display: block;
+      }
+      .HeaderNavBody:hover .menu-toggle {
+        background-color: #3e8e41;
+      }
+      
+}
