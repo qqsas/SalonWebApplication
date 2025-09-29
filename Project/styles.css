@@ -50,7 +50,7 @@ ul li a:hover {
     margin-left: auto;
 }
 .Header-navbar{
-  margin-bottom: 4%;
+  margin-bottom: 2.5%;
   position: sticky;
   top: 0
 }
@@ -124,4 +124,44 @@ ul li a:hover {
         background-color: #3e8e41;
       }
       
+}
+
+/* homepage styles */
+
+.hero{
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #f4f4f4;
+  margin-bottom: 20px;
+}
+.services > h2, .staff > h2{
+  text-align: center;
+  margin-bottom: 20px;
+  border: #262726 3px solid;
+  width: fit-content;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.service-list, .staff-list{
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+section{
+  margin-bottom: 80px;
+}
+
+.contact{
+  text-align: center;
+  margin-bottom: 40px;
+}
+.link-grid{
+  margin:60px auto 100px;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
 }

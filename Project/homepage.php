@@ -57,9 +57,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
 
-  
+ 
   <!-- Hero Section -->
   <section class="hero">
+    <h1>Kumar Kailey Hair and Beauty</h1>
     <h2>Your trusted partner in quality services</h2>
     <p>We offer professional solutions tailored to your needs.</p>
     <a href="services.php" class="btn">Explore Services</a>
@@ -125,8 +126,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </div>
 
       <!-- External Contact Links -->
+      <h3>Other Ways to Reach Us</h3>
       <div class="contact-links">
-        <h3>Other Ways to Reach Us</h3>
         <div class="link-grid">
           <a href="https://wa.me/1234567890" target="_blank">
             <img src="Img/Whatsapp.png" alt="WhatsApp Logo">
