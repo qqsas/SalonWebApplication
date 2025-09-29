@@ -1,6 +1,7 @@
 <?php
 include 'db.php';
 include 'mail.php'; // Make sure this contains PHPMailer setup (sendEmail function)
+include 'header.php';
 
 $message = '';
 $nameError = '';
@@ -118,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <span class="error"><?= $nameError ?></span>
         </div>
 
+<div class="contact-note">Please provide at least one contact method (email or phone)</div>
         <div class="form-group">
           <label>Email (optional)</label>
           <input type="email" name="email" class="form-control" 
@@ -142,6 +144,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <input type="password" name="confirm_password" class="form-control" required>
           <span class="error"><?= $confirmPasswordError ?></span>
         </div>
+
+<div class="form-group">
+    <label>Password</label>
+    <input type="password" name="password" class="form-control" required>
+    <div class="password-requirements">
+        <strong>Password must:</strong>
+        <ul>
+            <li>Be at least 8 characters long</li>
+            <li>Include at least one special character</li>
+        </ul>
+    </div>
+    <span class="error"><?= $passwordError ?></span>
+</div>
 
         <input type="submit" value="Register" class="btn-primary">
       </form>

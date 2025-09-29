@@ -85,6 +85,7 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 </head>
 <body>
 
+    <h1 class="product-title">All Products</h1>
 <!-- Search and Filter Section -->
 <div class="filter-container">
     <form method="get" class="filter-form">
@@ -115,7 +116,6 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
 <!-- Product Listing Section -->
 <div class="product-section">
-    <h1 class="product-title">All Products</h1>
 
     <?php if (empty($products)): ?>
         <p class="no-products-message">No products found.</p>
