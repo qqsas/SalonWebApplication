@@ -1,127 +1,280 @@
-ul {
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #ebebeb;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Header Navigation */
+.Header-navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    margin-bottom: 4%;
+}
+
+.Header-navbar ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.Header-navbar ul li {
     display: flex;
     align-items: center;
 }
 
-ul li a {
-    display: block;
-    color: rgb(0, 0, 0);
-    padding: 14px 16px;
+.Header-navbar ul li:first-child {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.Header-navbar ul li:first-child label {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #000000;
+    margin-left: 10px;
+}
+
+/* Logo */
+.navbar-brand {
+    display: inline-block;
     text-decoration: none;
 }
-body {
-  background-color: #ebebeb;
-}
-#logo {
-    display: inline-block;
+
+.navbar-brand img {
+    height: 30px;
+    margin-right: 10px;
+    vertical-align: middle;
 }
 
-.card{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: fit-content;
-}
-.card-body{
-  border: 3px solid rgb(15, 21, 27);
-  border-radius: 10px;
-  padding: 12px;
-  text-align: center;
-}
-.form-group{
-  text-align: start;
-}
-
-input.form-control{
-  width: 100%;
-  margin: 2px 0px 10px;
-}
-
-ul li a:hover {
-    background-color: #929191;
-}
-
+/* Navigation Body */
 .HeaderNavBody {
-    display: block;
-    margin-left: auto;
-}
-.Header-navbar{
-  margin-bottom: 4%;
-  position: sticky;
-  top: 0
-}
-.HeaderNavBody ul {
-    display: flex;
-    flex-direction: row-reverse;
     margin-left: auto;
 }
 
+.HeaderNavBody .navbar-nav {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    display: block;
+    color: #000000;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background-color: #929191;
+    color: #ffffff;
+}
+
+/* Cart Styles */
+.CartWrapper {
+    display: flex;
+    align-items: center;
+    color: #000000;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    position: relative;
+}
+
+.CartWrapper:hover {
+    background-color: #929191;
+    color: #ffffff;
+}
+
+.cart-number {
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    margin-left: 5px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* Card Styles */
+.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: fit-content;
+    margin: 20px 0;
+}
+
+.card-body {
+    border: 3px solid #0f151b;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    background-color: #ffffff;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Form Styles */
+.form-group {
+    text-align: start;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input.form-control {
+    width: 100%;
+    margin: 2px 0 10px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Link Grid */
 .link-grid {
     display: flex;
     flex-direction: column;
 }
 
-.link-grid a{
-    width: fit-content;/
-}
-.link-grid img{
-    width: 200px;
+.link-grid a {
+    width: fit-content;
+    margin: 5px 0;
 }
 
-@media (min-width: 960px) {
+.link-grid img {
+    width: 200px;
+    height: auto;
+}
+
+/* Mobile Styles */
+.menu-toggle {
+    display: none;
+    background-color: #262726;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* Desktop Styles */
+@media (min-width: 961px) {
     .menu-toggle {
         display: none;
     }
-}
-@media (max-width: 960px){
-    .menu-toggle {
-        display: block;
+    
+    .HeaderNavBody .navbar-nav {
+        flex-direction: row;
     }
-    .HeaderNavBody{
+}
+
+/* Mobile Styles */
+@media (max-width: 960px) {
+    .Header-navbar ul {
+        flex-wrap: wrap;
+    }
+    
+    .HeaderNavBody {
+        width: 100%;
         position: relative;
     }
-    .menu-toggle{
-        background-color: #262726;
-        color: white;
-        padding: 16px;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-      }
-      .navbar-nav li{
-        display: none;
-      }
-
-      .navbar-nav{
+    
+    .menu-toggle {
+        display: block;
+        margin-left: auto;
+        margin-right: 20px;
+    }
+    
+    .navbar-nav {
         display: none;
         position: absolute;
-        right: 0px;
+        top: 100%;
+        right: 0;
         background-color: #f9f9f9;
         min-width: 200px;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      }
-      .navbar-nav a{
+        z-index: 1001;
+        flex-direction: column;
+    }
+    
+    .navbar-nav li {
+        display: block;
+        width: 100%;
+    }
+    
+    .navbar-nav a {
         color: black;
         padding: 12px 16px;
         text-decoration: none;
         display: block;
-      }
-      .navbar-nav a:hover {
-        background-color: #f1f1f1
-      }
-
-      .HeaderNavBody:hover .navbar-nav{
-        display: block;
-      }
-      .HeaderNavBody:hover .navbar-nav li {
-        display: block;
-      }
-      .HeaderNavBody:hover .menu-toggle {
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .navbar-nav a:hover {
+        background-color: #f1f1f1;
+    }
+    
+    /* Show menu when active class is added */
+    .Header-navbar.active .navbar-nav {
+        display: flex;
+    }
+    
+    .Header-navbar.active .menu-toggle {
         background-color: #3e8e41;
-      }
-      
+    }
+    
+    /* Adjust first li for mobile */
+    .Header-navbar ul li:first-child {
+        flex: 1;
+    }
+}
+
+/* Additional responsive adjustments */
+@media (max-width: 480px) {
+    .Header-navbar ul li:first-child label {
+        font-size: 1em;
+    }
+    
+    .navbar-brand img {
+        height: 25px;
+    }
+    
+    .nav-link {
+        padding: 12px 14px;
+        font-size: 0.9em;
+    }
+    
+    .card-body {
+        padding: 15px;
+        margin: 0 10px;
+    }
 }
