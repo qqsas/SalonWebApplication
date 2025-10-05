@@ -97,7 +97,7 @@
 }
 
 /* Mobile styles */
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .menu-toggle {
         display: block;
     }
@@ -135,7 +135,7 @@
 }
 
 /* Desktop enhancement */
-@media (min-width: 769px) {
+@media (min-width: 940px) {
     .navbar-nav {
         flex-direction: row;
     }
@@ -481,7 +481,7 @@ footer {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .hero h2 {
         font-size: 2rem;
     }
@@ -690,7 +690,7 @@ footer {
 }
 
 /* Responsive Design for About Page */
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .container {
         margin: 1rem auto;
         padding: 0 1rem;
@@ -969,7 +969,7 @@ footer {
 }
 
 /* Responsive Design for Services Page */
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .services-container {
         margin: 1rem auto;
         padding: 0 1rem;
@@ -1338,7 +1338,7 @@ footer {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .filter-container,
     .product-section {
         margin: 1rem auto 2rem;
@@ -1652,7 +1652,7 @@ footer {
 }
 
 /* Responsive Design for Staff Page */
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .staff-container {
         margin: 1rem auto;
         padding: 0 1rem;
@@ -1946,7 +1946,7 @@ footer {
 }
 
 /* Responsive Design for Login Page */
-@media (max-width: 768px) {
+@media (max-width: 939px) {
     .bg-light {
         padding: 1rem;
         align-items: flex-start;
