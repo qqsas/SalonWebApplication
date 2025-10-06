@@ -3643,3 +3643,371 @@ span[style*="color: gray"] {
     content: ' ↓';
     opacity: 1;
 }
+/* Profile Page Styles */
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.container h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.container h2::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+/* Profile Table */
+.container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+}
+
+.container table tr {
+    transition: all 0.3s ease;
+}
+
+.container table tr:hover {
+    background: var(--background-light);
+    transform: translateY(-1px);
+}
+
+.container table tr:nth-child(even) {
+    background: var(--background-light);
+}
+
+.container table tr:nth-child(even):hover {
+    background: rgba(254, 245, 231, 0.8);
+}
+
+.container table th {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: var(--white);
+    padding: 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    width: 30%;
+}
+
+.container table td {
+    padding: 1.25rem;
+    color: var(--text-dark);
+    font-size: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.container table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Role-specific styling */
+.container table td:contains("Admin"),
+.container table td:contains("Manager") {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.container table td:contains("Customer") {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.container table td:contains("Staff") {
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+/* Edit Profile Link */
+.container a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.container a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+}
+
+.container a::before {
+    content: "";
+    font-size: 1rem;
+}
+
+/* Profile Icon Styling */
+.container::before {
+    content: "👤";
+    font-size: 4rem;
+    display: block;
+    text-align: center;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+/* Member Since Styling */
+.container table tr:last-child td {
+    font-style: italic;
+    color: var(--text-light);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+    
+    .container h2 {
+        font-size: 2rem;
+    }
+    
+    .container table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .container table tr {
+        display: block;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .container table th,
+    .container table td {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 0;
+        border: none;
+        text-align: left;
+    }
+    
+    .container table th {
+        background: none;
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .container table td {
+        padding-top: 0.5rem;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--gray-light);
+    }
+    
+    .container table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .container a {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container h2 {
+        font-size: 1.75rem;
+    }
+    
+    .container table tr {
+        padding: 0.75rem;
+    }
+    
+    .container table th {
+        font-size: 0.85rem;
+    }
+    
+    .container table td {
+        font-size: 0.9rem;
+    }
+    
+    .container a {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animation for profile table */
+.container table tr {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation for table rows */
+.container table tr:nth-child(1) { animation-delay: 0.1s; }
+.container table tr:nth-child(2) { animation-delay: 0.2s; }
+.container table tr:nth-child(3) { animation-delay: 0.3s; }
+.container table tr:nth-child(4) { animation-delay: 0.4s; }
+.container table tr:nth-child(5) { animation-delay: 0.5s; }
+
+/* Focus states for accessibility */
+.container a:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.3);
+}
+
+/* Print styles */
+@media print {
+    .container a {
+        display: none;
+    }
+    
+    .container table {
+        box-shadow: none;
+        border: 1px solid var(--gray-medium);
+    }
+    
+    .container table th {
+        background: var(--text-dark) !important;
+        -webkit-print-color-adjust: exact;
+        color: var(--white);
+    }
+}
+
+/* Profile Stats Section (Optional Enhancement) */
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    border-top: 4px solid var(--primary-color);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+/* Quick Actions (Optional Enhancement) */
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.quick-action {
+    flex: 1;
+    min-width: 120px;
+    background: var(--white);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: var(--card-shadow);
+}
+
+.quick-action:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(196, 69, 54, 0.2);
+}
+
+.quick-action-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Enhanced Role Badges */
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-admin {
+    background: rgba(196, 69, 54, 0.1);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.role-customer {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.role-staff {
+    background: rgba(230, 126, 34, 0.1);
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+}
+
+.role-manager {
+    background: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
+    border: 1px solid #9b59b6;
+}
