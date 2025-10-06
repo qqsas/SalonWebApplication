@@ -2349,3 +2349,408 @@ body.bg-light .container {
   font-style: italic;
   margin-top: 0.25rem;
 }
+/* Cart Page Styles */
+.cart-header {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 0 1rem;
+}
+
+.cart-header h1 {
+    color: var(--text-dark);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.cart-header h1::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+/* Back button */
+.button.secondary {
+    display: inline-block;
+    background: var(--gray-light);
+    color: var(--text-dark);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid var(--gray-medium);
+    margin: 1rem;
+}
+
+.button.secondary:hover {
+    background: var(--gray-medium);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(44, 62, 80, 0.1);
+}
+
+/* Cart Table */
+.cart-table {
+    width: 95%;
+    margin: 2rem auto;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.cart-table thead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+}
+
+.cart-table th {
+    color: var(--white);
+    padding: 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.cart-table td {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+    color: var(--text-dark);
+}
+
+.cart-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.cart-table tbody tr:hover {
+    background: var(--background-light);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
+}
+
+.cart-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Quantity Update Form */
+.cart-table form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cart-table input[type="number"] {
+    padding: 0.5rem;
+    border: 2px solid var(--gray-medium);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: var(--white);
+}
+
+.cart-table input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.1);
+}
+
+/* Button Styles */
+.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.button.small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.button.primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: var(--white);
+}
+
+.button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+}
+
+.button.danger {
+    background: var(--error-color);
+    color: var(--white);
+}
+
+.button.danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Total Container */
+.total-container {
+    text-align: center;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    max-width: 600px;
+}
+
+.total-container h4 {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.total-container .button.primary {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Alert Message */
+.alert {
+    text-align: center;
+    padding: 3rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    background: var(--background-light);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+    color: var(--text-dark);
+    font-size: 1.2rem;
+    box-shadow: var(--card-shadow);
+}
+
+/* Product Image in Cart (if you add images later) */
+.cart-table td:first-child {
+    font-weight: 600;
+}
+
+/* Stock warning for quantity input */
+.cart-table input[type="number"]:invalid {
+    border-color: var(--error-color);
+}
+
+.cart-table input[type="number"]:valid {
+    border-color: var(--success-color);
+}
+
+/* Responsive Design for Cart Page */
+@media (max-width: 1024px) {
+    .cart-table {
+        width: 98%;
+        margin: 1rem auto;
+    }
+    
+    .cart-table th,
+    .cart-table td {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-header h1 {
+        font-size: 2rem;
+    }
+    
+    .cart-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .cart-table thead {
+        display: none;
+    }
+    
+    .cart-table tbody,
+    .cart-table tr,
+    .cart-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .cart-table tr {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .cart-table td {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-light);
+        text-align: right;
+        position: relative;
+    }
+    
+    .cart-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        top: 0.75rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        text-align: left;
+    }
+    
+    .cart-table td:last-child {
+        border-bottom: none;
+    }
+    
+    .cart-table form {
+        justify-content: flex-end;
+    }
+    
+    .total-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .total-container h4 {
+        font-size: 1.3rem;
+    }
+    
+    .button.secondary {
+        margin: 1rem;
+        display: block;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-header {
+        margin: 1rem 0;
+    }
+    
+    .cart-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .cart-table tr {
+        padding: 0.75rem;
+    }
+    
+    .cart-table td {
+        padding: 0.5rem 0;
+    }
+    
+    .cart-table td::before {
+        left: 0.5rem;
+        top: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .cart-table form {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .cart-table input[type="number"] {
+        width: 80px;
+    }
+    
+    .total-container {
+        padding: 1rem;
+    }
+    
+    .total-container h4 {
+        font-size: 1.2rem;
+    }
+    
+    .total-container .button.primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .alert {
+        padding: 2rem;
+        font-size: 1.1rem;
+        margin: 1rem;
+    }
+}
+
+/* Animation for cart items */
+.cart-table tbody tr {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation for multiple cart items */
+.cart-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.cart-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.cart-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.cart-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.cart-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+/* Empty cart state enhancement */
+.alert::before {
+    content: "🛒";
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+/* Loading state for buttons */
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Focus states for accessibility */
+.button:focus,
+input[type="number"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.3);
+}
+
+/* Print styles */
+@media print {
+    .button.secondary,
+    .button.danger,
+    .cart-table form {
+        display: none;
+    }
+    
+    .cart-table {
+        box-shadow: none;
+        border: 1px solid var(--gray-medium);
+    }
+    
+    .total-container {
+        box-shadow: none;
+        border: 1px solid var(--gray-medium);
+    }
+}
