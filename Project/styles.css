@@ -2754,3 +2754,459 @@ input[type="number"]:focus {
         border: 1px solid var(--gray-medium);
     }
 }
+/* Orders Page Styles */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.container h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.container h2::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+/* Empty State */
+.container > p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+
+.container .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.container .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+}
+
+/* Filters Section */
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--background-light);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filters label {
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+}
+
+.filters select {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--gray-medium);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.filters select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.1);
+}
+
+/* Orders Container */
+#orders_container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Order Card */
+.order-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.order-card h3 {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-light);
+    padding-bottom: 0.5rem;
+}
+
+.order-card p {
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+.order-card p strong {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+/* Status Badges */
+.order-card p:contains("Status:") {
+    font-weight: 600;
+}
+
+.order-card[data-status="Pending"] {
+    border-left-color: var(--warning-color);
+}
+
+.order-card[data-status="Paid"] {
+    border-left-color: var(--success-color);
+}
+
+.order-card[data-status="Cancelled"] {
+    border-left-color: var(--error-color);
+    opacity: 0.8;
+}
+
+.order-card[data-status="Reserved"] {
+    border-left-color: var(--secondary-color);
+}
+
+/* Order Items Table */
+.order-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: var(--background-light);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(44, 62, 80, 0.1);
+}
+
+.order-card table thead {
+    background: var(--text-dark);
+}
+
+.order-card table th {
+    color: var(--white);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.order-card table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+    color: var(--text-dark);
+}
+
+.order-card table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.order-card table tbody tr:hover {
+    background: var(--white);
+}
+
+/* Review Links */
+.order-card table a.btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background: var(--secondary-color);
+}
+
+.order-card table a.btn:hover {
+    background: var(--accent-color);
+}
+
+.order-card table span[style*="color:green"] {
+    color: var(--success-color) !important;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.order-card form {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.btn-cancel {
+    background: var(--error-color) !important;
+    color: var(--white) !important;
+}
+
+.btn-cancel:hover {
+    background: #c82333 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-restore {
+    background: var(--success-color) !important;
+    color: var(--white) !important;
+}
+
+.btn-restore:hover {
+    background: #218838 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* Expired Message */
+.order-card p em {
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* HR Styling */
+.container hr {
+    border: none;
+    height: 1px;
+    background: var(--gray-light);
+    margin: 1rem 0;
+    opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .order-card {
+        padding: 1.5rem;
+    }
+    
+    .order-card table {
+        font-size: 0.9rem;
+    }
+    
+    .order-card table th,
+    .order-card table td {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container h2 {
+        font-size: 2rem;
+    }
+    
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .filters label {
+        margin-bottom: 0.25rem;
+    }
+    
+    .filters select {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .order-card {
+        padding: 1.25rem;
+    }
+    
+    .order-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .order-card table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .order-card table thead {
+        display: none;
+    }
+    
+    .order-card table tbody,
+    .order-card table tr,
+    .order-card table td {
+        display: block;
+        width: 100%;
+        text-align: left;
+    }
+    
+    .order-card table tr {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--white);
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(44, 62, 80, 0.1);
+    }
+    
+    .order-card table td {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--gray-light);
+        position: relative;
+    }
+    
+    .order-card table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.8rem;
+    }
+    
+    .order-card table td:last-child {
+        border-bottom: none;
+    }
+    
+    .order-card table a.btn {
+        display: block;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin: 1rem auto;
+    }
+    
+    .container h2 {
+        font-size: 1.75rem;
+    }
+    
+    .order-card {
+        padding: 1rem;
+    }
+    
+    .order-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .order-card table tr {
+        padding: 0.75rem;
+    }
+    
+    .order-card table td {
+        padding: 0.25rem 0;
+    }
+    
+    .order-card table td::before {
+        font-size: 0.75rem;
+    }
+    
+    .btn, .container .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for order cards */
+.order-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation for multiple order cards */
+.order-card:nth-child(1) { animation-delay: 0.1s; }
+.order-card:nth-child(2) { animation-delay: 0.2s; }
+.order-card:nth-child(3) { animation-delay: 0.3s; }
+.order-card:nth-child(4) { animation-delay: 0.4s; }
+.order-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* Loading state for buttons */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Focus states for accessibility */
+.btn:focus,
+.filters select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.3);
+}
+
+/* Print styles */
+@media print {
+    .filters,
+    .btn,
+    .order-card form {
+        display: none;
+    }
+    
+    .order-card {
+        box-shadow: none;
+        border: 1px solid var(--gray-medium);
+        page-break-inside: avoid;
+    }
+    
+    .order-card table {
+        box-shadow: none;
+        border: 1px solid var(--gray-medium);
+    }
+}
+
+/* Status filter highlighting */
+.order-card.highlight {
+    animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+    0% { background-color: rgba(196, 69, 54, 0.1); }
+    100% { background-color: transparent; }
+}
