@@ -6,11 +6,13 @@
 }
 
 /* Header Navigation */
-.Header-navbar {
-    background-color: #f8f9fa;
+.Header-navbar{
+    background-color: #050401;
     padding: 1rem 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: relative;
+    margin-bottom: 2rem;
+    
 }
 
 .container-fluid {
@@ -22,6 +24,10 @@
     justify-content: space-between;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.container-fluid a {
+    color: #e9e1c5;
 }
 
 .navbar-brand {
@@ -156,7 +162,7 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3e4485 60%,#764ba2 100%);
     color: white;
     text-align: center;
     padding: 4rem 1rem;
@@ -1791,7 +1797,7 @@ footer {
     min-height: 100vh;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 0rem 1rem;
 }
 
 .container {
