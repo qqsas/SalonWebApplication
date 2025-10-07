@@ -40,6 +40,7 @@ $result = $stmt->get_result();
 ?>
 
 <div class="container">
+  <link rel="stylesheet" href="styles.css">
     <h1>My Appointments</h1>
 
     <?php if ($result->num_rows > 0): ?>
@@ -75,59 +76,60 @@ $result = $stmt->get_result();
                 <th>Review</th>
             </tr>
             </thead>
-            <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['AppointmentID']); ?></td>
-                    <td><?= htmlspecialchars($row['ForName']) . " (" . htmlspecialchars($row['ForAge']) . ")"; ?></td>
-                    <td><?= htmlspecialchars($row['BarberName']); ?></td>
-                    <td><?= htmlspecialchars($row['ServiceName'] ?? 'N/A'); ?></td>
-                    <td><?= htmlspecialchars($row['Type']); ?></td>
-                    <td><?= date("d M Y H:i", strtotime($row['Time'])); ?></td>
-                    <td><?= htmlspecialchars($row['Duration']); ?></td>
-                    <td><?= htmlspecialchars($row['Status']); ?></td>
-                    <td><?= "R" . number_format($row['Cost'], 2); ?></td>
-                    <td><?= date("d M Y H:i", strtotime($row['CreatedAt'])); ?></td>
-                    <td>
-                        <?php
-                        $appointmentDate = date('Y-m-d', strtotime($row['Time']));
-                        $today = date('Y-m-d');
-                        if ($appointmentDate > $today && strtolower($row['Status']) !== 'cancelled'): ?>
-                            <a href="cancel_appointment.php?AppointmentID=<?= $row['AppointmentID']; ?>" class="btn" 
-                               onclick="return confirm('Are you sure you want to cancel this appointment?');">
-                               Cancel
-                            </a>
-                        <?php else: ?>
-                            <span style="color: gray;">Cannot cancel</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php
-                        if (strtolower($row['Status']) === 'completed') {
-                            if (!empty($row['ReviewID'])) {
-                                $reviewCheck = $conn->prepare("SELECT Rating, Comment, CreatedAt, Status FROM Reviews WHERE ReviewID = ?");
-                                $reviewCheck->bind_param("i", $row['ReviewID']);
-                                $reviewCheck->execute();
-                                $reviewRes = $reviewCheck->get_result();
+<tbody>
+    <?php while ($row = $result->fetch_assoc()): ?>
+        <tr>
+            <td data-label="Appointment ID"><?= htmlspecialchars($row['AppointmentID']); ?></td>
+            <td data-label="Booked For"><?= htmlspecialchars($row['ForName']) . " (" . htmlspecialchars($row['ForAge']) . ")"; ?></td>
+            <td data-label="Barber"><?= htmlspecialchars($row['BarberName']); ?></td>
+            <td data-label="Service"><?= htmlspecialchars($row['ServiceName'] ?? 'N/A'); ?></td>
+            <td data-label="Type"><?= htmlspecialchars($row['Type']); ?></td>
+            <td data-label="Time"><?= date("d M Y H:i", strtotime($row['Time'])); ?></td>
+            <td data-label="Duration"><?= htmlspecialchars($row['Duration']); ?> mins</td>
+            <td data-label="Status"><?= htmlspecialchars($row['Status']); ?></td>
+            <td data-label="Cost"><?= "R" . number_format($row['Cost'], 2); ?></td>
+            <td data-label="Created At"><?= date("d M Y H:i", strtotime($row['CreatedAt'])); ?></td>
+            <td data-label="Actions">
+                <?php
+                $appointmentDate = date('Y-m-d', strtotime($row['Time']));
+                $today = date('Y-m-d');
+                if ($appointmentDate > $today && strtolower($row['Status']) !== 'cancelled'): ?>
+                    <a href="cancel_appointment.php?AppointmentID=<?= $row['AppointmentID']; ?>" class="btn" 
+                       onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                       Cancel
+                    </a>
+                <?php else: ?>
+                    <span style="color: gray;">Cannot cancel</span>
+                <?php endif; ?>
+            </td>
+            <td data-label="Review">
+                <?php
+                if (strtolower($row['Status']) === 'completed') {
+                    if (!empty($row['ReviewID'])) {
+                        $reviewCheck = $conn->prepare("SELECT Rating, Comment, CreatedAt, Status FROM Reviews WHERE ReviewID = ?");
+                        $reviewCheck->bind_param("i", $row['ReviewID']);
+                        $reviewCheck->execute();
+                        $reviewRes = $reviewCheck->get_result();
 
-                                if ($reviewRes->num_rows > 0) {
-                                    $rev = $reviewRes->fetch_assoc();
-                                    echo "<strong>Rated:</strong> " . htmlspecialchars($rev['Rating']) . "/5<br>";
-                                    echo "<em>" . nl2br(htmlspecialchars($rev['Comment'])) . "</em><br>";
-                                    echo "<small>" . date("d M Y H:i", strtotime($rev['CreatedAt'])) . "</small><br>";
-                                    echo "<span>Status: " . htmlspecialchars($rev['Status']) . "</span>";
-                                }
-                            } else {
-                                echo '<a href="make_review.php?AppointmentID=' . $row['AppointmentID'] . '" class="btn">Add Review</a>';
-                            }
-                        } else {
-                            echo "<span style='color: gray;'>Available after completion</span>";
+                        if ($reviewRes->num_rows > 0) {
+                            $rev = $reviewRes->fetch_assoc();
+                            echo "<strong>Rated:</strong> " . htmlspecialchars($rev['Rating']) . "/5<br>";
+                            echo "<em>" . nl2br(htmlspecialchars($rev['Comment'])) . "</em><br>";
+                            echo "<small>" . date("d M Y H:i", strtotime($rev['CreatedAt'])) . "</small><br>";
+                            echo "<span>Status: " . htmlspecialchars($rev['Status']) . "</span>";
                         }
-                        ?>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-            </tbody>
+                    } else {
+                        echo '<a href="make_review.php?AppointmentID=' . $row['AppointmentID'] . '" class="btn">Add Review</a>';
+                    }
+                } else {
+                    echo "<span style='color: gray;'>Available after completion</span>";
+                }
+                ?>
+            </td>
+        </tr>
+    <?php endwhile; ?>
+</tbody>
+
         </table>
 
         <!-- JS Sorting -->
