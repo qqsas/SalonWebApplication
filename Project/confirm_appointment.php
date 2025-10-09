@@ -110,32 +110,29 @@ if ($insertStmt->execute()) {
 
     include 'header.php';
     ?>
-    <div style="max-width: 600px; margin: 50px auto; padding: 20px; text-align: center;">
-        <h1>Appointment Confirmed!</h1>
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h2>Appointment Details</h2>
-            <p><strong>Service:</strong> <?= htmlspecialchars($type) ?></p>
-            <p><strong>Barber:</strong> <?= htmlspecialchars($barberData['Name']) ?></p>
-            <p><strong>Date & Time:</strong> <?= date('F j, Y \a\t g:i A', strtotime($selected_time)) ?></p>
-            <p><strong>Duration:</strong> <?= $duration ?> minutes</p>
-            <p><strong>Cost:</strong> $<?= number_format($cost, 2) ?></p>
-        </div>
-        <p>
-            <?php if ($email_sent): ?>
-                A confirmation email has been sent to <?= htmlspecialchars($userData['Email']) ?>.
-            <?php else: ?>
-                Appointment confirmed, but the confirmation email could not be sent.
-            <?php endif; ?>
-        </p>
-        <div style="margin-top: 30px;">
-            <a href="view_appointment.php" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
-                View My Appointments
-            </a>
-            <a href="homepage.php" style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
-                Return to Home
-            </a>
-        </div>
-    </div>
+<div class="confirmation-container">
+    <link href="styles.css" rel="stylesheet">
+  <h1>Appointment Confirmed!</h1>
+  <div class="confirmation-details">
+    <h2>Appointment Details</h2>
+    <p><strong>Service:</strong> <?= htmlspecialchars($type) ?></p>
+    <p><strong>Barber:</strong> <?= htmlspecialchars($barberData['Name']) ?></p>
+    <p><strong>Date & Time:</strong> <?= date('F j, Y \a\t g:i A', strtotime($selected_time)) ?></p>
+    <p><strong>Duration:</strong> <?= $duration ?> minutes</p>
+    <p><strong>Cost:</strong> $<?= number_format($cost, 2) ?></p>
+  </div>
+  <p class="confirmation-message">
+    <?php if ($email_sent): ?>
+      A confirmation email has been sent to <?= htmlspecialchars($userData['Email']) ?>.
+    <?php else: ?>
+      Appointment confirmed, but the confirmation email could not be sent.
+    <?php endif; ?>
+  </p>
+  <div class="confirmation-actions">
+    <a href="view_appointment.php" class="confirmation-btn view">View My Appointments</a>
+    <a href="homepage.php" class="confirmation-btn home">Return to Home</a>
+  </div>
+</div>
     <?php
     include 'footer.php';
 } else {
