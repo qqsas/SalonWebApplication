@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="service-list">
       <?php foreach ($getServices as $service): ?>
         <div class="service-card" onclick="window.location.href='service-detail.php?ServicesID=<?php echo urlencode($service['ServicesID']); ?>'">
-          <div class="service-image" style="background-image: url('<?php echo ($service['imgUrl']) ? htmlspecialchars($service['imgUrl']) : 'default-image.jpg'; ?>')"></div>
+          <div class="service-image" style="background-image: url('<?php echo ($service['ImgUrl']) ? htmlspecialchars($service['ImgUrl']) : 'default-image.jpg'; ?>')"></div>
           <div class="card-content">
             <h3><?php echo htmlspecialchars($service['Name']); ?></h3>
             <p><?php echo htmlspecialchars($service['Description']); ?></p>
