@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="container">
+    <link href="styles.css" rel="stylesheet">
     <h2>Edit Profile</h2>
 
     <?php if ($message): ?>

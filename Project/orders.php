@@ -65,6 +65,7 @@ $stmt->close();
 ?>
 
 <div class="container">
+  <link rel="stylesheet" href="styles.css">
     <h2>Your Orders</h2>
 
     <?php if (empty($orders)): ?>
@@ -120,42 +121,41 @@ $stmt->close();
                 $items = $itemsResult->fetch_all(MYSQLI_ASSOC);
                 $stmt->close();
                 ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Subtotal</th>
-                            <th>Review</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($items as $item): 
-                            $stmt = $conn->prepare("SELECT ReviewID FROM Reviews WHERE ProductID=? AND UserID=? AND IsDeleted=0");
-                            $stmt->bind_param("ii", $item['ProductID'], $userID);
-                            $stmt->execute();
-                            $reviewRes = $stmt->get_result();
-                            $hasReview = $reviewRes->num_rows > 0;
-                            $stmt->close();
-                        ?>
-                            <tr>
-                                <td><?= htmlspecialchars($item['Name']); ?></td>
-                                <td>$<?= number_format($item['Price'], 2); ?></td>
-                                <td><?= $item['Quantity']; ?></td>
-                                <td>$<?= number_format($item['Price'] * $item['Quantity'], 2); ?></td>
-                                <td>
-                                    <?php if ($hasReview): ?>
-                                        <span style="color:green;">Reviewed</span>
-                                    <?php else: ?>
-                                        <a href="make_review.php?ProductID=<?= $item['ProductID']; ?>" class="btn">Make Review</a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+            <th>Review</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($items as $item): 
+            $stmt = $conn->prepare("SELECT ReviewID FROM Reviews WHERE ProductID=? AND UserID=? AND IsDeleted=0");
+            $stmt->bind_param("ii", $item['ProductID'], $userID);
+            $stmt->execute();
+            $reviewRes = $stmt->get_result();
+            $hasReview = $reviewRes->num_rows > 0;
+            $stmt->close();
+        ?>
+            <tr>
+                <td data-label="Product"><?= htmlspecialchars($item['Name']); ?></td>
+                <td data-label="Price">$<?= number_format($item['Price'], 2); ?></td>
+                <td data-label="Quantity"><?= $item['Quantity']; ?></td>
+                <td data-label="Subtotal">$<?= number_format($item['Price'] * $item['Quantity'], 2); ?></td>
+                <td data-label="Review">
+                    <?php if ($hasReview): ?>
+                        <span style="color:green;">Reviewed</span>
+                    <?php else: ?>
+                        <a href="make_review.php?ProductID=<?= $item['ProductID']; ?>" class="btn">Make Review</a>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
                 <?php if ($canModify): ?>
                     <form method="post" style="margin-top:10px;">
                         <input type="hidden" name="OrderID" value="<?= $order['OrderID']; ?>">

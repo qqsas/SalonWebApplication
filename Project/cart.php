@@ -85,23 +85,24 @@ $feat_stmt->close();
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php foreach ($cart_items as $item): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($item['Name']); ?></td>
-                        <td><?php echo number_format($item['Price'], 2); ?></td>
-                        <td>
-                            <form method="POST" action="update_quantity.php" style="display:inline-flex; gap:5px;">
-                                <input type="hidden" name="cart_item_id" value="<?php echo $item['CartItemID']; ?>">
-                                <input type="number" name="quantity" value="<?php echo $item['Quantity']; ?>" min="1" max="<?php echo $item['Stock']; ?>" required style="width: 60px;">
-                                <button type="submit" class="button small">Update</button>
-                            </form>
-                        </td>
-                        <td><?php echo number_format($item['Total'], 2); ?></td>
-                        <td><a href="remove_from_cart.php?cart_item_id=<?php echo $item['CartItemID']; ?>" class="button danger">Remove</a></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
+<tbody>
+    <?php foreach ($cart_items as $item): ?>
+        <tr>
+            <td data-label="Product"><?php echo htmlspecialchars($item['Name']); ?></td>
+            <td data-label="Price (R)"><?php echo number_format($item['Price'], 2); ?></td>
+            <td data-label="Quantity">
+                <form method="POST" action="update_quantity.php" style="display:inline-flex; gap:5px;">
+                    <input type="hidden" name="cart_item_id" value="<?php echo $item['CartItemID']; ?>">
+                    <input type="number" name="quantity" value="<?php echo $item['Quantity']; ?>" min="1" max="<?php echo $item['Stock']; ?>" required style="width: 60px;">
+                    <button type="submit" class="button small">Update</button>
+                </form>
+            </td>
+            <td data-label="Total (R)"><?php echo number_format($item['Total'], 2); ?></td>
+            <td data-label="Action"><a href="remove_from_cart.php?cart_item_id=<?php echo $item['CartItemID']; ?>" class="button danger">Remove</a></td>
+        </tr>
+    <?php endforeach; ?>
+</tbody>
+
         </table>
         <div class="total-container">
             <h4>Total: R<?php echo number_format($grand_total, 2); ?></h4>

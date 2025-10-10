@@ -22,6 +22,7 @@ $stmt->close();
 <?php include 'header.php'; ?>
 
 <div class="container">
+  <link rel="stylesheet" href="styles.css">
     <h2>My Profile</h2>
 
     <table border="1" cellpadding="8" cellspacing="0">

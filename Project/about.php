@@ -16,13 +16,12 @@ include 'header.php';
     <meta charset="UTF-8">
     <title>About Us - E-Commerce Platform</title>
     <link href="styles.css" rel="stylesheet">
-    <link href="mobile.css" rel="stylesheet"  media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
 <!-- About Us Content -->
-<div class="container">
+<div class="containerAbout">
     <h1>About Us</h1>
 
     <p class="lead"><strong>Kumar Kailey's Hair and Beauty Salon</strong> is a professional barber shop and salon dedicated to offering quality haircuts, grooming, and beauty services in a welcoming and stylish environment.</p>
