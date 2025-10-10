@@ -12,7 +12,7 @@ $BarberID = (int)$_GET['BarberID'];
 
 // Fetch barber details
 $barberStmt = $conn->prepare("SELECT a.BarberID, a.Name, a.Bio, u.Email, u.Number 
-                              FROM Admin a
+                              FROM Barber a
                               JOIN User u ON a.UserID = u.UserID
                               WHERE a.BarberID = ?");
 $barberStmt->bind_param("i", $BarberID);
