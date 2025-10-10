@@ -59,22 +59,22 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     </div>
   </section>
 
-  <!-- Staff Section -->
-  <section class="staff">
-    <h2>Meet Our Team</h2>
-    <div class="staff-list">
-      <?php foreach ($getStaff as $staff): ?>
-        <div class="staff-card" onclick="window.location.href='staff-detail.php?BarberID=<?php echo urlencode($staff['BarberID']); ?>'">
-          <div class="staff-image" style="background-image: url('<?php echo htmlspecialchars($staff['ImgURL']); ?>')"></div>
-          <div class="card-content">
-            <h3><?php echo htmlspecialchars($staff['Name']); ?></h3>
-            <p><?php echo htmlspecialchars($staff['Bio']); ?></p>
-            <a href="staff-detail.php?BarberID=<?php echo urlencode($staff['BarberID']); ?>" class="read-more">View profile</a>
-          </div>
+<!-- Staff Section -->
+<section class="staff">
+  <h2>Meet Our Team</h2>
+  <div class="staff-list">
+    <?php foreach ($getStaff as $staff): ?>
+      <div class="staff-card" onclick="window.location.href='staff-detail.php?BarberID=<?php echo urlencode($staff['BarberID']); ?>'">
+        <div class="staff-image" style="background-image: url('<?php echo ($staff['ImgUrl']) ? htmlspecialchars($staff['ImgUrl']) : 'default-staff.jpg'; ?>')"></div>
+        <div class="card-content">
+          <h3><?php echo htmlspecialchars($staff['Name']); ?></h3>
+          <p><?php echo htmlspecialchars($staff['Bio']); ?></p>
+          <a href="staff-detail.php?BarberID=<?php echo urlencode($staff['BarberID']); ?>" class="read-more">View profile</a>
         </div>
-      <?php endforeach; ?>
-    </div>
-  </section>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</section>
 
   <!-- Contact Section -->
   <section class="contact" id="contact-section">
