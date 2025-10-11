@@ -596,57 +596,81 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             displayPagination($totalPages, $page, 'reviews', $searchParam, $displayFilters);
             break;
 
-        case 'contacts':
-            $where = "(LOWER(c.ContactInfo) LIKE ? OR LOWER(c.Message) LIKE ? OR LOWER(u.Name) LIKE ?)";
-            $params = [$searchLike, $searchLike, $searchLike];
-            $types = "sss";
-            
-            switch($displayFilters['contacts']) {
-                case 'active':
-                    $where .= " AND c.IsDeleted = 0";
-                    break;
-                case 'deleted':
-                    $where .= " AND c.IsDeleted = 1";
-                    break;
-            }
-            
-            $totalRecords = getRecordCount($conn, 'Contact c LEFT JOIN User u ON c.UserID = u.UserID', $where, $params, $types);
-            $totalPages = ceil($totalRecords / $limit);
-            
-            echo "<h2>Contacts (Total: $totalRecords)</h2>";
-            $stmt = $conn->prepare("SELECT c.*, u.Name AS UserName FROM Contact c LEFT JOIN User u ON c.UserID = u.UserID WHERE $where ORDER BY c.CreatedAt DESC LIMIT ? OFFSET ?");
-            $params[] = $limit;
-            $params[] = $offset;
-            $types .= "ii";
-            $stmt->bind_param($types, ...$params);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            if ($result->num_rows === 0) {
-                echo "<p>No contacts found.</p>";
-                break;
-            }
-            
-            echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>User</th><th>Message</th><th>ContactInfo</th><th>CreatedAt</th><th>Status</th><th>Actions</th> </tr>";
-            while ($row = $result->fetch_assoc()) {
-                $messagePreview = strlen($row['Message']) > 50 ? substr($row['Message'], 0, 50) . '...' : $row['Message'];
-                $contactLink = (strpos($row['ContactInfo'], '@') !== false) ? "mailto:".escape($row['ContactInfo']) : "tel:".escape($row['ContactInfo']);
-                $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
-                $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['ContactID'])."</td> <td>".escape($row['UserName'])."</td> <td title='".escape($row['Message'])."'>".escape($messagePreview)."</td> <td><a href='{$contactLink}'>".escape($row['ContactInfo'])."</a></td> <td>".escape($row['CreatedAt'])."</td> <td class='$statusClass'>$statusText</td> <td> <div class='action-buttons'>";
-                if ($row['IsDeleted']) {
-                    echo "<a href='restore.php?table=Contact&id=".escape($row['ContactID'])."&view=contacts&search=$searchParam&contacts_filter=".$displayFilters['contacts']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
-                } else {
-                    echo "<a href='{$contactLink}' class='btn btn-sm btn-primary'>Contact</a>";
-                    echo "<a href='soft_delete.php?table=Contact&id=".escape($row['ContactID'])."&view=contacts&search=$searchParam&contacts_filter=".$displayFilters['contacts']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
-                }
-                echo " </div> </td> </tr>";
-            }
-            echo "</table>";
-            echo "</div>";
-            displayPagination($totalPages, $page, 'contacts', $searchParam, $displayFilters);
+case 'contacts':
+    $where = "(LOWER(c.ContactInfo) LIKE ? OR LOWER(c.Message) LIKE ? OR LOWER(u.Name) LIKE ?)";
+    $params = [$searchLike, $searchLike, $searchLike];
+    $types = "sss";
+    
+    switch($displayFilters['contacts']) {
+        case 'active':
+            $where .= " AND c.IsDeleted = 0";
             break;
+        case 'deleted':
+            $where .= " AND c.IsDeleted = 1";
+            break;
+    }
+    
+    $totalRecords = getRecordCount($conn, 'Contact c LEFT JOIN User u ON c.UserID = u.UserID', $where, $params, $types);
+    $totalPages = ceil($totalRecords / $limit);
+    
+    echo "<h2>Contacts (Total: $totalRecords)</h2>";
+    $stmt = $conn->prepare("SELECT c.*, u.Name AS UserName FROM Contact c LEFT JOIN User u ON c.UserID = u.UserID WHERE $where ORDER BY c.CreatedAt DESC LIMIT ? OFFSET ?");
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        echo "<p>No contacts found.</p>";
+        break;
+    }
+    
+    echo "<div class='table-container'>";
+    echo "<table class='data-table'> <tr> <th>ID</th><th>User</th><th>Message</th><th>ContactInfo</th><th>CreatedAt</th><th>Status</th><th>Actions</th> </tr>";
+    while ($row = $result->fetch_assoc()) {
+        $messagePreview = strlen($row['Message']) > 50 ? substr($row['Message'], 0, 50) . '...' : $row['Message'];
+
+        // Normalize South African phone numbers
+        $contact = trim($row['ContactInfo']);
+        if (preg_match('/^\+27\d{9}$/', $contact)) {
+            $tel = $contact; // already correct format
+        } elseif (preg_match('/^27\d{9}$/', $contact)) {
+            $tel = '+'.$contact;
+        } elseif (preg_match('/^0\d{9}$/', $contact)) {
+            $tel = '+27'.substr($contact, 1);
+        } else {
+            $tel = $contact; // leave emails or unknown format as-is
+        }
+
+        $contactLink = (strpos($contact, '@') !== false) ? "mailto:".escape($contact) : "tel:".escape($tel);
+        $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
+        $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+
+        echo "<tr> 
+                <td>".escape($row['ContactID'])."</td> 
+                <td>".escape($row['UserName'])."</td> 
+                <td title='".escape($row['Message'])."'>".escape($messagePreview)."</td> 
+                <td><a href='{$contactLink}'>".escape($row['ContactInfo'])."</a></td> 
+                <td>".escape($row['CreatedAt'])."</td> 
+                <td class='$statusClass'>$statusText</td> 
+                <td> 
+                    <div class='action-buttons'>";
+        if ($row['IsDeleted']) {
+            echo "<a href='restore.php?table=Contact&id=".escape($row['ContactID'])."&view=contacts&search=$searchParam&contacts_filter=".$displayFilters['contacts']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
+        } else {
+            echo "<a href='{$contactLink}' class='btn btn-sm btn-primary'>Contact</a>";
+            echo "<a href='soft_delete.php?table=Contact&id=".escape($row['ContactID'])."&view=contacts&search=$searchParam&contacts_filter=".$displayFilters['contacts']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
+        }
+        echo " </div> 
+              </td> 
+              </tr>";
+    }
+    echo "</table>";
+    echo "</div>";
+    displayPagination($totalPages, $page, 'contacts', $searchParam, $displayFilters);
+    break;
 
         case 'features':
             $result = $conn->query("SELECT * FROM Features ORDER BY FeatureName");
