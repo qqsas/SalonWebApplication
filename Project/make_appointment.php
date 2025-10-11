@@ -59,10 +59,6 @@ $current_timestamp = strtotime($selected_date);
 $prev_day = date('Y-m-d', strtotime('-1 day', $current_timestamp));
 $next_day = date('Y-m-d', strtotime('+1 day', $current_timestamp));
 
-// Debug: Show selected date and current time
-$debug_info = "Selected Date: $selected_date<br>";
-$debug_info .= "Current Server Time: " . date('Y-m-d H:i:s') . "<br>";
-
 // Get booked appointments for the barber on selected date
 $appointmentStmt = $conn->prepare("
     SELECT Time, Duration 
@@ -79,72 +75,63 @@ while ($row = $appointmentResult->fetch_assoc()) {
     $booked_slots[] = [$start_time, $start_time + $duration];
 }
 
-$debug_info .= "Booked slots found: " . count($booked_slots) . "<br>";
+// Get barber unavailability
+$unavailable_slots = [];
+$full_day_unavailable = false;
 
-// Define working hours (9:00–17:00)
-$work_start_hour = 9;
-$work_end_hour = 17;
-$slot_interval = 15; // minutes between possible slot starts
+$unavailableStmt = $conn->prepare("
+    SELECT Date, StartTime, EndTime 
+    FROM BarberUnavailability 
+    WHERE BarberID = ? AND Date = ?
+");
+$unavailableStmt->bind_param("is", $BarberID, $selected_date);
+$unavailableStmt->execute();
+$unavailResult = $unavailableStmt->get_result();
 
-$slot_duration = $service['Time'] * 60; // service duration in seconds
-$selected_day_start = strtotime($selected_date);
+while ($row = $unavailResult->fetch_assoc()) {
+    // If both StartTime and EndTime are NULL, the whole day is unavailable
+    if (empty($row['StartTime']) && empty($row['EndTime'])) {
+        $full_day_unavailable = true;
+    } else {
+        // If only one is missing, fill with day bounds
+        $start_ts = !empty($row['StartTime']) ? strtotime($selected_date . ' ' . $row['StartTime']) : strtotime($selected_date . ' 00:00');
+        $end_ts = !empty($row['EndTime']) ? strtotime($selected_date . ' ' . $row['EndTime']) : strtotime($selected_date . ' 23:59:59');
 
-// Debug: Show working hours and service duration
-$debug_info .= "Service Duration: {$service['Time']} minutes<br>";
-$debug_info .= "Working Hours: $work_start_hour:00 - $work_end_hour:00<br>";
-
-// Generate available slots for the selected day
-$available_slots = [];
-$total_slots_considered = 0;
-$slots_rejected = 0;
-
-for ($hour = $work_start_hour; $hour < $work_end_hour; $hour++) {
-    for ($minute = 0; $minute < 60; $minute += $slot_interval) {
-        $slot_start = $selected_day_start + ($hour * 3600) + ($minute * 60);
-        $slot_end = $slot_start + $slot_duration;
-        $total_slots_considered++;
-
-        // Skip if slot is in the past (for current day)
-        $is_past = false;
-        if ($selected_date == date('Y-m-d') && $slot_start < time()) {
-            $is_past = true;
-            $slots_rejected++;
-            continue;
-        }
-
-        $conflict = false;
-        $conflict_reason = "";
-        
-        // Check for conflicts with booked appointments
-        foreach ($booked_slots as $b) {
-            if ($slot_start < $b[1] && $slot_end > $b[0]) {
-                $conflict = true;
-                $conflict_reason = "Overlaps with existing appointment";
-                break;
-            }
-        }
-
-        // Ensure slot fits within working hours
-        $slot_end_time = $slot_start + $slot_duration;
-        $work_end_timestamp = $selected_day_start + ($work_end_hour * 3600);
-        
-        if ($slot_end_time > $work_end_timestamp) {
-            $conflict = true;
-            $conflict_reason = "Extends beyond working hours";
-        }
-
-        if (!$conflict && !$is_past) {
-            $available_slots[] = $slot_start;
-        } else if (!$is_past) {
-            $slots_rejected++;
-            $debug_info .= "Slot rejected: " . date('H:i', $slot_start) . " - Reason: $conflict_reason<br>";
-        }
+        $unavailable_slots[] = [$start_ts, $end_ts];
     }
 }
 
-$debug_info .= "Total slots considered: $total_slots_considered<br>";
-$debug_info .= "Slots rejected: $slots_rejected<br>";
-$debug_info .= "Available slots found: " . count($available_slots) . "<br>";
+// Determine day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
+$dayOfWeek = date('w', strtotime($selected_date));
+
+// Check if barber works on this day
+$workStmt = $conn->prepare("
+    SELECT StartTime, EndTime 
+    FROM BarberWorkingHours 
+    WHERE BarberID = ? AND DayOfWeek = ?
+");
+$workStmt->bind_param("ii", $BarberID, $dayOfWeek);
+$workStmt->execute();
+$workResult = $workStmt->get_result();
+
+$working_hours = [];
+$day_off = false;
+if ($workResult->num_rows === 0) {
+    $day_off = true; // No working hours listed for this day
+} else {
+    while ($row = $workResult->fetch_assoc()) {
+        $working_hours[] = [
+            'start' => strtotime($selected_date . ' ' . $row['StartTime']),
+            'end' => strtotime($selected_date . ' ' . $row['EndTime'])
+        ];
+    }
+}
+
+// Slot settings
+$slot_interval = 15; // minutes
+$slot_duration = $service['Time'] * 60; // service duration in seconds
+$selected_day_start = strtotime($selected_date);
+
 ?>
 
 <!DOCTYPE html>
@@ -165,13 +152,18 @@ $debug_info .= "Available slots found: " . count($available_slots) . "<br>";
             document.getElementById('selected_time').value = timestamp;
         }
     </script>
+    <style>
+        .slot { padding: 12px; text-align: center; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+        .available { background-color: #e8f5e8; }
+        .unavailable { background-color: #f5e8e8; color: #888; cursor: not-allowed; }
+        .selected { background-color: #007bff; color: #fff; }
+    </style>
 </head>
 <body>
 
 <h1>Book Appointment</h1>
 <h2>Service: <?= htmlspecialchars($service['Name']) ?> (<?= $service['Time'] ?> mins)</h2>
 <h3>Barber: <?= htmlspecialchars($barber['Name']) ?></h3>
-
 
 <!-- Date Navigation -->
 <div style="margin: 20px 0; display: flex; justify-content: center; align-items: center;">
@@ -188,18 +180,8 @@ $debug_info .= "Available slots found: " . count($available_slots) . "<br>";
     </a>
 </div>
 
-<?php if(empty($available_slots)): ?>
-    <p>No available slots on <?= date('F j, Y', strtotime($selected_date)) ?>. Please select another day.</p>
-    
-    <h4>Possible reasons:</h4>
-    <ul>
-        <li>The barber might be fully booked on this day</li>
-        <li>The service duration might be too long for the remaining time slots</li>
-        <li>There might be no working hours defined for this barber</li>
-        <li>All available slots might be in the past (if viewing today)</li>
-    </ul>
-    
-    <p>Try selecting a different date using the navigation above.</p>
+<?php if($full_day_unavailable || $day_off): ?>
+    <p>The barber is unavailable for the entire day. Please select another date.</p>
 <?php else: ?>
     <form action="confirm_appointment.php" method="POST">
         <input type="hidden" name="ServicesID" value="<?= $ServicesID ?>">
@@ -209,13 +191,42 @@ $debug_info .= "Available slots found: " . count($available_slots) . "<br>";
 
         <h3>Available Time Slots:</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 20px 0;">
-            <?php foreach($available_slots as $slot): ?>
-                <?php $slot_display = date("H:i", $slot); ?>
-                <div style="padding: 12px; text-align: center; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #e8f5e8;"
-                     onclick="selectSlot(this, '<?= date("Y-m-d H:i:s", $slot) ?>')">
-                    <?= $slot_display ?>
-                </div>
-            <?php endforeach; ?>
+            <?php
+            for ($hour = 0; $hour < 24; $hour++) {
+                for ($minute = 0; $minute < 60; $minute += $slot_interval) {
+                    $slot_start = $selected_day_start + ($hour * 3600) + ($minute * 60);
+                    $slot_end = $slot_start + $slot_duration;
+                    $slot_display = date("H:i", $slot_start);
+
+                    $class = 'available';
+
+                    // Past slots
+                    if ($slot_start < time() && $selected_date == date('Y-m-d')) { $class = 'unavailable'; }
+
+                    // Booked appointments
+                    foreach ($booked_slots as $b) {
+                        if ($slot_start < $b[1] && $slot_end > $b[0]) { $class = 'unavailable'; break; }
+                    }
+
+                    // Partial unavailability
+                    foreach ($unavailable_slots as $u) {
+                        if ($slot_start < $u[1] && $slot_end > $u[0]) { $class = 'unavailable'; break; }
+                    }
+
+                    // Not within working hours
+                    $in_working_hours = false;
+                    foreach ($working_hours as $wh) {
+                        if ($slot_start >= $wh['start'] && $slot_end <= $wh['end']) {
+                            $in_working_hours = true;
+                            break;
+                        }
+                    }
+                    if (!$in_working_hours) $class = 'unavailable';
+
+                    echo "<div class='slot $class' onclick='selectSlot(this,\"".date("Y-m-d H:i:s",$slot_start)."\")'>$slot_display</div>";
+                }
+            }
+            ?>
         </div>
 
         <button type="submit" style="margin-top:20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
@@ -226,3 +237,4 @@ $debug_info .= "Available slots found: " . count($available_slots) . "<br>";
 
 </body>
 </html>
+
