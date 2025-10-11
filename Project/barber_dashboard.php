@@ -414,26 +414,27 @@ if ($unavailability) {
                     break;
                 }
                 
-                echo "<form method='POST' action='update_barber_profile.php' class='profile-form'>";
+                echo "<form method='POST' action='update_barber_profile.php' class='profile-form' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='BarberID' value='$barberID'>";
                 echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=profile'>";
+// Display current image if exists
+$currentImg = !empty($barber['ImgUrl']) ? $barber['ImgUrl'] : 'Img/default-staff.jpg';
+
+echo "<div class='form-group'>
+        <label class='form-label'>Profile Image:</label>
+        <div class='current-image'>
+            <img src='".escape($currentImg)."' alt='Profile Image' style='max-width:150px; max-height:150px; border-radius:8px;'>
+        </div>
+        <input type='file' name='ImgFile' accept='image/*' class='form-control'>
+        <small>Upload a new image to replace the current one.</small>
+      </div>";
+
                 
                 echo "<div class='form-group'>
                         <label class='form-label'>Name:</label>
                         <input type='text' name='Name' class='form-control' value='".escape($barber['Name'])."' required>
                       </div>";
                 
-                echo "<div class='form-group'>
-                        <label class='form-label'>Email:</label>
-                        <input type='text' class='form-control' value='".escape($barber['Email'])."' disabled>
-                        <small class='text-light'>Contact admin to change email</small>
-                      </div>";
-                
-                echo "<div class='form-group'>
-                        <label class='form-label'>Phone:</label>
-                        <input type='text' class='form-control' value='".escape($barber['Number'])."' disabled>
-                        <small class='text-light'>Contact admin to change phone</small>
-                      </div>";
                 
                 echo "<div class='form-group'>
                         <label class='form-label'>Bio:</label>
