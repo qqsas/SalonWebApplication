@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 include 'db.php';
 include 'mail.php'; // Make sure this contains the PHPMailer setup
@@ -9,6 +12,10 @@ if (!isset($_SESSION['UserID'])) {
 }
 
 $userID = $_SESSION['UserID'];
+
+// --- Flag to indicate online purchase (true) or reservation (false) ---
+// For example, sent via POST from the checkout form
+$isOnlinePurchase = isset($_POST['online_purchase']) && $_POST['online_purchase'] == '1';
 
 // Fetch user's cart
 $stmt = $conn->prepare("SELECT CartID FROM Cart WHERE UserID = ?");
@@ -42,7 +49,7 @@ if ($totalPrice <= 0) {
     die("Cart is empty.");
 }
 
-// Insert into Orders
+// Insert into Orders (no purchase type column needed)
 $stmt = $conn->prepare("INSERT INTO Orders (UserID, TotalPrice, Status) VALUES (?, ?, 'Pending')");
 $stmt->bind_param("id", $userID, $totalPrice);
 $stmt->execute();
@@ -59,6 +66,31 @@ $stmt = $conn->prepare("
 $stmt->bind_param("ii", $orderID, $cartID);
 $stmt->execute();
 $stmt->close();
+
+// --- Reduce stock ONLY if it’s an online purchase ---
+if ($isOnlinePurchase) {
+    $stmt = $conn->prepare("
+        SELECT ProductID, Quantity 
+        FROM CartItems 
+        WHERE CartID = ?
+    ");
+    $stmt->bind_param("i", $cartID);
+    $stmt->execute();
+    $itemsResult = $stmt->get_result();
+    $cartItems = $itemsResult->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    foreach ($cartItems as $item) {
+        $stmt = $conn->prepare("
+            UPDATE Products 
+            SET Stock = Stock - ? 
+            WHERE ProductID = ? AND Stock >= ?
+        ");
+        $stmt->bind_param("iii", $item['Quantity'], $item['ProductID'], $item['Quantity']);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
 
 // Fetch order items for email
 $stmt = $conn->prepare("
@@ -88,7 +120,7 @@ $stmt->close();
 
 // Prepare email content
 $body = "<p>Hi " . htmlspecialchars($user['Name']) . ",</p>
-<p>Your reservation has been successfully placed! Here are the details:</p>
+<p>Your " . ($isOnlinePurchase ? "purchase" : "reservation") . " has been successfully placed! Here are the details:</p>
 <table border='1' cellpadding='5'>
 <tr><th>Product</th><th>Qty</th><th>Subtotal</th></tr>";
 

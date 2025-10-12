@@ -342,6 +342,58 @@ while ($row = $result->fetch_assoc()) {
                 echo "<br><button type='submit' class='btn btn-primary'>Save Working Hours</button>";
                 echo "</form>";
                 echo "</div>";
+// Fetch current unavailability
+$stmt = $conn->prepare("SELECT * FROM BarberUnavailability WHERE BarberID = ? ORDER BY Date DESC, StartTime");
+$stmt->bind_param("i", $barberID);
+$stmt->execute();
+$result = $stmt->get_result();
+$unavailability = $result->fetch_all(MYSQLI_ASSOC);
+
+echo "<h3>Mark Unavailability</h3>";
+echo "<form method='POST' action='update_unavailability.php' class='unavailability-form'>";
+echo "<input type='hidden' name='BarberID' value='$barberID'>";
+echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>";
+
+echo "<div class='unavailability-inputs'>
+        <label>Date:</label>
+        <input type='date' name='Date' required>
+        <label>Start Time (optional):</label>
+        <input type='time' name='StartTime'>
+        <label>End Time (optional):</label>
+        <input type='time' name='EndTime'>
+        <label>Reason (optional):</label>
+        <input type='text' name='Reason' maxlength='255'>
+        <button type='submit' class='btn btn-warning'>Add Unavailability</button>
+      </div>";
+
+echo "</form>";
+
+if ($unavailability) {
+    echo "<h4>Existing Unavailability</h4>";
+    echo "<table class='data-table'>
+            <tr><th>Date</th><th>Start</th><th>End</th><th>Reason</th><th>Actions</th></tr>";
+    foreach ($unavailability as $u) {
+        $start = $u['StartTime'] ?? '-';
+        $end = $u['EndTime'] ?? '-';
+        $reason = htmlspecialchars($u['Reason']);
+        echo "<tr>
+                <td>{$u['Date']}</td>
+                <td>{$start}</td>
+                <td>{$end}</td>
+                <td>{$reason}</td>
+                <td>
+                    <form method='POST' action='delete_unavailability.php' style='display:inline'>
+                        <input type='hidden' name='UnavailabilityID' value='{$u['UnavailabilityID']}'>
+                        <input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>
+                        <button type='submit' onclick='return confirm(\"Remove this unavailability?\")' class='btn btn-sm btn-danger'>Remove</button>
+                    </form>
+                </td>
+              </tr>";
+    }
+    echo "</table>";
+}
+
+
                 break;
 
             case 'profile':
@@ -362,26 +414,27 @@ while ($row = $result->fetch_assoc()) {
                     break;
                 }
                 
-                echo "<form method='POST' action='update_barber_profile.php' class='profile-form'>";
+                echo "<form method='POST' action='update_barber_profile.php' class='profile-form' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='BarberID' value='$barberID'>";
                 echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=profile'>";
+// Display current image if exists
+$currentImg = !empty($barber['ImgUrl']) ? $barber['ImgUrl'] : 'Img/default-staff.jpg';
+
+echo "<div class='form-group'>
+        <label class='form-label'>Profile Image:</label>
+        <div class='current-image'>
+            <img src='".escape($currentImg)."' alt='Profile Image' style='max-width:150px; max-height:150px; border-radius:8px;'>
+        </div>
+        <input type='file' name='ImgFile' accept='image/*' class='form-control'>
+        <small>Upload a new image to replace the current one.</small>
+      </div>";
+
                 
                 echo "<div class='form-group'>
                         <label class='form-label'>Name:</label>
                         <input type='text' name='Name' class='form-control' value='".escape($barber['Name'])."' required>
                       </div>";
                 
-                echo "<div class='form-group'>
-                        <label class='form-label'>Email:</label>
-                        <input type='text' class='form-control' value='".escape($barber['Email'])."' disabled>
-                        <small class='text-light'>Contact admin to change email</small>
-                      </div>";
-                
-                echo "<div class='form-group'>
-                        <label class='form-label'>Phone:</label>
-                        <input type='text' class='form-control' value='".escape($barber['Number'])."' disabled>
-                        <small class='text-light'>Contact admin to change phone</small>
-                      </div>";
                 
                 echo "<div class='form-group'>
                         <label class='form-label'>Bio:</label>

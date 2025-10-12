@@ -1,7 +1,7 @@
-<?php
-session_start();
-include 'db.php';
-include 'header.php';
+<?php 
+session_start(); 
+include 'db.php'; 
+include 'header.php'; 
 
 // Redirect if not logged in
 if (!isset($_SESSION['UserID'])) {
@@ -11,13 +11,14 @@ if (!isset($_SESSION['UserID'])) {
 
 $UserID = $_SESSION['UserID'];
 $AppointmentID = $_GET['AppointmentID'] ?? null;
-$ProductID     = $_GET['ProductID'] ?? null;
+$ProductID = $_GET['ProductID'] ?? null;
 
 if (!$AppointmentID && !$ProductID) {
     die("Invalid request. No AppointmentID or ProductID provided.");
 }
 
 $success = $error = "";
+$barberID = null;
 
 // Check if this is an appointment review
 if ($AppointmentID) {
@@ -31,9 +32,11 @@ if ($AppointmentID) {
     if (!$appt) die("Appointment not found or not yours.");
     if (strtolower($appt['Status']) !== 'completed') die("You can only review completed appointments.");
     if (!empty($appt['ReviewID'])) die("Review already exists for this appointment.");
+    
+    $barberID = $appt['BarberID'];
 }
 
-// Check if this is a product review
+// Check if this is a product review  
 if ($ProductID) {
     $sql = "SELECT ProductID FROM Products WHERE ProductID = ?";
     $stmt = $conn->prepare($sql);
@@ -45,35 +48,38 @@ if ($ProductID) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $rating  = intval($_POST['rating'] ?? 0);
+    $rating = intval($_POST['rating'] ?? 0);
     $comment = trim($_POST['comment'] ?? "");
-
+    
     if ($rating < 1 || $rating > 5) {
         $error = "Please select a rating between 1 and 5.";
     } else {
-        // Insert review
-        $sql = "INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status) VALUES (?, ?, ?, ?, ?, 'pending')";
-        $stmt = $conn->prepare($sql);
-
-        // Use NULL for whichever ID is not set
-        $pID = $ProductID ?: null;
-        $aID = $AppointmentID ?: null;
-
-        $stmt->bind_param("iiiis", $UserID, $pID, $aID, $rating, $comment);
-
+        // Insert review based on type
+        if ($AppointmentID) {
+            // Insert appointment review (ProductID will be NULL)
+            $sql = "INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status) VALUES (?, NULL, ?, ?, ?, 'pending')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iiis", $UserID, $AppointmentID, $rating, $comment);
+        } else {
+            // Insert product review (AppointmentID will be NULL)
+            $sql = "INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status) VALUES (?, ?, NULL, ?, ?, 'pending')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iiis", $UserID, $ProductID, $rating, $comment);
+        }
+        
         if ($stmt->execute()) {
             $newReviewID = $stmt->insert_id;
-
-            // If appointment review, link it
+            
+            // If appointment review, link it to the appointment
             if ($AppointmentID) {
                 $update = $conn->prepare("UPDATE Appointment SET ReviewID = ? WHERE AppointmentID = ?");
                 $update->bind_param("ii", $newReviewID, $AppointmentID);
                 $update->execute();
             }
-
+            
             $success = "Review submitted successfully! Awaiting approval.";
         } else {
-            $error = "Error submitting review. Please try again.";
+            $error = "Error submitting review: " . $conn->error;
         }
     }
 }
@@ -81,15 +87,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container">
     <h1>Write a Review</h1>
-
+    
     <?php if ($success): ?>
         <p style="color:green;"><?= htmlspecialchars($success) ?></p>
-        <p><a href="<?= $AppointmentID ? 'view_appointments.php' : 'view_products.php' ?>">Back</a></p>
+        <p><a href="<?= $AppointmentID ? 'appointments.php' : 'products.php' ?>">Back</a></p>
     <?php else: ?>
         <?php if ($error): ?>
             <p style="color:red;"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
-
+        
         <form method="post">
             <label for="rating">Rating (1–5):</label><br>
             <select name="rating" id="rating" required>
@@ -99,15 +105,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endfor; ?>
             </select>
             <br><br>
-
+            
             <label for="comment">Comment:</label><br>
             <textarea name="comment" id="comment" rows="4" cols="50"></textarea>
             <br><br>
-
+            
             <button type="submit">Submit Review</button>
         </form>
     <?php endif; ?>
 </div>
 
 <?php include 'footer.php'; ?>
-

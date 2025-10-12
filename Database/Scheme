@@ -1,7 +1,7 @@
-CREATE DATABASE IF NOT EXISTS BarberShopDB;
-USE BarberShopDB;
+CREATE DATABASE IF NOT EXISTS SalonDB;
+USE SalonDB;
 
--- ====== User Table ======
+-- User Table
 CREATE TABLE User (
     UserID INT(11) NOT NULL AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -12,9 +12,9 @@ CREATE TABLE User (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (UserID)
-);
+) ENGINE=InnoDB;
 
--- ====== Admin Table ======
+-- Admin Table
 CREATE TABLE Admin (
     BarberID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -22,24 +22,25 @@ CREATE TABLE Admin (
     Bio TEXT DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (BarberID),
-    KEY UserID (UserID),
+    KEY idx_userid (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
+) ENGINE=InnoDB;
 
--- ====== Barber Table ======
+-- Barber Table
 CREATE TABLE Barber (
     BarberID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
     Name VARCHAR(100) NOT NULL,
     Bio TEXT DEFAULT NULL,
+    ImgUrl VARCHAR(255) DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberID),
-    UNIQUE KEY UserID (UserID),
+    UNIQUE KEY uq_userid (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
+) ENGINE=InnoDB;
 
--- ====== Services Table ======
+-- Services Table
 CREATE TABLE Services (
     ServicesID INT(11) NOT NULL AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -50,9 +51,9 @@ CREATE TABLE Services (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (ServicesID)
-);
+) ENGINE=InnoDB;
 
--- ====== BarberServices Table ======
+-- BarberServices Table
 CREATE TABLE BarberServices (
     BarberServiceID INT(11) NOT NULL AUTO_INCREMENT,
     BarberID INT(11) NOT NULL,
@@ -60,89 +61,36 @@ CREATE TABLE BarberServices (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberServiceID),
-    UNIQUE KEY Barber_Service (BarberID, ServicesID),
-    FOREIGN KEY (BarberID) REFERENCES Admin(BarberID),
+    UNIQUE KEY uq_barber_service (BarberID, ServicesID),
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID),
     FOREIGN KEY (ServicesID) REFERENCES Services(ServicesID)
-);
+) ENGINE=InnoDB;
 
--- ====== BarberWorkingHours Table ======
+-- BarberWorkingHours Table
 CREATE TABLE BarberWorkingHours (
     BarberID INT(11) NOT NULL,
     DayOfWeek INT(11) NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
     PRIMARY KEY (BarberID, DayOfWeek),
-    FOREIGN KEY (BarberID) REFERENCES Admin(BarberID)
-);
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID)
+) ENGINE=InnoDB;
 
--- ====== Products Table ======
-CREATE TABLE Products (
-    ProductID INT(11) NOT NULL AUTO_INCREMENT,
-    Name VARCHAR(100) NOT NULL,
-    Price DECIMAL(10,2) NOT NULL,
-    Category VARCHAR(50) NOT NULL,
-    Stock INT(11) NOT NULL,
-    ImgUrl VARCHAR(255) DEFAULT NULL,
+-- BarberUnavailability Table
+CREATE TABLE BarberUnavailability (
+    UnavailabilityID INT(11) NOT NULL AUTO_INCREMENT,
+    BarberID INT(11) NOT NULL,
+    Date DATE NOT NULL,
+    StartTime TIME DEFAULT NULL,
+    EndTime TIME DEFAULT NULL,
+    Reason VARCHAR(255) DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (ProductID)
-);
+    PRIMARY KEY (UnavailabilityID),
+    KEY idx_barberid (BarberID),
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID)
+) ENGINE=InnoDB;
 
--- ====== Cart Table ======
-CREATE TABLE Cart (
-    CartID INT(11) NOT NULL AUTO_INCREMENT,
-    UserID INT(11) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (CartID),
-    KEY UserID (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
-
--- ====== CartItems Table ======
-CREATE TABLE CartItems (
-    CartItemID INT(11) NOT NULL AUTO_INCREMENT,
-    CartID INT(11) NOT NULL,
-    ProductID INT(11) NOT NULL,
-    Quantity INT(11) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (CartItemID),
-    KEY CartID (CartID),
-    KEY ProductID (ProductID),
-    FOREIGN KEY (CartID) REFERENCES Cart(CartID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-);
-
--- ====== Orders Table ======
-CREATE TABLE Orders (
-    OrderID INT(11) NOT NULL AUTO_INCREMENT,
-    UserID INT(11) NOT NULL,
-    TotalPrice DECIMAL(10,2) NOT NULL,
-    Status VARCHAR(50) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (OrderID),
-    KEY UserID (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
-
--- ====== OrderItems Table ======
-CREATE TABLE OrderItems (
-    OrderItemID INT(11) NOT NULL AUTO_INCREMENT,
-    OrderID INT(11) NOT NULL,
-    ProductID INT(11) NOT NULL,
-    Quantity INT(11) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (OrderItemID),
-    KEY OrderID (OrderID),
-    KEY ProductID (ProductID),
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-);
-
--- ====== Appointment Table ======
+-- Appointment Table
 CREATE TABLE Appointment (
     AppointmentID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -158,12 +106,80 @@ CREATE TABLE Appointment (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (AppointmentID),
-    KEY UserID (UserID),
-    KEY ReviewID (ReviewID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
+    KEY idx_userid (UserID),
+    KEY idx_reviewid (ReviewID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID)
+) ENGINE=InnoDB;
 
--- ====== Reviews Table ======
+-- Products Table
+CREATE TABLE Products (
+    ProductID INT(11) NOT NULL AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
+    Category VARCHAR(50) NOT NULL,
+    Stock INT(11) NOT NULL,
+    ImgUrl VARCHAR(255) DEFAULT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (ProductID)
+) ENGINE=InnoDB;
+
+-- Orders Table
+CREATE TABLE Orders (
+    OrderID INT(11) NOT NULL AUTO_INCREMENT,
+    UserID INT(11) NOT NULL,
+    TotalPrice DECIMAL(10,2) NOT NULL,
+    Status VARCHAR(50) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (OrderID),
+    KEY idx_userid (UserID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+) ENGINE=InnoDB;
+
+-- OrderItems Table
+CREATE TABLE OrderItems (
+    OrderItemID INT(11) NOT NULL AUTO_INCREMENT,
+    OrderID INT(11) NOT NULL,
+    ProductID INT(11) NOT NULL,
+    Quantity INT(11) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (OrderItemID),
+    KEY idx_orderid (OrderID),
+    KEY idx_productid (ProductID),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+) ENGINE=InnoDB;
+
+-- Cart Table
+CREATE TABLE Cart (
+    CartID INT(11) NOT NULL AUTO_INCREMENT,
+    UserID INT(11) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (CartID),
+    KEY idx_userid (UserID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+) ENGINE=InnoDB;
+
+-- CartItems Table
+CREATE TABLE CartItems (
+    CartItemID INT(11) NOT NULL AUTO_INCREMENT,
+    CartID INT(11) NOT NULL,
+    ProductID INT(11) NOT NULL,
+    Quantity INT(11) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (CartItemID),
+    KEY idx_cartid (CartID),
+    KEY idx_productid (ProductID),
+    FOREIGN KEY (CartID) REFERENCES Cart(CartID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+) ENGINE=InnoDB;
+
+-- Reviews Table
 CREATE TABLE Reviews (
     ReviewID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
@@ -175,15 +191,15 @@ CREATE TABLE Reviews (
     IsDeleted TINYINT(1) DEFAULT 0,
     Status ENUM('pending', 'cancelled', 'approved') NOT NULL DEFAULT 'pending',
     PRIMARY KEY (ReviewID),
-    KEY UserID (UserID),
-    KEY ProductID (ProductID),
+    KEY idx_userid (UserID),
+    KEY idx_productid (ProductID),
     KEY fk_reviews_appointment (AppointmentID),
     FOREIGN KEY (UserID) REFERENCES User(UserID),
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
     FOREIGN KEY (AppointmentID) REFERENCES Appointment(AppointmentID)
-);
+) ENGINE=InnoDB;
 
--- ====== Contact Table ======
+-- Contact Table
 CREATE TABLE Contact (
     ContactID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) DEFAULT NULL,
@@ -192,15 +208,16 @@ CREATE TABLE Contact (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (ContactID),
-    KEY UserID (UserID),
+    KEY idx_userid (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
+) ENGINE=InnoDB;
 
--- ====== Features Table ======
+-- Features Table
 CREATE TABLE Features (
     FeatureID INT(11) NOT NULL AUTO_INCREMENT,
     FeatureName VARCHAR(100) NOT NULL,
     IsEnabled TINYINT(1) NOT NULL DEFAULT 0,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (FeatureID)
-);
+) ENGINE=InnoDB;
+

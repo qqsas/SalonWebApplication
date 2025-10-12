@@ -5,16 +5,15 @@ include 'header.php';
 $message = '';
 $loginError = '';
 
-// If no redirect target is set yet, capture the referring page
+// Capture referring page for redirect if not already set
 if (!isset($_SESSION['redirect_after_login']) && isset($_SERVER['HTTP_REFERER'])) {
-    // Avoid setting the login page itself as the redirect target
     if (strpos($_SERVER['HTTP_REFERER'], 'Login.php') === false) {
         $_SESSION['redirect_after_login'] = $_SERVER['HTTP_REFERER'];
     }
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $identifier = trim($_POST["identifier"]); // can be name, email, or number
+    $identifier = trim($_POST["identifier"]); // can be name, email, or phone
     $password = $_POST["password"];
 
     if (!$conn) {
@@ -24,27 +23,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($identifier) || empty($password)) {
         $loginError = "Please enter your name, email, or phone number and password.";
     } else {
-        // Look up user by Name OR Email OR Number
+        // Generate all acceptable phone number variants
+        $numberVariants = [];
+        if (preg_match('/^\+27\d+$/', $identifier)) {
+            $numberVariants[] = $identifier;                     // +27xxxxxxxxx
+            $numberVariants[] = '0' . substr($identifier, 3);    // 0xxxxxxxxx
+            $numberVariants[] = substr($identifier, 1);          // 27xxxxxxxxx
+        } elseif (preg_match('/^0\d+$/', $identifier)) {
+            $numberVariants[] = $identifier;                     // 0xxxxxxxxx
+            $numberVariants[] = '+27' . substr($identifier, 1);  // +27xxxxxxxxx
+            $numberVariants[] = '27' . substr($identifier, 1);   // 27xxxxxxxxx
+        } elseif (preg_match('/^27\d+$/', $identifier)) {
+            $numberVariants[] = $identifier;                     // 27xxxxxxxxx
+            $numberVariants[] = '+'.$identifier;                 // +27xxxxxxxxx
+            $numberVariants[] = '0' . substr($identifier, 2);    // 0xxxxxxxxx
+        } else {
+            $numberVariants[] = $identifier; // treat as name/email
+        }
+
+        // Prepare SQL with dynamic number placeholders
+        $placeholders = implode(',', array_fill(0, count($numberVariants), '?'));
         $sql = "SELECT UserID, Name, Email, Number, Password, Role FROM User 
-                WHERE Name = ? OR Email = ? OR Number = ? LIMIT 1";
+                WHERE Name = ? OR Email = ? OR Number IN ($placeholders) LIMIT 1";
         $stmt = $conn->prepare($sql);
 
         if ($stmt) {
-            $stmt->bind_param("sss", $identifier, $identifier, $identifier);
+            // Bind parameters dynamically
+            $types = str_repeat('s', 2 + count($numberVariants));
+            $params = array_merge([$identifier, $identifier], $numberVariants);
+            $stmt->bind_param($types, ...$params);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($row = $result->fetch_assoc()) {
                 // Verify password
                 if (password_verify($password, $row['Password'])) {
-                    // Store user session
                     $_SESSION['UserID'] = $row['UserID'];
                     $_SESSION['Name']   = $row['Name'];
                     $_SESSION['Role']   = $row['Role'];
 
-                    // Determine where to redirect
+                    // Redirect to original page or homepage
                     $redirect = $_SESSION['redirect_after_login'] ?? 'homepage.php';
-                    unset($_SESSION['redirect_after_login']); // clear after use
+                    unset($_SESSION['redirect_after_login']);
 
                     $stmt->close();
                     $conn->close();

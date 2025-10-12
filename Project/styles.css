@@ -318,18 +318,6 @@ body {
   background-image: url('Img/services/styling.jpg');
 }
 
-/* Example for staff - you'll need to update these with actual image paths */
-.staff-card:nth-child(1) .staff-image {
-  background-image: url('Img/staff/barber1.jpg');
-}
-
-.staff-card:nth-child(2) .staff-image {
-  background-image: url('Img/staff/barber2.jpg');
-}
-
-.staff-card:nth-child(3) .staff-image {
-  background-image: url('Img/staff/stylist1.jpg');
-}
 
 .card-content {
   padding: 1.5rem;
@@ -1681,19 +1669,6 @@ footer {
 }
 
 /* Staff Image Placeholder (if you add images later) */
-.staff-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--white);
-  font-weight: bold;
-  font-size: 1.5rem;
-}
 
 /* Responsive Design for Staff Page */
 @media (max-width: 939px) {

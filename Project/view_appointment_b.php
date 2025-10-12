@@ -66,9 +66,9 @@ if (!$appointment) {
             <a href="tel:<?php echo htmlspecialchars($appointment['Number']); ?>" class="button">Call Client</a>
             <a href="mailto:<?php echo htmlspecialchars($appointment['Email']); ?>" class="button">Email Client</a>
             
-            <form method="POST" action="update_appointment_status.php" style="display: inline;">
+            <form method="POST" action="update_appointment_status_b.php" style="display: inline;">
                 <input type="hidden" name="AppointmentID" value="<?php echo $appointmentID; ?>">
-                <input type="hidden" name="redirect" value="view_appointment.php?id=<?php echo $appointmentID; ?>">
+                <input type="hidden" name="redirect" value="barber_dashboard.php?id=<?php echo $appointmentID; ?>">
                 <select name="Status" onchange="this.form.submit()">
                     <option value="scheduled" <?php echo $appointment['Status']=='scheduled'?'selected':''; ?>>Scheduled</option>
                     <option value="confirmed" <?php echo $appointment['Status']=='confirmed'?'selected':''; ?>>Confirmed</option>
