@@ -1,6 +1,12 @@
 <?php
 session_start();
-if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
+if (!isset($_SESSION['UserID']) || 
+    !(
+        $_SESSION['Role'] === 'admin' || 
+        ($_SESSION['Role'] === 'barber' && empty($features['allow products']))
+    )
+) {
+    echo "Redirecting to login.php"; // for debug
     header("Location: Login.php");
     exit();
 }
