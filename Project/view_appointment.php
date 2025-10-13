@@ -168,5 +168,5 @@ $result = $stmt->get_result();
     <?php endif; ?>
 </div>
 
-<?php include 'footer.php'; ?>
+
 
