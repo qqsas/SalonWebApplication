@@ -1,4 +1,4 @@
-?php
+<?php
 session_start();
 if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'barber') {
     header("Location: Login.php");
@@ -42,6 +42,19 @@ $offset = ($page - 1) * $limit;
 
 function escape($str) {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
+
+// Function to convert USD to ZAR (Rands)
+function usdToZar($usdAmount) {
+    // You can use a fixed exchange rate or fetch from an API
+    // For now, using a fixed rate of 18.5 (approximate)
+    $exchangeRate = 18.5;
+    return number_format($usdAmount * $exchangeRate, 2);
+}
+
+// Function to format currency in Rands
+function formatCurrency($amount) {
+    return 'R ' . usdToZar($amount);
 }
 
 function getRecordCount($conn, $table, $where = '', $params = [], $types = '') {
@@ -313,7 +326,7 @@ while ($row = $result->fetch_assoc()) {
                                     </select>
                                 </form>
                             </td>
-                            <td class='barber-highlight'>$".escape($row['Cost'])."</td>
+                            <td class='barber-highlight'>".formatCurrency($row['Cost'])."</td>
                             <td>
                                 <div class='action-buttons'>
                                     <a href='view_appointment_b.php?id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&filter=$filter&status=$status&date=$date&page=$page' class='btn btn-sm btn-primary'>View</a>
@@ -376,7 +389,7 @@ while ($row = $result->fetch_assoc()) {
                     echo "<tr>
                             <td class='barber-highlight'>".escape($row['Name'])."</td>
                             <td title='".escape($row['Description'])."'>".escape($descPreview)."</td>
-                            <td class='barber-highlight'>$".escape($row['Price'])."</td>
+                            <td class='barber-highlight'>".formatCurrency($row['Price'])."</td>
                             <td>".escape($row['Time'])." minutes</td>
                             <td>
                                 <div class='action-buttons'>";
@@ -703,7 +716,7 @@ while ($row = $result->fetch_assoc()) {
                     echo "<tr>
                             <td class='barber-highlight'>".escape($row['Name'])."</td>
                             <td>".escape($row['Category'])."</td>
-                            <td class='barber-highlight'>$".escape($row['Price'])."</td>
+                            <td class='barber-highlight'>".formatCurrency($row['Price'])."</td>
                             <td class='$stockClass'>".escape($row['Stock'])."</td>
                             <td>
                                 <div class='action-buttons'>
@@ -722,7 +735,7 @@ while ($row = $result->fetch_assoc()) {
                 // Overview - Show statistics for the barber
                 echo "<h2>Dashboard Overview</h2>";
                 
-                // Today's appointments
+                // Today's appointments - make this clickable
                 $today = date('Y-m-d');
                 $stmt = $conn->prepare("SELECT COUNT(*) as count FROM Appointment 
                                        WHERE BarberID = ? AND DATE(Time) = ? AND Status IN ('scheduled', 'confirmed')");
@@ -753,10 +766,13 @@ while ($row = $result->fetch_assoc()) {
                 
                 
                 echo "<div class='barber-stats-grid'>";
-                echo "<div class='barber-stat-card'>
-                        <div class='barber-stat-value'>$todayAppointments</div>
-                        <div class='barber-stat-label'>Today's Appointments</div>
-                      </div>";
+                // Make Today's Appointments clickable
+                echo "<a href='?view=appointments&filter=today' class='barber-stat-card-link'>
+                        <div class='barber-stat-card'>
+                            <div class='barber-stat-value'>$todayAppointments</div>
+                            <div class='barber-stat-label'>Today's Appointments</div>
+                        </div>
+                      </a>";
                 
                 echo "<div class='barber-stat-card'>
                         <div class='barber-stat-value'>$weekAppointments</div>
@@ -787,12 +803,14 @@ while ($row = $result->fetch_assoc()) {
                     while ($row = $result->fetch_assoc()) {
                         $time = new DateTime($row['Time']);
                         $statusClass = 'status-' . str_replace(' ', '-', $row['Status']);
-                        echo "<div class='appointment-item {$row['Status']}'>
-                                <div class='appointment-time'>".$time->format('g:i A')."</div>
-                                <div class='appointment-client'>".escape($row['UserName'])."</div>
-                                <div class='appointment-service'>".escape($row['Type'])."</div>
-                                <div class='appointment-status $statusClass'>".escape($row['Status'])."</div>
-                              </div>";
+                        echo "<a href='view_appointment_b.php?id=".escape($row['AppointmentID'])."' class='appointment-item-link'>
+                                <div class='appointment-item {$row['Status']}'>
+                                    <div class='appointment-time'>".$time->format('g:i A')."</div>
+                                    <div class='appointment-client'>".escape($row['UserName'])."</div>
+                                    <div class='appointment-service'>".escape($row['Type'])."</div>
+                                    <div class='appointment-status $statusClass'>".escape($row['Status'])."</div>
+                                </div>
+                              </a>";
                     }
                     echo "</div>";
                 } else {
