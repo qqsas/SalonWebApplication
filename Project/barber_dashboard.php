@@ -1,4 +1,4 @@
-<?php
+?php
 session_start();
 if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'barber') {
     header("Location: Login.php");
@@ -741,16 +741,6 @@ while ($row = $result->fetch_assoc()) {
                 $result = $stmt->get_result();
                 $weekAppointments = $result->fetch_assoc()['count'];
                 
-                // Monthly revenue
-                $monthStart = date('Y-m-01');
-                $monthEnd = date('Y-m-t');
-                $stmt = $conn->prepare("SELECT SUM(Cost) as total FROM Appointment 
-                                       WHERE BarberID = ? AND Status = 'completed' 
-                                       AND DATE(Time) BETWEEN ? AND ?");
-                $stmt->bind_param("iss", $barberID, $monthStart, $monthEnd);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $monthRevenue = $result->fetch_assoc()['total'] ?? 0;
                 
                 // Average rating
                 $stmt = $conn->prepare("SELECT AVG(r.Rating) as avg_rating FROM Appointment a 
@@ -761,21 +751,6 @@ while ($row = $result->fetch_assoc()) {
                 $result = $stmt->get_result();
                 $avgRating = $result->fetch_assoc()['avg_rating'] ?? 0;
                 
-                // Quick actions
-                echo '<div class="quick-actions">
-                        <a href="?view=appointments" class="quick-action-btn">
-                            <div class="quick-action-text">Manage Appointments</div>
-                        </a>
-                        <a href="?view=services" class="quick-action-btn">
-                            <div class="quick-action-text">My Services</div>
-                        </a>
-                        <a href="?view=workinghours" class="quick-action-btn">
-                            <div class="quick-action-text">Working Hours</div>
-                        </a>
-                        <a href="?view=profile" class="quick-action-btn">
-                            <div class="quick-action-text">My Profile</div>
-                        </a>
-                      </div>';
                 
                 echo "<div class='barber-stats-grid'>";
                 echo "<div class='barber-stat-card'>
@@ -788,10 +763,6 @@ while ($row = $result->fetch_assoc()) {
                         <div class='barber-stat-label'>This Week</div>
                       </div>";
                 
-                echo "<div class='barber-stat-card'>
-                        <div class='barber-stat-value'>$".number_format($monthRevenue, 2)."</div>
-                        <div class='barber-stat-label'>Monthly Revenue</div>
-                      </div>";
                 
                 echo "<div class='barber-stat-card'>
                         <div class='barber-stat-value'>".number_format($avgRating, 1)."</div>
