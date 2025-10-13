@@ -10,6 +10,9 @@ if (!isset($_SESSION['UserID'])) {
 }
 
 $userID = $_SESSION['UserID'];
+// Define role flags
+$isAdmin = isset($_SESSION['Role']) && $_SESSION['Role'] === 'admin';
+
 
 // Handle actions: cancel, restore
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['OrderID'])) {

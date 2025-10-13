@@ -14,14 +14,14 @@ CREATE TABLE User (
     PRIMARY KEY (UserID)
 ) ENGINE=InnoDB;
 
--- Admin Table
+-- Admin Table (optional for your system)
 CREATE TABLE Admin (
-    BarberID INT(11) NOT NULL AUTO_INCREMENT,
+    AdminID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
     Name VARCHAR(100) NOT NULL,
     Bio TEXT DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (BarberID),
+    PRIMARY KEY (AdminID),
     KEY idx_userid (UserID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 ) ENGINE=InnoDB;
@@ -62,8 +62,8 @@ CREATE TABLE BarberServices (
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberServiceID),
     UNIQUE KEY uq_barber_service (BarberID, ServicesID),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID),
-    FOREIGN KEY (ServicesID) REFERENCES Services(ServicesID)
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ServicesID) REFERENCES Services(ServicesID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- BarberWorkingHours Table
@@ -73,7 +73,7 @@ CREATE TABLE BarberWorkingHours (
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
     PRIMARY KEY (BarberID, DayOfWeek),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID)
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- BarberUnavailability Table
@@ -87,7 +87,7 @@ CREATE TABLE BarberUnavailability (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (UnavailabilityID),
     KEY idx_barberid (BarberID),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID)
+    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- Appointment Table
@@ -189,7 +189,7 @@ CREATE TABLE Reviews (
     Comment TEXT DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
-    Status ENUM('pending', 'cancelled', 'approved') NOT NULL DEFAULT 'pending',
+    Status ENUM('pending','cancelled','approved') NOT NULL DEFAULT 'pending',
     PRIMARY KEY (ReviewID),
     KEY idx_userid (UserID),
     KEY idx_productid (ProductID),
@@ -220,4 +220,3 @@ CREATE TABLE Features (
     CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (FeatureID)
 ) ENGINE=InnoDB;
-
