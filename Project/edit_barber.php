@@ -68,10 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         // --- Update services (barberservices table) ---
-        $conn->query("UPDATE barberservices SET IsDeleted=1 WHERE BarberID=$barber_id");
+        $conn->query("UPDATE BarberServices SET IsDeleted=1 WHERE BarberID=$barber_id");
 
         if (!empty($services)) {
-            $stmt = $conn->prepare("INSERT INTO barberservices (BarberID, ServicesID, CreatedAt, IsDeleted) VALUES (?, ?, NOW(), 0)");
+            $stmt = $conn->prepare("INSERT INTO BarberServices (BarberID, ServicesID, CreatedAt, IsDeleted) VALUES (?, ?, NOW(), 0)");
             foreach ($services as $service_id) {
                 $stmt->bind_param("ii", $barber_id, $service_id);
                 $stmt->execute();
@@ -108,7 +108,7 @@ $services_list = $conn->query("SELECT ServicesID, Name, Price, Time FROM Service
 
 // --- Fetch assigned services ---
 $current_services = [];
-$res = $conn->query("SELECT ServicesID FROM barberservices WHERE BarberID=$barber_id AND IsDeleted=0");
+$res = $conn->query("SELECT ServicesID FROM BarberServices WHERE BarberID=$barber_id AND IsDeleted=0");
 while ($row = $res->fetch_assoc()) {
     $current_services[] = $row['ServicesID'];
 }
