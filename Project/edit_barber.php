@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $bio = trim($_POST['bio']);
     $user_id = intval($_POST['user_id']);
+    $services = $_POST['services'] ?? [];
 
     if (!$name || !$user_id) {
         echo "<p style='color:red;'>Name and UserID are required.</p>";
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        if ($_FILES['ImgFile']['size'] > 5*1024*1024) {
+        if ($_FILES['ImgFile']['size'] > 5 * 1024 * 1024) {
             echo "<p style='color:red;'>File too large (max 5MB).</p>";
             exit();
         }
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imgPath = $targetFile;
     }
 
-    // --- Build SQL dynamically ---
+    // --- Update barber info ---
     if ($imgPath) {
         $stmt = $conn->prepare("UPDATE Barber SET Name=?, Bio=?, UserID=?, ImgUrl=? WHERE BarberID=?");
         $stmt->bind_param("ssisi", $name, $bio, $user_id, $imgPath, $barber_id);
@@ -61,12 +62,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("ssii", $name, $bio, $user_id, $barber_id);
     }
 
-    if ($stmt->execute()) {
-        echo "<p style='color:green;'>Barber updated successfully.</p>";
-    } else {
-        echo "<p style='color:red;'>Error updating barber: " . $conn->error . "</p>";
+    $conn->begin_transaction();
+    try {
+        $stmt->execute();
+        $stmt->close();
+
+        // --- Update services (barberservices table) ---
+        // Soft delete all old links first
+        $conn->query("UPDATE barberservices SET IsDeleted=1 WHERE BarberID=$barber_id");
+
+        // Add (or re-add) the selected services
+        if (!empty($services)) {
+            $stmt = $conn->prepare("INSERT INTO barberservices (BarberID, ServicesID, CreatedAt, IsDeleted) VALUES (?, ?, NOW(), 0)");
+            foreach ($services as $service_id) {
+                $stmt->bind_param("ii", $barber_id, $service_id);
+                $stmt->execute();
+            }
+            $stmt->close();
+        }
+
+        $conn->commit();
+        echo "<p style='color:green;'>Barber and services updated successfully.</p>";
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo "<p style='color:red;'>Error updating barber: " . $e->getMessage() . "</p>";
     }
-    $stmt->close();
 }
 
 // --- Fetch barber details ---
@@ -84,6 +104,16 @@ if (!$barber) {
 
 // --- Fetch available users to link ---
 $users = $conn->query("SELECT UserID, Name, Email FROM User WHERE Role='barber' AND IsDeleted=0");
+
+// --- Fetch all services ---
+$services_list = $conn->query("SELECT ServicesID, Name FROM Services WHERE IsDeleted=0");
+
+// --- Fetch current assigned services ---
+$current_services = [];
+$res = $conn->query("SELECT ServicesID FROM barberservices WHERE BarberID=$barber_id AND IsDeleted=0");
+while ($row = $res->fetch_assoc()) {
+    $current_services[] = $row['ServicesID'];
+}
 ?>
 
 <?php include 'header.php'; ?>
@@ -121,9 +151,18 @@ $users = $conn->query("SELECT UserID, Name, Email FROM User WHERE Role='barber' 
             <input type="file" name="ImgFile" id="ImgFile" accept=".jpg,.jpeg,.png,.gif">
         </div>
 
-        <br>
+        <h3>Assign / Edit Services</h3>
+        <select name="services[]" multiple size="6">
+            <?php while ($s = $services_list->fetch_assoc()) { ?>
+                <option value="<?php echo $s['ServicesID']; ?>" 
+                    <?php echo in_array($s['ServicesID'], $current_services) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($s['Name']); ?>
+                </option>
+            <?php } ?>
+        </select>
+        <br><br>
+
         <button type="submit">Update Barber</button>
     </form>
 </div>
 <?php include 'footer.php'; ?>
-
