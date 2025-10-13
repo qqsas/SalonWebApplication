@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert into database if no errors
     if (!$hasError) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $role = "Customer";
+        $role = "client";
 
         $emailToInsert = $email ?? '';
         $numberToInsert = $number ?? '';

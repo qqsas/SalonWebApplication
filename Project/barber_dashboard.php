@@ -27,6 +27,12 @@ if (!$barberID) {
 
 $view = $_GET['view'] ?? 'overview';
 $search = $_GET['search'] ?? '';
+$filter = $_GET['filter'] ?? '';
+$status = $_GET['status'] ?? '';
+$date = $_GET['date'] ?? '';
+$category = $_GET['category'] ?? '';
+$rating = $_GET['rating'] ?? '';
+
 $searchParam = urlencode($search);
 $searchLike = $search ? "%" . strtolower($search) . "%" : "%";
 
@@ -51,22 +57,29 @@ function getRecordCount($conn, $table, $where = '', $params = [], $types = '') {
     return $result->fetch_assoc()['total'];
 }
 
-function displayPagination($totalPages, $page, $view, $searchParam) {
+function displayPagination($totalPages, $page, $view, $searchParam, $filter = '', $status = '', $date = '', $category = '', $rating = '') {
     if ($totalPages <= 1) return;
+    
+    $filterParams = "";
+    if ($filter) $filterParams .= "&filter=$filter";
+    if ($status) $filterParams .= "&status=$status";
+    if ($date) $filterParams .= "&date=$date";
+    if ($category) $filterParams .= "&category=$category";
+    if ($rating) $filterParams .= "&rating=$rating";
     
     echo "<div class='pagination'>";
     if ($page > 1) {
-        echo "<a href='?view=$view&search=$searchParam&page=".($page-1)."'>Previous</a> ";
+        echo "<a href='?view=$view&search=$searchParam{$filterParams}&page=".($page-1)."'>Previous</a> ";
     }
     for ($i = 1; $i <= $totalPages; $i++) {
         if ($i == $page) {
             echo "<strong>$i</strong> ";
         } else {
-            echo "<a href='?view=$view&search=$searchParam&page=$i'>$i</a> ";
+            echo "<a href='?view=$view&search=$searchParam{$filterParams}&page=$i'>$i</a> ";
         }
     }
     if ($page < $totalPages) {
-        echo "<a href='?view=$view&search=$searchParam&page=".($page+1)."'>Next</a>";
+        echo "<a href='?view=$view&search=$searchParam{$filterParams}&page=".($page+1)."'>Next</a>";
     }
     echo "</div>";
 }
@@ -117,14 +130,81 @@ while ($row = $result->fetch_assoc()) {
             </ul>
         </div>
 
-        <!-- Improved Search Form -->
-        <div class="search-container">
-            <form method="GET" class="search-form">
+        <!-- Improved Search and Filter Form -->
+        <div class="search-filter-container">
+            <form method="GET" class="search-filter-form">
                 <input type="hidden" name="view" value="<?php echo escape($view); ?>">
-                <input type="text" name="search" class="search-input" placeholder="Search..." value="<?php echo escape($search); ?>">
-                <button type="submit" class="search-button">Search</button>
-                <?php if ($search): ?>
-                    <a href="?view=<?php echo escape($view); ?>" class="clear-search">Clear Search</a>
+                
+                <div class="search-section">
+                    <input type="text" name="search" class="search-input" placeholder="Search..." value="<?php echo escape($search); ?>">
+                    <button type="submit" class="search-button">Search</button>
+                    <?php if ($search || $filter || $status || $date || $category || $rating): ?>
+                        <a href="?view=<?php echo escape($view); ?>" class="clear-search">Clear All</a>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($view === 'appointments'): ?>
+                <div class="filter-section">
+                    <select name="status" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="scheduled" <?php echo $status === 'scheduled' ? 'selected' : ''; ?>>Scheduled</option>
+                        <option value="confirmed" <?php echo $status === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                        <option value="in progress" <?php echo $status === 'in progress' ? 'selected' : ''; ?>>In Progress</option>
+                        <option value="completed" <?php echo $status === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                        <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                    </select>
+                    
+                    <select name="filter" class="filter-select">
+                        <option value="">All Time</option>
+                        <option value="today" <?php echo $filter === 'today' ? 'selected' : ''; ?>>Today</option>
+                        <option value="week" <?php echo $filter === 'week' ? 'selected' : ''; ?>>This Week</option>
+                        <option value="month" <?php echo $filter === 'month' ? 'selected' : ''; ?>>This Month</option>
+                        <option value="upcoming" <?php echo $filter === 'upcoming' ? 'selected' : ''; ?>>Upcoming</option>
+                        <option value="past" <?php echo $filter === 'past' ? 'selected' : ''; ?>>Past</option>
+                    </select>
+                    
+                    <input type="date" name="date" class="filter-select" value="<?php echo escape($date); ?>" placeholder="Specific Date">
+                </div>
+                <?php elseif ($view === 'reviews'): ?>
+                <div class="filter-section">
+                    <select name="rating" class="filter-select">
+                        <option value="">All Ratings</option>
+                        <option value="5" <?php echo $rating === '5' ? 'selected' : ''; ?>>5 Stars</option>
+                        <option value="4" <?php echo $rating === '4' ? 'selected' : ''; ?>>4+ Stars</option>
+                        <option value="3" <?php echo $rating === '3' ? 'selected' : ''; ?>>3+ Stars</option>
+                        <option value="2" <?php echo $rating === '2' ? 'selected' : ''; ?>>2+ Stars</option>
+                        <option value="1" <?php echo $rating === '1' ? 'selected' : ''; ?>>1+ Stars</option>
+                    </select>
+                    
+                    <select name="filter" class="filter-select">
+                        <option value="">All Time</option>
+                        <option value="week" <?php echo $filter === 'week' ? 'selected' : ''; ?>>This Week</option>
+                        <option value="month" <?php echo $filter === 'month' ? 'selected' : ''; ?>>This Month</option>
+                        <option value="year" <?php echo $filter === 'year' ? 'selected' : ''; ?>>This Year</option>
+                    </select>
+                </div>
+                <?php elseif ($view === 'products'): ?>
+                <div class="filter-section">
+                    <select name="category" class="filter-select">
+                        <option value="">All Categories</option>
+                        <?php
+                        $catStmt = $conn->prepare("SELECT DISTINCT Category FROM Products WHERE IsDeleted = 0 ORDER BY Category");
+                        $catStmt->execute();
+                        $catResult = $catStmt->get_result();
+                        while ($cat = $catResult->fetch_assoc()) {
+                            $selected = $category === $cat['Category'] ? 'selected' : '';
+                            echo "<option value='".escape($cat['Category'])."' $selected>".escape($cat['Category'])."</option>";
+                        }
+                        ?>
+                    </select>
+                    
+                    <select name="filter" class="filter-select">
+                        <option value="">All Stock</option>
+                        <option value="in_stock" <?php echo $filter === 'in_stock' ? 'selected' : ''; ?>>In Stock</option>
+                        <option value="low_stock" <?php echo $filter === 'low_stock' ? 'selected' : ''; ?>>Low Stock (< 10)</option>
+                        <option value="out_of_stock" <?php echo $filter === 'out_of_stock' ? 'selected' : ''; ?>>Out of Stock</option>
+                    </select>
+                </div>
                 <?php endif; ?>
             </form>
         </div>
@@ -138,9 +218,38 @@ while ($row = $result->fetch_assoc()) {
 
         switch($view) {
             case 'appointments':
+                // Build WHERE clause for appointments
                 $where = "a.BarberID = ? AND (LOWER(u.Name) LIKE ? OR LOWER(a.ForName) LIKE ? OR LOWER(a.Type) LIKE ?)";
                 $params = [$barberID, $searchLike, $searchLike, $searchLike];
                 $types = "isss";
+                
+                // Add status filter
+                if ($status) {
+                    $where .= " AND a.Status = ?";
+                    $params[] = $status;
+                    $types .= "s";
+                }
+                
+                // Add date filters
+                if ($filter === 'today') {
+                    $where .= " AND DATE(a.Time) = CURDATE()";
+                } elseif ($filter === 'week') {
+                    $where .= " AND YEARWEEK(a.Time, 1) = YEARWEEK(CURDATE(), 1)";
+                } elseif ($filter === 'month') {
+                    $where .= " AND YEAR(a.Time) = YEAR(CURDATE()) AND MONTH(a.Time) = MONTH(CURDATE())";
+                } elseif ($filter === 'upcoming') {
+                    $where .= " AND a.Time >= NOW()";
+                } elseif ($filter === 'past') {
+                    $where .= " AND a.Time < NOW()";
+                }
+                
+                // Add specific date filter
+                if ($date) {
+                    $where .= " AND DATE(a.Time) = ?";
+                    $params[] = $date;
+                    $types .= "s";
+                }
+                
                 $totalRecords = getRecordCount($conn, 'Appointment a 
                                         LEFT JOIN User u ON a.UserID = u.UserID', 
                                         $where, $params, $types);
@@ -148,10 +257,11 @@ while ($row = $result->fetch_assoc()) {
                 
                 echo "<h2>My Appointments (Total: $totalRecords)</h2>";
                 
+                $orderBy = "a.Time " . ($filter === 'past' ? "DESC" : "ASC");
                 $stmt = $conn->prepare("SELECT a.*, u.Name AS UserName, u.Number AS UserPhone 
                                         FROM Appointment a 
                                         LEFT JOIN User u ON a.UserID = u.UserID 
-                                        WHERE $where ORDER BY a.Time DESC LIMIT ? OFFSET ?");
+                                        WHERE $where ORDER BY $orderBy LIMIT ? OFFSET ?");
                 $params[] = $limit;
                 $params[] = $offset;
                 $types .= "ii";
@@ -193,7 +303,7 @@ while ($row = $result->fetch_assoc()) {
                             <td>
                                 <form method='POST' action='update_appointment_status_b.php' class='inline-form'>
                                     <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'>
-                                    <input type='hidden' name='redirect' value='barber_dashboard.php?view=appointments&search=$searchParam&page=$page'>
+                                    <input type='hidden' name='redirect' value='barber_dashboard.php?view=appointments&search=$searchParam&filter=$filter&status=$status&date=$date&page=$page'>
                                     <select name='Status' onchange='this.form.submit()'>
                                         <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option>
                                         <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option>
@@ -206,7 +316,7 @@ while ($row = $result->fetch_assoc()) {
                             <td class='barber-highlight'>$".escape($row['Cost'])."</td>
                             <td>
                                 <div class='action-buttons'>
-                                    <a href='view_appointment_b.php?id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&page=$page' class='btn btn-sm btn-primary'>View</a>
+                                    <a href='view_appointment_b.php?id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&filter=$filter&status=$status&date=$date&page=$page' class='btn btn-sm btn-primary'>View</a>
                                     <a href='tel:".escape($row['UserPhone'])."' class='btn btn-sm btn-success'>Call</a>
                                 </div>
                             </td>
@@ -214,7 +324,7 @@ while ($row = $result->fetch_assoc()) {
                 }
                 echo "</table>";
                 echo "</div>";
-                displayPagination($totalPages, $page, 'appointments', $searchParam);
+                displayPagination($totalPages, $page, 'appointments', $searchParam, $filter, $status, $date);
                 break;
 
             case 'services':
@@ -342,58 +452,67 @@ while ($row = $result->fetch_assoc()) {
                 echo "<br><button type='submit' class='btn btn-primary'>Save Working Hours</button>";
                 echo "</form>";
                 echo "</div>";
-// Fetch current unavailability
-$stmt = $conn->prepare("SELECT * FROM BarberUnavailability WHERE BarberID = ? ORDER BY Date DESC, StartTime");
-$stmt->bind_param("i", $barberID);
-$stmt->execute();
-$result = $stmt->get_result();
-$unavailability = $result->fetch_all(MYSQLI_ASSOC);
 
-echo "<h3>Mark Unavailability</h3>";
-echo "<form method='POST' action='update_unavailability.php' class='unavailability-form'>";
-echo "<input type='hidden' name='BarberID' value='$barberID'>";
-echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>";
+                // Fetch current unavailability with date filter
+                $unavailabilityWhere = "BarberID = ?";
+                $unavailabilityParams = [$barberID];
+                $unavailabilityTypes = "i";
+                
+                if ($date) {
+                    $unavailabilityWhere .= " AND Date = ?";
+                    $unavailabilityParams[] = $date;
+                    $unavailabilityTypes .= "s";
+                }
+                
+                $stmt = $conn->prepare("SELECT * FROM BarberUnavailability WHERE $unavailabilityWhere ORDER BY Date DESC, StartTime");
+                $stmt->bind_param($unavailabilityTypes, ...$unavailabilityParams);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $unavailability = $result->fetch_all(MYSQLI_ASSOC);
 
-echo "<div class='unavailability-inputs'>
-        <label>Date:</label>
-        <input type='date' name='Date' required>
-        <label>Start Time (optional):</label>
-        <input type='time' name='StartTime'>
-        <label>End Time (optional):</label>
-        <input type='time' name='EndTime'>
-        <label>Reason (optional):</label>
-        <input type='text' name='Reason' maxlength='255'>
-        <button type='submit' class='btn btn-warning'>Add Unavailability</button>
-      </div>";
+                echo "<h3>Mark Unavailability</h3>";
+                echo "<form method='POST' action='update_unavailability.php' class='unavailability-form'>";
+                echo "<input type='hidden' name='BarberID' value='$barberID'>";
+                echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>";
 
-echo "</form>";
+                echo "<div class='unavailability-inputs'>
+                        <label>Date:</label>
+                        <input type='date' name='Date' required>
+                        <label>Start Time (optional):</label>
+                        <input type='time' name='StartTime'>
+                        <label>End Time (optional):</label>
+                        <input type='time' name='EndTime'>
+                        <label>Reason (optional):</label>
+                        <input type='text' name='Reason' maxlength='255'>
+                        <button type='submit' class='btn btn-warning'>Add Unavailability</button>
+                      </div>";
 
-if ($unavailability) {
-    echo "<h4>Existing Unavailability</h4>";
-    echo "<table class='data-table'>
-            <tr><th>Date</th><th>Start</th><th>End</th><th>Reason</th><th>Actions</th></tr>";
-    foreach ($unavailability as $u) {
-        $start = $u['StartTime'] ?? '-';
-        $end = $u['EndTime'] ?? '-';
-        $reason = htmlspecialchars($u['Reason']);
-        echo "<tr>
-                <td>{$u['Date']}</td>
-                <td>{$start}</td>
-                <td>{$end}</td>
-                <td>{$reason}</td>
-                <td>
-                    <form method='POST' action='delete_unavailability.php' style='display:inline'>
-                        <input type='hidden' name='UnavailabilityID' value='{$u['UnavailabilityID']}'>
-                        <input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>
-                        <button type='submit' onclick='return confirm(\"Remove this unavailability?\")' class='btn btn-sm btn-danger'>Remove</button>
-                    </form>
-                </td>
-              </tr>";
-    }
-    echo "</table>";
-}
+                echo "</form>";
 
-
+                if ($unavailability) {
+                    echo "<h4>Existing Unavailability" . ($date ? " for " . escape($date) : "") . "</h4>";
+                    echo "<table class='data-table'>
+                            <tr><th>Date</th><th>Start</th><th>End</th><th>Reason</th><th>Actions</th></tr>";
+                    foreach ($unavailability as $u) {
+                        $start = $u['StartTime'] ?? '-';
+                        $end = $u['EndTime'] ?? '-';
+                        $reason = htmlspecialchars($u['Reason']);
+                        echo "<tr>
+                                <td>{$u['Date']}</td>
+                                <td>{$start}</td>
+                                <td>{$end}</td>
+                                <td>{$reason}</td>
+                                <td>
+                                    <form method='POST' action='delete_unavailability.php' style='display:inline'>
+                                        <input type='hidden' name='UnavailabilityID' value='{$u['UnavailabilityID']}'>
+                                        <input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>
+                                        <button type='submit' onclick='return confirm(\"Remove this unavailability?\")' class='btn btn-sm btn-danger'>Remove</button>
+                                    </form>
+                                </td>
+                              </tr>";
+                    }
+                    echo "</table>";
+                }
                 break;
 
             case 'profile':
@@ -417,24 +536,23 @@ if ($unavailability) {
                 echo "<form method='POST' action='update_barber_profile.php' class='profile-form' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='BarberID' value='$barberID'>";
                 echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=profile'>";
-// Display current image if exists
-$currentImg = !empty($barber['ImgUrl']) ? $barber['ImgUrl'] : 'Img/default-staff.jpg';
-
-echo "<div class='form-group'>
-        <label class='form-label'>Profile Image:</label>
-        <div class='current-image'>
-            <img src='".escape($currentImg)."' alt='Profile Image' style='max-width:150px; max-height:150px; border-radius:8px;'>
-        </div>
-        <input type='file' name='ImgFile' accept='image/*' class='form-control'>
-        <small>Upload a new image to replace the current one.</small>
-      </div>";
-
                 
+                // Display current image if exists
+                $currentImg = !empty($barber['ImgUrl']) ? $barber['ImgUrl'] : 'Img/default-staff.jpg';
+
+                echo "<div class='form-group'>
+                        <label class='form-label'>Profile Image:</label>
+                        <div class='current-image'>
+                            <img src='".escape($currentImg)."' alt='Profile Image' style='max-width:150px; max-height:150px; border-radius:8px;'>
+                        </div>
+                        <input type='file' name='ImgFile' accept='image/*' class='form-control'>
+                        <small>Upload a new image to replace the current one.</small>
+                      </div>";
+
                 echo "<div class='form-group'>
                         <label class='form-label'>Name:</label>
                         <input type='text' name='Name' class='form-control' value='".escape($barber['Name'])."' required>
                       </div>";
-                
                 
                 echo "<div class='form-group'>
                         <label class='form-label'>Bio:</label>
@@ -447,9 +565,27 @@ echo "<div class='form-group'>
                 break;
 
             case 'reviews':
-                $where = "a.BarberID = ? AND (LOWER(u.Name) LIKE ? OR LOWER(r.Comment) LIKE ?)";
+                // Build WHERE clause for reviews
+                $where = "a.BarberID = ? AND (LOWER(u.Name) LIKE ? OR LOWER(r.Comment) LIKE ?) AND r.ReviewID IS NOT NULL";
                 $params = [$barberID, $searchLike, $searchLike];
                 $types = "iss";
+                
+                // Add rating filter
+                if ($rating) {
+                    $where .= " AND r.Rating >= ?";
+                    $params[] = (int)$rating;
+                    $types .= "i";
+                }
+                
+                // Add time filter
+                if ($filter === 'week') {
+                    $where .= " AND r.CreatedAt >= DATE_SUB(NOW(), INTERVAL 1 WEEK)";
+                } elseif ($filter === 'month') {
+                    $where .= " AND r.CreatedAt >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
+                } elseif ($filter === 'year') {
+                    $where .= " AND r.CreatedAt >= DATE_SUB(NOW(), INTERVAL 1 YEAR)";
+                }
+                
                 $totalRecords = getRecordCount($conn, 'Appointment a 
                                         LEFT JOIN Reviews r ON a.ReviewID = r.ReviewID
                                         LEFT JOIN User u ON a.UserID = u.UserID', 
@@ -462,7 +598,7 @@ echo "<div class='form-group'>
                                         FROM Appointment a 
                                         LEFT JOIN Reviews r ON a.ReviewID = r.ReviewID
                                         LEFT JOIN User u ON a.UserID = u.UserID 
-                                        WHERE $where AND r.ReviewID IS NOT NULL 
+                                        WHERE $where 
                                         ORDER BY r.CreatedAt DESC LIMIT ? OFFSET ?");
                 $params[] = $limit;
                 $params[] = $offset;
@@ -501,7 +637,7 @@ echo "<div class='form-group'>
                 }
                 echo "</table>";
                 echo "</div>";
-                displayPagination($totalPages, $page, 'reviews', $searchParam);
+                displayPagination($totalPages, $page, 'reviews', $searchParam, $filter, '', '', '', $rating);
                 break;
 
             case 'products':
@@ -510,24 +646,41 @@ echo "<div class='form-group'>
                     break;
                 }
 
-                $where = "(LOWER(p.Name) LIKE ? OR LOWER(p.Category) LIKE ?)";
+                // Build WHERE clause for products
+                $where = "(LOWER(p.Name) LIKE ? OR LOWER(p.Category) LIKE ?) AND p.IsDeleted = 0";
                 $params = [$searchLike, $searchLike];
                 $types = "ss";
 
+                // Add category filter
+                if ($category) {
+                    $where .= " AND p.Category = ?";
+                    $params[] = $category;
+                    $types .= "s";
+                }
+
+                // Add stock filter
+                if ($filter === 'in_stock') {
+                    $where .= " AND p.Stock > 0";
+                } elseif ($filter === 'low_stock') {
+                    $where .= " AND p.Stock > 0 AND p.Stock < 10";
+                } elseif ($filter === 'out_of_stock') {
+                    $where .= " AND p.Stock = 0";
+                }
+
                 // Count total products for pagination
-                $stmt = $conn->prepare("SELECT COUNT(*) as total FROM Products p WHERE $where AND p.IsDeleted = 0");
+                $stmt = $conn->prepare("SELECT COUNT(*) as total FROM Products p WHERE $where");
                 $stmt->bind_param($types, ...$params);
                 $stmt->execute();
                 $totalRecords = $stmt->get_result()->fetch_assoc()['total'];
                 $totalPages = ceil($totalRecords / $limit);
 
-                echo '<a href="add_product.php?view=products&search='.$searchParam.'" class="add-btn">
+                echo '<a href="add_product.php?view=products&search='.$searchParam.'&category='.urlencode($category).'&filter='.$filter.'" class="add-btn">
                         <span>+</span> Add Product
                       </a>';
                 echo "<h2>All Products (Total: $totalRecords)</h2>";
 
                 // Fetch products
-                $stmt = $conn->prepare("SELECT * FROM Products p WHERE $where AND p.IsDeleted = 0 ORDER BY p.Name LIMIT ? OFFSET ?");
+                $stmt = $conn->prepare("SELECT * FROM Products p WHERE $where ORDER BY p.Name LIMIT ? OFFSET ?");
                 $params[] = $limit;
                 $params[] = $offset;
                 $types .= "ii";
@@ -554,7 +707,7 @@ echo "<div class='form-group'>
                             <td class='$stockClass'>".escape($row['Stock'])."</td>
                             <td>
                                 <div class='action-buttons'>
-                                    <a href='edit_product.php?id=".escape($row['ProductID'])."&view=products&search=$searchParam&page=$page' class='btn btn-sm btn-primary'>Edit</a>
+                                    <a href='edit_product.php?id=".escape($row['ProductID'])."&view=products&search=$searchParam&category=".urlencode($category)."&filter=$filter&page=$page' class='btn btn-sm btn-primary'>Edit</a>
                                 </div>
                             </td>
                           </tr>";
@@ -562,7 +715,7 @@ echo "<div class='form-group'>
                 echo "</table>";
                 echo "</div>";
 
-                displayPagination($totalPages, $page, 'products', $searchParam);
+                displayPagination($totalPages, $page, 'products', $searchParam, $filter, '', '', $category);
                 break;
 
             default:

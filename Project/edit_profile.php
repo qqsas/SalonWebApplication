@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <small>Leave both fields blank if you don’t want to change your password</small><br><br>
 
         <button type="submit">Update Profile</button>
-        <a href="dashboard.php" style="margin-left: 10px;">Cancel</a>
+        <a href="view_profile.php" style="margin-left: 10px;">Cancel</a>
     </form>
 </div>
 
