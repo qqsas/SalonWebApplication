@@ -53,31 +53,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imgPath = $targetFile;
     }
 
-    // --- Update barber info ---
-    if ($imgPath) {
-        $stmt = $conn->prepare("UPDATE Barber SET Name=?, Bio=?, UserID=?, ImgUrl=? WHERE BarberID=?");
-        $stmt->bind_param("ssisi", $name, $bio, $user_id, $imgPath, $barber_id);
-    } else {
-        $stmt = $conn->prepare("UPDATE Barber SET Name=?, Bio=?, UserID=? WHERE BarberID=?");
-        $stmt->bind_param("ssii", $name, $bio, $user_id, $barber_id);
-    }
-
     $conn->begin_transaction();
     try {
+        // --- Update barber info ---
+        if ($imgPath) {
+            $stmt = $conn->prepare("UPDATE Barber SET Name=?, Bio=?, UserID=?, ImgUrl=? WHERE BarberID=?");
+            $stmt->bind_param("ssisi", $name, $bio, $user_id, $imgPath, $barber_id);
+        } else {
+            $stmt = $conn->prepare("UPDATE Barber SET Name=?, Bio=?, UserID=? WHERE BarberID=?");
+            $stmt->bind_param("ssii", $name, $bio, $user_id, $barber_id);
+        }
         $stmt->execute();
         $stmt->close();
 
-        // --- Update services (barberservices table) ---
-        $conn->query("UPDATE BarberServices SET IsDeleted=1 WHERE BarberID=$barber_id");
+        // --- Fetch current barber services (including deleted ones) ---
+        $existing_services = [];
+        $res = $conn->query("SELECT ServicesID, IsDeleted FROM BarberServices WHERE BarberID = $barber_id");
+        while ($row = $res->fetch_assoc()) {
+            $existing_services[$row['ServicesID']] = $row['IsDeleted'];
+        }
 
-        if (!empty($services)) {
-            $stmt = $conn->prepare("INSERT INTO BarberServices (BarberID, ServicesID, CreatedAt, IsDeleted) VALUES (?, ?, NOW(), 0)");
-            foreach ($services as $service_id) {
+        // --- Handle service updates properly ---
+        // 1. Loop through all services that exist
+        foreach ($existing_services as $service_id => $is_deleted) {
+            if (in_array($service_id, $services)) {
+                // If checked again and was deleted, restore it
+                if ($is_deleted == 1) {
+                    $conn->query("UPDATE BarberServices SET IsDeleted=0 WHERE BarberID=$barber_id AND ServicesID=$service_id");
+                }
+            } else {
+                // If unchecked, mark as deleted
+                if ($is_deleted == 0) {
+                    $conn->query("UPDATE BarberServices SET IsDeleted=1 WHERE BarberID=$barber_id AND ServicesID=$service_id");
+                }
+            }
+        }
+
+        // 2. Add new services that were never assigned before
+        $stmt = $conn->prepare("INSERT INTO BarberServices (BarberID, ServicesID, CreatedAt, IsDeleted) VALUES (?, ?, NOW(), 0)");
+        foreach ($services as $service_id) {
+            if (!array_key_exists($service_id, $existing_services)) {
                 $stmt->bind_param("ii", $barber_id, $service_id);
                 $stmt->execute();
             }
-            $stmt->close();
         }
+        $stmt->close();
 
         $conn->commit();
         echo "<p style='color:green;'>Barber and services updated successfully.</p>";
