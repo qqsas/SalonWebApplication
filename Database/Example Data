@@ -1,4 +1,4 @@
-USE BarberShopDB;
+USE SalonDB;
 
 -- ====== Users ======
 INSERT INTO User (Name, Email, Number, Password, Role)

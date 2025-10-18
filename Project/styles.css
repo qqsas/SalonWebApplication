@@ -585,6 +585,7 @@ footer {
 .containerAbout h1 {
   text-align: center;
   font-size: 2.5rem;
+  font-weight: 100;
   color: var(--text-dark);
   margin-bottom: 2rem;
   position: relative;
