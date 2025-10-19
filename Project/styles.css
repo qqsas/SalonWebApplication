@@ -295,7 +295,7 @@ body {
 /* Default placeholder images */
 .service-image::before,
 .staff-image::before {
-  content: "📷";
+  content: "";
   font-size: 3rem;
   position: absolute;
   top: 50%;
