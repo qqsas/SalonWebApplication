@@ -4,7 +4,7 @@ include 'db.php';
 include 'header.php';
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Location: homepage.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -20,7 +20,7 @@ $result = $stmt->get_result();
 $product = $result->fetch_assoc();
 
 if (!$product) {
-    header('Location: homepage.php');
+    header('Location: index.php');
     exit;
 }
 

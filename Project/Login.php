@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['Role']   = $row['Role'];
 
                     // Redirect to original page or homepage
-                    $redirect = $_SESSION['redirect_after_login'] ?? 'homepage.php';
+                    $redirect = $_SESSION['redirect_after_login'] ?? 'index.php';
                     unset($_SESSION['redirect_after_login']);
 
                     $stmt->close();

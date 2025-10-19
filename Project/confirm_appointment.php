@@ -130,7 +130,7 @@ if ($insertStmt->execute()) {
   </p>
   <div class="confirmation-actions">
     <a href="view_appointment.php" class="confirmation-btn view">View My Appointments</a>
-    <a href="homepage.php" class="confirmation-btn home">Return to Home</a>
+    <a href="index.php" class="confirmation-btn home">Return to Home</a>
   </div>
 </div>
     <?php
