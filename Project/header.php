@@ -29,7 +29,10 @@ if (isset($_SESSION['UserID'])) {
     }
 }
 ?>
-
+<head>
+<link rel="stylesheet" href="adminstyle.css">
+<link rel="stylesheet" href="styles.css"> 
+</head>
 <!-- Header -->
 <nav class="Header-navbar">
     <div class="container-fluid">

@@ -34,6 +34,12 @@
     
 }
 
+/*Global*/
+
+h1,h2{
+  font-weight: 200;
+}
+
 .container-fluid {
   width: 100%;
   padding: 0 1rem;
@@ -191,7 +197,7 @@ body {
 .hero h2 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  font-weight: 700;
+  font-weight: 200;
 }
 
 .hero p {
@@ -295,8 +301,6 @@ body {
 /* Default placeholder images */
 .service-image::before,
 .staff-image::before {
-  content: "📷";
-  font-size: 3rem;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -567,13 +571,13 @@ footer {
   align-items: center;
   justify-content: center;
 }
-
+/* 
 .service-image:not([style*="background-image"])::after,
 .staff-image:not([style*="background-image"])::after {
   content: "Image Coming Soon";
   color: var(--text-light);
   font-style: italic;
-}
+} */
 
 /* About Us Page Styles */
 .containerAbout {
@@ -1222,7 +1226,7 @@ footer {
 }
 
 .product-details {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .product-name {
@@ -4123,9 +4127,8 @@ span[style*="color: gray"] {
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
   background: var(--white);
-  border-radius: 12px;
+  /* border-radius: 12px; */
   box-shadow: var(--card-shadow);
-  padding: 2rem;
 }
 
 /* ---------- IMAGE SECTION ---------- */

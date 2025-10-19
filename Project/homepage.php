@@ -42,13 +42,18 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     <a href="services.php" class="btn">Explore Services</a>
   </section>
 
+ 
   <!-- Services Section -->
   <section class="services">
     <h2>Our Services</h2>
     <div class="service-list">
       <?php foreach ($getServices as $service): ?>
         <div class="service-card" onclick="window.location.href='service-detail.php?ServicesID=<?php echo urlencode($service['ServicesID']); ?>'">
-          <div class="service-image" style="background-image: url('<?php echo ($service['ImgUrl']) ? htmlspecialchars($service['ImgUrl']) : 'default-image.jpg'; ?>')"></div>
+          <!-- <div class="service-image" style="background-image: url('<?php// echo ($service['ImgUrl']) ? htmlspecialchars($service['ImgUrl']) : 'default-image.jpg'; ?>')"> -->
+          <div class="service-image">
+            
+             <i class="icon fa-solid fa-camera fa-3x"></i>
+          </div>
           <div class="card-content">
             <h3><?php echo htmlspecialchars($service['Name']); ?></h3>
             <p><?php echo htmlspecialchars($service['Description']); ?></p>
@@ -118,10 +123,9 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; <?php echo date("Y"); ?> My Business. All Rights Reserved.</p>
-  </footer>
+<?php
+include 'footer.php';
+?>
 
 <script>
 document.getElementById('contactForm').addEventListener('submit', function(e) {

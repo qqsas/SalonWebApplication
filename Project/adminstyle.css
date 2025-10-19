@@ -143,9 +143,9 @@ a:hover {
   padding: 0 1.5rem;
 }
 
-.main-content {
-  flex: 1;
+.main-content{
   padding: 1.5rem 0;
+  text-align: center;
 }
 
 /* =========================================

@@ -123,9 +123,12 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         <div class="product-grid">
             <?php foreach ($products as $product): ?>
                 <div class="product-card">
-                    <?php $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
-                    <img src="<?= $product_img ?>" alt="<?= htmlspecialchars($product['Name']) ?>" class="product-image">
-
+                    
+                    <div class="product-image">
+                        <?php//  $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
+                      <!-- <img src="<?php// echo $product_img ?>" alt="<?php// echo htmlspecialchars($product['Name']) ?>" class="product-image">  -->
+                        <i class="fa-solid fa-camera fa-2xl"></i>
+                    </div>
                     <div class="product-details">
                         <h2 class="product-name"><?= htmlspecialchars($product['Name']) ?></h2>
                         <p class="product-price">Price: R<?= number_format($product['Price'], 2) ?></p>
@@ -150,6 +153,9 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     <?php endif; ?>
 </div>
 
+<?php
+include 'footer.php';
+?>
 </body>
 </html>
 

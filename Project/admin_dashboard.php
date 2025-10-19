@@ -1,9 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
-    header("Location: Login.php");
-    exit();
-}
+// if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
+//     header("Location: Login.php");
+//     exit();
+// }
 
 include 'db.php';
 include 'header.php';
@@ -146,7 +146,6 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
 
 <div class="main-content">
     <h1>Admin Dashboard</h1>
-    <link rel="stylesheet" href="adminstyle.css">
     
     <!-- Improved Navigation -->
     <div class="dashboard-nav">

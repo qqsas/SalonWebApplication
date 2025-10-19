@@ -1,3 +1,5 @@
+
+
 <?php
 // admin_overview_graphs.php
 if (!isset($conn)) {
@@ -107,9 +109,13 @@ foreach ($totals as $label => $total) {
 }
 echo "</div>";
 
-echo '<canvas id="overviewChart" style="width:100%; max-width:1200px; height:400px;"></canvas>';
+echo '<div  id="overviewChart">';
+echo '<canvas style="width:100%; max-width:1200px; height:400px;"></canvas>';
 ?>
 
+<p style="margin-top:10px;">Line graph showing record creation trends across Users, Barbers, Appointments, Orders, Products, and Reviews.</p>
+
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair"></script>
 
@@ -189,6 +195,4 @@ new Chart(ctx, {
     }
 });
 </script>
-
-<p style="margin-top:10px;">Line graph showing record creation trends across Users, Barbers, Appointments, Orders, Products, and Reviews.</p>
 

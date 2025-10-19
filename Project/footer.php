@@ -11,6 +11,7 @@
     </p>
     <p style="font-size:12px; color:#888; margin-top:8px;">Designed and maintained by the Admin Panel.</p>
   </div>
+  <script src="https://kit.fontawesome.com/4682464006.js" crossorigin="anonymous"></script>
 </footer>
 </body>
 </html>
