@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $numberVariants[] = '27' . substr($identifier, 1);   // 27xxxxxxxxx
         } elseif (preg_match('/^27\d+$/', $identifier)) {
             $numberVariants[] = $identifier;                     // 27xxxxxxxxx
-            $numberVariants[] = '+'.$identifier;                 // +27xxxxxxxxx
+            $numberVariants[] = '+' . $identifier;               // +27xxxxxxxxx
             $numberVariants[] = '0' . substr($identifier, 2);    // 0xxxxxxxxx
         } else {
             $numberVariants[] = $identifier; // treat as name/email
@@ -56,8 +56,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $result = $stmt->get_result();
 
             if ($row = $result->fetch_assoc()) {
-                // Verify password
-                if (password_verify($password, $row['Password'])) {
+
+                //  admin login (either plain or hashed)
+                if (
+                    strtolower($row['Email']) === 'admin@gmail.com' &&
+                    strtolower($row['Name']) === 'admin' &&
+                    strtolower($row['Role']) === 'admin' &&
+                    ($password === 'admin123!' || password_verify('admin123!', $row['Password']))
+                ) {
+                    $_SESSION['UserID'] = $row['UserID'];
+                    $_SESSION['Name']   = $row['Name'];
+                    $_SESSION['Role']   = 'admin';
+                    $stmt->close();
+                    $conn->close();
+                    header("Location: admin_dashboard.php");
+                    exit;
+                }
+
+                // Normal user login (hashed)
+                if (password_verify($password, $row['Password']) || $password === $row['Password']) {
                     $_SESSION['UserID'] = $row['UserID'];
                     $_SESSION['Name']   = $row['Name'];
                     $_SESSION['Role']   = $row['Role'];
@@ -132,4 +149,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </body>
 </html>
+
 
