@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Assign services
             if (!empty($services)) {
-                $stmt = $conn->prepare("INSERT INTO Barber_Services (BarberID, ServiceID) VALUES (?, ?)");
+                $stmt = $conn->prepare("INSERT INTO BarberServices (BarberID, ServicesID) VALUES (?, ?)");
                 foreach ($services as $service_id) {
                     $stmt->bind_param("ii", $barber_id, $service_id);
                     $stmt->execute();

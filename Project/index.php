@@ -27,7 +27,7 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
 <head>
   <meta charset="UTF-8">
   <title>Home - My Business</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles2.css">
   <style>
     .error { color: red; margin-bottom: 15px; }
     .success { color: green; margin-bottom: 15px; }
