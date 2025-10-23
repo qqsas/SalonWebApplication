@@ -49,6 +49,7 @@ if (isset($_SESSION['UserID'])) {
                 <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="staff.php">Staff</a></li>
                 <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
 
                 <?php if (isset($_SESSION['UserID'])): ?>
                     <?php

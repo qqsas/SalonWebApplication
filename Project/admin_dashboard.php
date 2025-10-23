@@ -161,6 +161,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             <li><a class="dashboard-nav-link <?php echo $view === 'reviews' ? 'active' : ''; ?>" href="?view=reviews">Reviews</a></li>
             <li><a class="dashboard-nav-link <?php echo $view === 'contacts' ? 'active' : ''; ?>" href="?view=contacts">Contacts</a></li>
             <li><a class="dashboard-nav-link <?php echo $view === 'features' ? 'active' : ''; ?>" href="?view=features">Features</a></li>
+<li><a class="dashboard-nav-link <?php echo $view === 'gallery' ? 'active' : ''; ?>" href="?view=gallery">Gallery</a></li>
         </ul>
     </div>
 
@@ -689,10 +690,93 @@ case 'contacts':
             echo "</div>";
             break;
 
+
+
+        case 'gallery':
+            // WHERE clause for searching (by title or description)
+            $where = "(LOWER(g.Title) LIKE ? OR LOWER(g.Description) LIKE ?)";
+            $params = [$searchLike, $searchLike];
+            $types = "ss";
+
+            // Count total records
+            $totalRecords = getRecordCount($conn, 'Gallery g', $where, $params, $types);
+            $totalPages = ceil($totalRecords / $limit);
+
+            // Add button
+            echo '<a href="add_gallery.php?view=gallery&search=' . $searchParam . '" class="add-btn"><span>+</span> Add Gallery Item</a>';
+
+            // Fetch gallery items
+            $stmt = $conn->prepare("
+                SELECT g.* 
+                FROM Gallery g
+                WHERE $where
+                ORDER BY g.CreatedAt DESC
+                LIMIT ? OFFSET ?
+            ");
+            $params[] = $limit;
+            $params[] = $offset;
+            $types .= "ii";
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            echo "<h2>Gallery (Total: $totalRecords)</h2>";
+
+            if ($result->num_rows === 0) {
+                echo "<p>No gallery items found.</p>";
+                break;
+            }
+
+            echo "<div class='table-container gallery-table'>";
+            echo "<table class='data-table'>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Image</th>
+                        <th>Created At</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>";
+
+            while ($row = $result->fetch_assoc()) {
+                $imagePath = "uploads/gallery/" . escape($row['ImageUrl']);
+                $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
+                $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+
+                echo "<tr>
+                        <td>" . escape($row['GalleryID']) . "</td>
+                        <td>" . escape($row['Title']) . "</td>
+                        <td>" . escape($row['Description']) . "</td>
+                        <td><img src='" . escape($imagePath) . "' alt='Gallery Image' class='gallery-thumb'></td>
+                        <td>" . escape($row['CreatedAt']) . "</td>
+                        <td class='$statusClass'>$statusText</td>
+                        <td>
+                            <div class='action-buttons'>";
+                if ($row['IsDeleted']) {
+                    echo "<a href='restore.php?table=Gallery&id=" . escape($row['GalleryID']) . "&view=gallery&search=$searchParam&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
+                } else {
+                    echo "<a href='edit_gallery.php?id=" . escape($row['GalleryID']) . "&view=gallery&search=$searchParam&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
+                    echo "<a href='soft_delete.php?table=Gallery&id=" . escape($row['GalleryID']) . "&view=gallery&search=$searchParam&page=$page' onclick='return confirm(\"Are you sure you want to delete this image?\")' class='btn btn-sm btn-danger'>Delete</a>";
+                }
+                echo "      </div>
+                        </td>
+                    </tr>";
+            }
+
+            echo "</table>";
+            echo "</div>";
+
+            displayPagination($totalPages, $page, 'gallery', $searchParam, $displayFilters);
+            break;
+
         default:
             include 'admin_overview_graphs.php';
             break;
     }
+
+
+
 
     echo "
     <script>

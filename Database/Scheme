@@ -14,16 +14,16 @@ CREATE TABLE User (
     PRIMARY KEY (UserID)
 ) ENGINE=InnoDB;
 
--- Admin Table (optional for your system)
+-- Admin Table
 CREATE TABLE Admin (
-    AdminID INT(11) NOT NULL AUTO_INCREMENT,
+    BarberID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
     Name VARCHAR(100) NOT NULL,
     Bio TEXT DEFAULT NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (AdminID),
-    KEY idx_userid (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
+    PRIMARY KEY (BarberID),
+    KEY UserID (UserID),
+    CONSTRAINT fk_admin_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Barber Table
@@ -36,8 +36,8 @@ CREATE TABLE Barber (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberID),
-    UNIQUE KEY uq_userid (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
+    UNIQUE KEY UserID (UserID),
+    CONSTRAINT fk_barber_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Services Table
@@ -61,33 +61,10 @@ CREATE TABLE BarberServices (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (BarberServiceID),
-    UNIQUE KEY uq_barber_service (BarberID, ServicesID),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ServicesID) REFERENCES Services(ServicesID) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
--- BarberWorkingHours Table
-CREATE TABLE BarberWorkingHours (
-    BarberID INT(11) NOT NULL,
-    DayOfWeek INT(11) NOT NULL,
-    StartTime TIME NOT NULL,
-    EndTime TIME NOT NULL,
-    PRIMARY KEY (BarberID, DayOfWeek),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
--- BarberUnavailability Table
-CREATE TABLE BarberUnavailability (
-    UnavailabilityID INT(11) NOT NULL AUTO_INCREMENT,
-    BarberID INT(11) NOT NULL,
-    Date DATE NOT NULL,
-    StartTime TIME DEFAULT NULL,
-    EndTime TIME DEFAULT NULL,
-    Reason VARCHAR(255) DEFAULT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (UnavailabilityID),
-    KEY idx_barberid (BarberID),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE ON UPDATE CASCADE
+    UNIQUE KEY BarberID (BarberID),
+    KEY ServicesID (ServicesID),
+    CONSTRAINT fk_barberservices_barber FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE,
+    CONSTRAINT fk_barberservices_service FOREIGN KEY (ServicesID) REFERENCES Services(ServicesID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Appointment Table
@@ -106,10 +83,59 @@ CREATE TABLE Appointment (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (AppointmentID),
-    KEY idx_userid (UserID),
-    KEY idx_reviewid (ReviewID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (BarberID) REFERENCES Barber(BarberID)
+    KEY UserID (UserID),
+    KEY ReviewID (ReviewID),
+    CONSTRAINT fk_appointment_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- BarberUnavailability Table
+CREATE TABLE BarberUnavailability (
+    UnavailabilityID INT(11) NOT NULL AUTO_INCREMENT,
+    BarberID INT(11) NOT NULL,
+    Date DATE NOT NULL,
+    StartTime TIME DEFAULT NULL,
+    EndTime TIME DEFAULT NULL,
+    Reason VARCHAR(255) DEFAULT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (UnavailabilityID),
+    KEY BarberID (BarberID),
+    CONSTRAINT fk_unavailability_barber FOREIGN KEY (BarberID) REFERENCES Barber(BarberID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- BarberWorkingHours Table
+CREATE TABLE BarberWorkingHours (
+    BarberID INT(11) NOT NULL,
+    DayOfWeek INT(11) NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME NOT NULL,
+    PRIMARY KEY (BarberID, DayOfWeek),
+    CONSTRAINT fk_workinghours_barber FOREIGN KEY (BarberID) REFERENCES Admin(BarberID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Cart Table
+CREATE TABLE Cart (
+    CartID INT(11) NOT NULL AUTO_INCREMENT,
+    UserID INT(11) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (CartID),
+    KEY UserID (UserID),
+    CONSTRAINT fk_cart_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- CartItems Table
+CREATE TABLE CartItems (
+    CartItemID INT(11) NOT NULL AUTO_INCREMENT,
+    CartID INT(11) NOT NULL,
+    ProductID INT(11) NOT NULL,
+    Quantity INT(11) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (CartItemID),
+    KEY CartID (CartID),
+    KEY ProductID (ProductID),
+    CONSTRAINT fk_cartitems_cart FOREIGN KEY (CartID) REFERENCES Cart(CartID) ON DELETE CASCADE,
+    CONSTRAINT fk_cartitems_product FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Products Table
@@ -134,8 +160,8 @@ CREATE TABLE Orders (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (OrderID),
-    KEY idx_userid (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
+    KEY UserID (UserID),
+    CONSTRAINT fk_orders_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- OrderItems Table
@@ -147,43 +173,17 @@ CREATE TABLE OrderItems (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (OrderItemID),
-    KEY idx_orderid (OrderID),
-    KEY idx_productid (ProductID),
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-) ENGINE=InnoDB;
-
--- Cart Table
-CREATE TABLE Cart (
-    CartID INT(11) NOT NULL AUTO_INCREMENT,
-    UserID INT(11) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (CartID),
-    KEY idx_userid (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
-) ENGINE=InnoDB;
-
--- CartItems Table
-CREATE TABLE CartItems (
-    CartItemID INT(11) NOT NULL AUTO_INCREMENT,
-    CartID INT(11) NOT NULL,
-    ProductID INT(11) NOT NULL,
-    Quantity INT(11) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (CartItemID),
-    KEY idx_cartid (CartID),
-    KEY idx_productid (ProductID),
-    FOREIGN KEY (CartID) REFERENCES Cart(CartID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+    KEY OrderID (OrderID),
+    KEY ProductID (ProductID),
+    CONSTRAINT fk_orderitems_order FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+    CONSTRAINT fk_orderitems_product FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Reviews Table
 CREATE TABLE Reviews (
     ReviewID INT(11) NOT NULL AUTO_INCREMENT,
     UserID INT(11) NOT NULL,
-    ProductID INT(11) NOT NULL,
+    ProductID INT(11) DEFAULT NULL,
     AppointmentID INT(11) DEFAULT NULL,
     Rating INT(11) NOT NULL,
     Comment TEXT DEFAULT NULL,
@@ -191,12 +191,11 @@ CREATE TABLE Reviews (
     IsDeleted TINYINT(1) DEFAULT 0,
     Status ENUM('pending','cancelled','approved') NOT NULL DEFAULT 'pending',
     PRIMARY KEY (ReviewID),
-    KEY idx_userid (UserID),
-    KEY idx_productid (ProductID),
+    KEY UserID (UserID),
+    KEY ProductID (ProductID),
     KEY fk_reviews_appointment (AppointmentID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
-    FOREIGN KEY (AppointmentID) REFERENCES Appointment(AppointmentID)
+    CONSTRAINT fk_reviews_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_product FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- Contact Table
@@ -208,8 +207,8 @@ CREATE TABLE Contact (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsDeleted TINYINT(1) DEFAULT 0,
     PRIMARY KEY (ContactID),
-    KEY idx_userid (UserID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
+    KEY UserID (UserID),
+    CONSTRAINT fk_contact_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- Features Table
@@ -217,6 +216,7 @@ CREATE TABLE Features (
     FeatureID INT(11) NOT NULL AUTO_INCREMENT,
     FeatureName VARCHAR(100) NOT NULL,
     IsEnabled TINYINT(1) NOT NULL DEFAULT 0,
-    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (FeatureID)
 ) ENGINE=InnoDB;
+
