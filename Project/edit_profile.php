@@ -145,43 +145,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="container">
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <h2>Edit Profile</h2>
 
     <?php if ($message): ?>
-        <p class="<?php echo $message_type; ?>">
+        <div class="<?php echo $message_type; ?>">
             <?php echo htmlspecialchars($message); ?>
-        </p>
+        </div>
     <?php endif; ?>
 
     <form method="POST" id="profileForm">
-        <label for="name">Name:</label><br>
-        <input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" required><br><br>
+        <!-- Personal Information -->
+        <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" required>
+        </div>
 
-        <label for="email">Email:</label><br>
-        <input type="email" name="email" value="<?php echo htmlspecialchars($email); ?>"><br><br>
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" name="email" value="<?php echo htmlspecialchars($email); ?>">
+            <div class="helper-text">We'll never share your email with anyone else.</div>
+        </div>
 
-        <label for="number">Phone Number:</label><br>
-        <input type="text" name="number" value="<?php echo htmlspecialchars($number); ?>"
-               pattern="[0-9+\-\s()]{10,}" title="Please enter a valid phone number"><br><br>
+        <div class="form-group">
+            <label for="number">Phone Number</label>
+            <input type="text" name="number" value="<?php echo htmlspecialchars($number); ?>"
+                   pattern="[0-9+\-\s()]{10,}" 
+                   title="Please enter a valid phone number (e.g., +27 12 345 6789)">
+            <div class="helper-text">South African format: +27 XXX XXX XXXX</div>
+        </div>
 
-        <hr>
-        <h3>Password Change (optional)</h3>
+        <!-- Password Change Section -->
+        <div class="password-section">
+            <h3>Change Password (Optional)</h3>
+            
+            <div class="form-group">
+                <label for="current_password">Current Password</label>
+                <input type="password" name="current_password" id="current_password">
+                <div class="helper-text">Required only if changing your password</div>
+            </div>
 
-        <label for="current_password">Current Password:</label><br>
-        <input type="password" name="current_password" id="current_password"><br><br>
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input type="password" name="password" id="password" minlength="6"
+                       pattern=".{6,}" title="Password must be at least 6 characters">
+                <div class="helper-text">Minimum 6 characters</div>
+            </div>
 
-        <label for="password">New Password:</label><br>
-        <input type="password" name="password" id="password" minlength="6"
-               pattern=".{6,}" title="Password must be at least 6 characters"><br><br>
+            <div class="form-group">
+                <label for="confirm_password">Confirm New Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" minlength="6"
+                       pattern=".{6,}" title="Password must be at least 6 characters">
+                <div class="helper-text">Re-enter your new password</div>
+            </div>
+        </div>
 
-        <label for="confirm_password">Confirm New Password:</label><br>
-        <input type="password" name="confirm_password" id="confirm_password" minlength="6"
-               pattern=".{6,}" title="Password must be at least 6 characters"><br>
-        <small>Leave both fields blank if you don’t want to change your password</small><br><br>
-
-        <button type="submit">Update Profile</button>
-        <a href="view_profile.php" style="margin-left: 10px;">Cancel</a>
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                    <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                </svg>
+                Update Profile
+            </button>
+            <a href="view_profile.php">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+                Cancel
+            </a>
+        </div>
     </form>
 </div>
 
@@ -202,28 +235,114 @@ hr { margin: 20px 0; }
 </style>
 
 <script>
-document.getElementById('profileForm').addEventListener('submit', function(e) {
-    const email = document.querySelector('input[name="email"]').value.trim();
-    const number = document.querySelector('input[name="number"]').value.trim();
-    const password = document.querySelector('input[name="password"]').value.trim();
-    const confirm = document.querySelector('input[name="confirm_password"]').value.trim();
-
-    if (!email && !number) {
-        alert('Please provide at least an email or phone number.');
-        e.preventDefault();
-        return false;
+// Enhanced form validation and UX
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profileForm');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const currentPasswordInput = document.getElementById('current_password');
+    
+    // Password strength indicator
+    if (passwordInput) {
+        const strengthBar = document.createElement('div');
+        strengthBar.className = 'password-strength';
+        strengthBar.innerHTML = '<div class="password-strength-bar"></div>';
+        passwordInput.parentNode.appendChild(strengthBar);
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            strengthBar.className = 'password-strength ' + strength;
+        });
     }
-
-    if (password && password.length < 6) {
-        alert('Password must be at least 6 characters long.');
-        e.preventDefault();
-        return false;
+    
+    // Real-time password confirmation
+    if (confirmPasswordInput && passwordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value && passwordInput.value) {
+                if (this.value !== passwordInput.value) {
+                    this.style.borderColor = 'var(--error-color)';
+                } else {
+                    this.style.borderColor = 'var(--success-color)';
+                }
+            }
+        });
     }
-
-    if (password && password !== confirm) {
-        alert('New passwords do not match.');
-        e.preventDefault();
-        return false;
+    
+    // Enhanced form validation
+    form.addEventListener('submit', function(e) {
+        const email = document.querySelector('input[name="email"]').value.trim();
+        const number = document.querySelector('input[name="number"]').value.trim();
+        const password = passwordInput ? passwordInput.value.trim() : '';
+        const confirm = confirmPasswordInput ? confirmPasswordInput.value.trim() : '';
+        const currentPassword = currentPasswordInput ? currentPasswordInput.value.trim() : '';
+        
+        let isValid = true;
+        
+        // Clear previous error styles
+        document.querySelectorAll('.form-group').forEach(group => {
+            group.classList.remove('invalid');
+        });
+        
+        // Validate email or phone
+        if (!email && !number) {
+            showError('Please provide at least an email or phone number.');
+            isValid = false;
+        }
+        
+        // Validate password if provided
+        if (password) {
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long.');
+                isValid = false;
+            } else if (password !== confirm) {
+                showError('New passwords do not match.');
+                isValid = false;
+            } else if (!currentPassword) {
+                showError('Please enter your current password to change your password.');
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+    
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        
+        if (password.length >= 6) strength++;
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        if (strength <= 2) return 'weak';
+        if (strength <= 4) return 'medium';
+        return 'strong';
+    }
+    
+    function showError(message) {
+        // You could enhance this to show errors in a more user-friendly way
+        const existingError = document.querySelector('.error-message-global');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error error-message-global';
+        errorDiv.textContent = message;
+        form.insertBefore(errorDiv, form.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 5000);
     }
 });
 </script>

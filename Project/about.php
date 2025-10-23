@@ -15,7 +15,7 @@ include 'header.php';
         </style>
     <meta charset="UTF-8">
     <title>About Us - E-Commerce Platform</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>

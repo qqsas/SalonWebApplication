@@ -40,7 +40,7 @@ $result = $stmt->get_result();
 ?>
 
 <div class="container">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles2.css">
     <h1>My Appointments</h1>
 
     <?php if ($result->num_rows > 0): ?>
