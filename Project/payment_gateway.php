@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'header.php';
 
 if (!isset($_SESSION['UserID'])) {
     header("Location: Login.php");
@@ -34,25 +35,9 @@ foreach ($cartItems as $item) {
 <head>
     <meta charset="UTF-8">
     <title>Checkout - Kumar Kailey Hair & Beauty</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .container { max-width: 900px; margin: auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f4f4f4; }
-        .btn { padding: 10px 20px; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px; }
-        .btn:hover { opacity: 0.9; }
-        .btn-reserve { background: #28a745; }
-        .btn-cancel { background: #dc3545; }
-        .btn-place { background: #007bff; }
-        .info { background: #fff3cd; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-input, select { width: 100%; padding: 8px; }
-        img.product-img { max-width: 80px; max-height: 80px; object-fit: contain; }
-    </style>
 
     <script>
         function togglePaymentFields() {

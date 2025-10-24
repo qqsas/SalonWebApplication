@@ -68,7 +68,7 @@ $stmt->close();
 ?>
 
 <div class="container">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles2.css">
     <h2>Your Orders</h2>
 
     <?php if (empty($orders)): ?>
@@ -107,7 +107,7 @@ $stmt->close();
                     <p>Customer: <?= htmlspecialchars($order['UserName']); ?></p>
                 <?php endif; ?>
                 <p>Status: <?= htmlspecialchars($order['Status']); ?></p>
-                <p>Total: $<?= number_format($order['TotalPrice'], 2); ?></p>
+                <p>Total: R<?= number_format($order['TotalPrice'], 2); ?></p>
                 <p>Date: <?= $order['CreatedAt']; ?></p>
 
                 <!-- Fetch order items -->
@@ -145,9 +145,9 @@ $stmt->close();
         ?>
             <tr>
                 <td data-label="Product"><?= htmlspecialchars($item['Name']); ?></td>
-                <td data-label="Price">$<?= number_format($item['Price'], 2); ?></td>
+                <td data-label="Price">R<?= number_format($item['Price'], 2); ?></td>
                 <td data-label="Quantity"><?= $item['Quantity']; ?></td>
-                <td data-label="Subtotal">$<?= number_format($item['Price'] * $item['Quantity'], 2); ?></td>
+                <td data-label="Subtotal">R<?= number_format($item['Price'] * $item['Quantity'], 2); ?></td>
                 <td data-label="Review">
                     <?php if ($hasReview): ?>
                         <span style="color:green;">Reviewed</span>
