@@ -111,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="POST" enctype="multipart/form-data">
     <label>Title:</label><br>
+    <link href="addedit.css" rel="stylesheet">
     <input type="text" name="Title" value="<?= htmlspecialchars($title) ?>" required><br><br>
 
     <label>Description:</label><br>

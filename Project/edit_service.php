@@ -79,6 +79,7 @@ if (!$service) {
 <?php include 'header.php'; ?>
 <div class="container">
     <h2>Edit Service</h2>
+    <link href="addedit.css" rel="stylesheet">
     <form method="post" enctype="multipart/form-data">
         <div>
             <label for="name">Service Name:</label><br>

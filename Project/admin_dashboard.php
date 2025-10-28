@@ -54,17 +54,17 @@ function displayPagination($totalPages, $page, $view, $searchParam, $displayFilt
     
     echo "<div class='pagination'>";
     if ($page > 1) {
-        echo "<a href='?view=$view&search=$searchParam{$filterParam}&page=".($page-1)."'>Previous</a> ";
+        echo "<a href='?view=$view&search=$searchParam{$filterParam}&page=".($page-1)."' class='pagination-link pagination-prev'>Previous</a> ";
     }
     for ($i = 1; $i <= $totalPages; $i++) {
         if ($i == $page) {
-            echo "<strong>$i</strong> ";
+            echo "<span class='pagination-current'>$i</span> ";
         } else {
-            echo "<a href='?view=$view&search=$searchParam{$filterParam}&page=$i'>$i</a> ";
+            echo "<a href='?view=$view&search=$searchParam{$filterParam}&page=$i' class='pagination-link'>$i</a> ";
         }
     }
     if ($page < $totalPages) {
-        echo "<a href='?view=$view&search=$searchParam{$filterParam}&page=".($page+1)."'>Next</a>";
+        echo "<a href='?view=$view&search=$searchParam{$filterParam}&page=".($page+1)."' class='pagination-link pagination-next'>Next</a>";
     }
     echo "</div>";
 }
@@ -131,8 +131,8 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
     if (!isset($options[$currentView])) return '';
     
     $html = "<div class='display-filter'>";
-    $html .= "<label>Display: </label>";
-    $html .= "<select name='{$currentView}_filter' onchange='this.form.submit()'>";
+    $html .= "<label class='display-filter-label'>Display: </label>";
+    $html .= "<select name='{$currentView}_filter' onchange='this.form.submit()' class='display-filter-select'>";
     foreach ($options[$currentView] as $value => $label) {
         $selected = $currentFilter === $value ? 'selected' : '';
         $html .= "<option value='$value' $selected>$label</option>";
@@ -145,23 +145,23 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
 ?>
 
 <div class="main-content">
-    <h1>Admin Dashboard</h1>
-    <link rel="stylesheet" href="adminstyle.css">
+    <h1 class="dashboard-title">Admin Dashboard</h1>
+    <link rel="stylesheet" href="adminstyle2.css">
     
     <!-- Improved Navigation -->
     <div class="dashboard-nav">
         <ul class="dashboard-nav-links">
-            <li><a class="dashboard-nav-link <?php echo $view === 'overview' ? 'active' : ''; ?>" href="?view=overview">Overview</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'users' ? 'active' : ''; ?>" href="?view=users">Users</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'barbers' ? 'active' : ''; ?>" href="?view=barbers">Barbers</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'appointments' ? 'active' : ''; ?>" href="?view=appointments">Appointments</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'orders' ? 'active' : ''; ?>" href="?view=orders">Orders</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'products' ? 'active' : ''; ?>" href="?view=products">Products</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'services' ? 'active' : ''; ?>" href="?view=services">Services</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'reviews' ? 'active' : ''; ?>" href="?view=reviews">Reviews</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'contacts' ? 'active' : ''; ?>" href="?view=contacts">Contacts</a></li>
-            <li><a class="dashboard-nav-link <?php echo $view === 'features' ? 'active' : ''; ?>" href="?view=features">Features</a></li>
-<li><a class="dashboard-nav-link <?php echo $view === 'gallery' ? 'active' : ''; ?>" href="?view=gallery">Gallery</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'overview' ? 'active' : ''; ?>" href="?view=overview">Overview</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'users' ? 'active' : ''; ?>" href="?view=users">Users</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'barbers' ? 'active' : ''; ?>" href="?view=barbers">Barbers</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'appointments' ? 'active' : ''; ?>" href="?view=appointments">Appointments</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'orders' ? 'active' : ''; ?>" href="?view=orders">Orders</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'products' ? 'active' : ''; ?>" href="?view=products">Products</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'services' ? 'active' : ''; ?>" href="?view=services">Services</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'reviews' ? 'active' : ''; ?>" href="?view=reviews">Reviews</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'contacts' ? 'active' : ''; ?>" href="?view=contacts">Contacts</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'features' ? 'active' : ''; ?>" href="?view=features">Features</a></li>
+<li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'gallery' ? 'active' : ''; ?>" href="?view=gallery">Gallery</a></li>
         </ul>
     </div>
 
@@ -219,7 +219,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $totalRecords = getRecordCount($conn, 'User', $where, $params, $types);
             $totalPages = ceil($totalRecords / $limit);
             
-            echo '<a href="add_user.php?view=users&search='.$searchParam.'&users_filter='.$displayFilters['users'].'" class="add-btn"> <span>+</span> Add Client </a>';
+            echo '<a href="add_user.php?view=users&search='.$searchParam.'&users_filter='.$displayFilters['users'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Client </a>';
             
             $stmt = $conn->prepare("SELECT * FROM User WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
             $params[] = $limit;
@@ -229,18 +229,18 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Users (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Users (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No users found.</p>";
+                echo "<p class='no-results'>No users found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>Name</th><th>Email</th><th>Number</th><th>Role</th><th>CreatedAt</th><th>Status</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Email</th><th class='table-header'>Number</th><th class='table-header'>Role</th><th class='table-header'>CreatedAt</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['UserID'])."</td> <td>".escape($row['Name'])."</td> <td>".escape($row['Email'])."</td> <td>".escape($row['Number'])."</td> <td> <form method='POST' action='update_user_role.php' class='inline-form'> <input type='hidden' name='UserID' value='".escape($row['UserID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=users&search=$searchParam&users_filter=".$displayFilters['users']."&page=$page'> <select name='Role' onchange='this.form.submit()'> <option value='client' ".($row['Role']=='client'?'selected':'').">Client</option> <option value='admin' ".($row['Role']=='admin'?'selected':'').">Admin</option> <option value='barber' ".($row['Role']=='barber'?'selected':'').">Barber</option> </select> </form> </td> <td>".escape($row['CreatedAt'])."</td> <td class='$statusClass'>$statusText</td> <td> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['UserID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell'>".escape($row['Email'])."</td> <td class='table-cell'>".escape($row['Number'])."</td> <td class='table-cell'> <form method='POST' action='update_user_role.php' class='inline-form'> <input type='hidden' name='UserID' value='".escape($row['UserID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=users&search=$searchParam&users_filter=".$displayFilters['users']."&page=$page'> <select name='Role' onchange='this.form.submit()' class='role-select'> <option value='client' ".($row['Role']=='client'?'selected':'').">Client</option> <option value='admin' ".($row['Role']=='admin'?'selected':'').">Admin</option> <option value='barber' ".($row['Role']=='barber'?'selected':'').">Barber</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=User&id=".escape($row['UserID'])."&view=users&search=$searchParam&users_filter=".$displayFilters['users']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -249,7 +249,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 }
                 echo " </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'users', $searchParam, $displayFilters);
             break;
@@ -272,7 +272,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $totalRecords = getRecordCount($conn, 'Barber', $where, $params, $types);
             $totalPages = ceil($totalRecords / $limit);
             
-            echo '<a href="add_barber.php?view=barbers&search='.$searchParam.'&barbers_filter='.$displayFilters['barbers'].'" class="add-btn"> <span>+</span> Add Barber </a>';
+            echo '<a href="add_barber.php?view=barbers&search='.$searchParam.'&barbers_filter='.$displayFilters['barbers'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Barber </a>';
             
             $stmt = $conn->prepare("SELECT Barber.*, User.Name AS OwnerName, User.Email FROM Barber LEFT JOIN User ON Barber.UserID = User.UserID WHERE $where ORDER BY Barber.CreatedAt DESC LIMIT ? OFFSET ?");
             $params[] = $limit;
@@ -282,19 +282,19 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Barbers (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Barbers (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No barbers found.</p>";
+                echo "<p class='no-results'>No barbers found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>Name</th><th>Owner</th><th>Email</th><th>Bio</th><th>CreatedAt</th><th>Status</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Owner</th><th class='table-header'>Email</th><th class='table-header'>Bio</th><th class='table-header'>CreatedAt</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $bioPreview = strlen($row['Bio']) > 50 ? substr($row['Bio'], 0, 50) . '...' : $row['Bio'];
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['BarberID'])."</td> <td>".escape($row['Name'])."</td> <td>".escape($row['OwnerName'])."</td> <td>".escape($row['Email'])."</td> <td title='".escape($row['Bio'])."'>".escape($bioPreview)."</td> <td>".escape($row['CreatedAt'])."</td> <td class='$statusClass'>$statusText</td> <td> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['BarberID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell'>".escape($row['OwnerName'])."</td> <td class='table-cell'>".escape($row['Email'])."</td> <td class='table-cell bio-cell' title='".escape($row['Bio'])."'>".escape($bioPreview)."</td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Barber&id=".escape($row['BarberID'])."&view=barbers&search=$searchParam&barbers_filter=".$displayFilters['barbers']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -303,7 +303,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 }
                 echo " </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'barbers', $searchParam, $displayFilters);
             break;
@@ -338,7 +338,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $totalRecords = getRecordCount($conn, 'Appointment a LEFT JOIN User u ON a.UserID = u.UserID LEFT JOIN Barber b ON a.BarberID = b.BarberID', $where, $params, $types);
             $totalPages = ceil($totalRecords / $limit);
             
-            echo '<a href="add_appointment.php?view=appointments&search='.$searchParam.'&appointments_filter='.$displayFilters['appointments'].'" class="add-btn"> <span>+</span> Add Appointment </a>';
+            echo '<a href="add_appointment.php?view=appointments&search='.$searchParam.'&appointments_filter='.$displayFilters['appointments'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Appointment </a>';
             
             $stmt = $conn->prepare("SELECT a.*, u.Name AS UserName, b.Name AS BarberName FROM Appointment a LEFT JOIN User u ON a.UserID = u.UserID LEFT JOIN Barber b ON a.BarberID = b.BarberID WHERE $where ORDER BY a.Time DESC LIMIT ? OFFSET ?");
             $params[] = $limit;
@@ -348,18 +348,18 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Appointments (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Appointments (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No appointments found.</p>";
+                echo "<p class='no-results'>No appointments found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>User</th><th>Barber</th><th>ForName</th><th>ForAge</th><th>Type</th><th>Time</th><th>Duration</th><th>Status</th><th>Cost</th><th>Status</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Barber</th><th class='table-header'>ForName</th><th class='table-header'>ForAge</th><th class='table-header'>Type</th><th class='table-header'>Time</th><th class='table-header'>Duration</th><th class='table-header'>Status</th><th class='table-header'>Cost</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['AppointmentID'])."</td> <td>".escape($row['UserName'])."</td> <td>".escape($row['BarberName'])."</td> <td>".escape($row['ForName'])."</td> <td>".escape($row['ForAge'])."</td> <td>".escape($row['Type'])."</td> <td>".escape($row['Time'])."</td> <td>".escape($row['Duration'])." minutes</td> <td> <form method='POST' action='update_appointment_status.php' class='inline-form'> <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page'> <select name='Status' onchange='this.form.submit()'> <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option> <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option> <option value='completed' ".($row['Status']=='completed'?'selected':'').">Completed</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td>$".escape($row['Cost'])."</td> <td class='$statusClass'>$statusText</td> <td> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['AppointmentID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['BarberName'])."</td> <td class='table-cell'>".escape($row['ForName'])."</td> <td class='table-cell'>".escape($row['ForAge'])."</td> <td class='table-cell'>".escape($row['Type'])."</td> <td class='table-cell'>".escape($row['Time'])."</td> <td class='table-cell'>".escape($row['Duration'])." minutes</td> <td class='table-cell'> <form method='POST' action='update_appointment_status.php' class='inline-form'> <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option> <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option> <option value='completed' ".($row['Status']=='completed'?'selected':'').">Completed</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>$".escape($row['Cost'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Appointment&id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -368,7 +368,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 }
                 echo " </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'appointments', $searchParam, $displayFilters);
             break;
@@ -399,7 +399,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $totalRecords = getRecordCount($conn, 'Products', $where, $params, $types);
             $totalPages = ceil($totalRecords / $limit);
             
-            echo '<a href="add_product.php?view=products&search='.$searchParam.'&products_filter='.$displayFilters['products'].'" class="add-btn"> <span>+</span> Add Product </a>';
+            echo '<a href="add_product.php?view=products&search='.$searchParam.'&products_filter='.$displayFilters['products'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Product </a>';
             
             $stmt = $conn->prepare("SELECT * FROM Products WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
             $params[] = $limit;
@@ -409,19 +409,19 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Products (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Products (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No products found.</p>";
+                echo "<p class='no-results'>No products found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Stock</th><th>Status</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Price</th><th class='table-header'>Category</th><th class='table-header'>Stock</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $stockClass = $row['Stock'] == 0 ? 'out-of-stock' : ($row['Stock'] < 10 ? 'low-stock' : 'in-stock');
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['ProductID'])."</td> <td>".escape($row['Name'])."</td> <td>$".escape($row['Price'])."</td> <td>".escape($row['Category'])."</td> <td class='$stockClass'>".escape($row['Stock'])."</td> <td class='$statusClass'>$statusText</td> <td> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ProductID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell'>$".escape($row['Price'])."</td> <td class='table-cell'>".escape($row['Category'])."</td> <td class='table-cell $stockClass'>".escape($row['Stock'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -430,7 +430,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 }
                 echo " </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'products', $searchParam, $displayFilters);
             break;
@@ -452,7 +452,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $totalRecords = getRecordCount($conn, 'Services', $where, $params, $types);
             $totalPages = ceil($totalRecords / $limit);
             
-            echo '<a href="add_service.php?view=services&search='.$searchParam.'&services_filter='.$displayFilters['services'].'" class="add-btn"> <span>+</span> Add Service </a>';
+            echo '<a href="add_service.php?view=services&search='.$searchParam.'&services_filter='.$displayFilters['services'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Service </a>';
             
             $stmt = $conn->prepare("SELECT * FROM Services WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
             $params[] = $limit;
@@ -462,19 +462,19 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Services (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Services (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No services found.</p>";
+                echo "<p class='no-results'>No services found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>Name</th><th>Description</th><th>Price</th><th>Time</th><th>Status</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Description</th><th class='table-header'>Price</th><th class='table-header'>Time</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $descPreview = strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description'];
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['ServicesID'])."</td> <td>".escape($row['Name'])."</td> <td title='".escape($row['Description'])."'>".escape($descPreview)."</td> <td>$".escape($row['Price'])."</td> <td>".escape($row['Time'])." minutes</td> <td class='$statusClass'>$statusText</td> <td> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ServicesID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell description-cell' title='".escape($row['Description'])."'>".escape($descPreview)."</td> <td class='table-cell'>$".escape($row['Price'])."</td> <td class='table-cell'>".escape($row['Time'])." minutes</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Services&id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -483,7 +483,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 }
                 echo " </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'services', $searchParam, $displayFilters);
             break;
@@ -517,7 +517,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $totalRecords = getRecordCount($conn, 'Orders o LEFT JOIN User u ON o.UserID = u.UserID', $where, $params, $types);
             $totalPages = ceil($totalRecords / $limit);
             
-            echo '<a href="add_order.php?view=orders&search='.$searchParam.'&orders_filter='.$displayFilters['orders'].'" class="add-btn"> <span>+</span> Add Order </a>';
+            echo '<a href="add_order.php?view=orders&search='.$searchParam.'&orders_filter='.$displayFilters['orders'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Order </a>';
             
             $stmt = $conn->prepare("SELECT o.*, u.Name AS UserName FROM Orders o LEFT JOIN User u ON o.UserID = u.UserID WHERE $where ORDER BY o.CreatedAt DESC LIMIT ? OFFSET ?");
             $params[] = $limit;
@@ -527,18 +527,18 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Orders (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Orders (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No orders found.</p>";
+                echo "<p class='no-results'>No orders found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>User</th><th>TotalPrice</th><th>Status</th><th>CreatedAt</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>TotalPrice</th><th class='table-header'>Status</th><th class='table-header'>CreatedAt</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr> <td>".escape($row['OrderID'])."</td> <td>".escape($row['UserName'])."</td> <td>$".escape($row['TotalPrice'])."</td> <td> <form method='POST' action='update_order_status.php' class='inline-form'> <input type='hidden' name='OrderID' value='".escape($row['OrderID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page'> <select name='Status' onchange='this.form.submit()'> <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option> <option value='Processing' ".($row['Status']=='Processing'?'selected':'').">Processing</option> <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option> <option value='Cancelled' ".($row['Status']=='Cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td>".escape($row['CreatedAt'])."</td> <td> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['OrderID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>$".escape($row['TotalPrice'])."</td> <td class='table-cell'> <form method='POST' action='update_order_status.php' class='inline-form'> <input type='hidden' name='OrderID' value='".escape($row['OrderID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option> <option value='Processing' ".($row['Status']=='Processing'?'selected':'').">Processing</option> <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option> <option value='Cancelled' ".($row['Status']=='Cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Orders&id=".escape($row['OrderID'])."&view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -547,7 +547,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 }
                 echo " </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'orders', $searchParam, $displayFilters);
             break;
@@ -580,19 +580,19 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             $stmt->execute();
             $result = $stmt->get_result();
             
-            echo "<h2>Reviews (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Reviews (Total: $totalRecords)</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No reviews found.</p>";
+                echo "<p class='no-results'>No reviews found.</p>";
                 break;
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <tr> <th>ID</th><th>User</th><th>Product</th><th>Rating</th><th>Comment</th><th>Status</th><th>CreatedAt</th><th>Actions</th> </tr>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Product</th><th class='table-header'>Rating</th><th class='table-header'>Comment</th><th class='table-header'>Status</th><th class='table-header'>CreatedAt</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while($row = $result->fetch_assoc()) {
                 $commentPreview = strlen($row['Comment']) > 50 ? substr($row['Comment'], 0, 50) . '...' : $row['Comment'];
-                echo "<tr> <td>".escape($row['ReviewID'])."</td> <td>".escape($row['UserName'])."</td> <td>".escape($row['ProductName'])."</td> <td>".escape($row['Rating'])."/5</td> <td title='".escape($row['Comment'])."'>".escape($commentPreview)."</td> <td> <form method='POST' action='update_review_status.php' class='inline-form'> <input type='hidden' name='ReviewID' value='".escape($row['ReviewID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page'> <select name='Status' onchange='this.form.submit()'> <option value='pending' ".($row['Status']=='pending'?'selected':'').">Pending</option> <option value='approved' ".($row['Status']=='approved'?'selected':'').">Approved</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td>".escape($row['CreatedAt'])."</td> <td> <div class='action-buttons'> <a href='edit_review.php?id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' class='btn btn-sm btn-primary'>Edit</a> <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a> </div> </td> </tr>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ReviewID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['ProductName'])."</td> <td class='table-cell'>".escape($row['Rating'])."/5</td> <td class='table-cell comment-cell' title='".escape($row['Comment'])."'>".escape($commentPreview)."</td> <td class='table-cell'> <form method='POST' action='update_review_status.php' class='inline-form'> <input type='hidden' name='ReviewID' value='".escape($row['ReviewID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='pending' ".($row['Status']=='pending'?'selected':'').">Pending</option> <option value='approved' ".($row['Status']=='approved'?'selected':'').">Approved</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell'> <div class='action-buttons'> <a href='edit_review.php?id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' class='btn btn-sm btn-primary'>Edit</a> <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a> </div> </td> </tr>";
             }
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'reviews', $searchParam, $displayFilters);
             break;
@@ -614,7 +614,7 @@ case 'contacts':
     $totalRecords = getRecordCount($conn, 'Contact c LEFT JOIN User u ON c.UserID = u.UserID', $where, $params, $types);
     $totalPages = ceil($totalRecords / $limit);
     
-    echo "<h2>Contacts (Total: $totalRecords)</h2>";
+    echo "<h2 class='section-title'>Contacts (Total: $totalRecords)</h2>";
     $stmt = $conn->prepare("SELECT c.*, u.Name AS UserName FROM Contact c LEFT JOIN User u ON c.UserID = u.UserID WHERE $where ORDER BY c.CreatedAt DESC LIMIT ? OFFSET ?");
     $params[] = $limit;
     $params[] = $offset;
@@ -624,12 +624,12 @@ case 'contacts':
     $result = $stmt->get_result();
     
     if ($result->num_rows === 0) {
-        echo "<p>No contacts found.</p>";
+        echo "<p class='no-results'>No contacts found.</p>";
         break;
     }
     
     echo "<div class='table-container'>";
-    echo "<table class='data-table'> <tr> <th>ID</th><th>User</th><th>Message</th><th>ContactInfo</th><th>CreatedAt</th><th>Status</th><th>Actions</th> </tr>";
+    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>ContactInfo</th><th class='table-header'>CreatedAt</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
     while ($row = $result->fetch_assoc()) {
         $messagePreview = strlen($row['Message']) > 50 ? substr($row['Message'], 0, 50) . '...' : $row['Message'];
 
@@ -649,14 +649,14 @@ case 'contacts':
         $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
         $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
 
-        echo "<tr> 
-                <td>".escape($row['ContactID'])."</td> 
-                <td>".escape($row['UserName'])."</td> 
-                <td title='".escape($row['Message'])."'>".escape($messagePreview)."</td> 
-                <td><a href='{$contactLink}'>".escape($row['ContactInfo'])."</a></td> 
-                <td>".escape($row['CreatedAt'])."</td> 
-                <td class='$statusClass'>$statusText</td> 
-                <td> 
+        echo "<tr class='table-row'> 
+                <td class='table-cell'>".escape($row['ContactID'])."</td> 
+                <td class='table-cell'>".escape($row['UserName'])."</td> 
+                <td class='table-cell message-cell' title='".escape($row['Message'])."'>".escape($messagePreview)."</td> 
+                <td class='table-cell'><a href='{$contactLink}' class='contact-link'>".escape($row['ContactInfo'])."</a></td> 
+                <td class='table-cell'>".escape($row['CreatedAt'])."</td> 
+                <td class='table-cell $statusClass'>$statusText</td> 
+                <td class='table-cell'> 
                     <div class='action-buttons'>";
         if ($row['IsDeleted']) {
             echo "<a href='restore.php?table=Contact&id=".escape($row['ContactID'])."&view=contacts&search=$searchParam&contacts_filter=".$displayFilters['contacts']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
@@ -668,25 +668,25 @@ case 'contacts':
               </td> 
               </tr>";
     }
-    echo "</table>";
+    echo "</tbody></table>";
     echo "</div>";
     displayPagination($totalPages, $page, 'contacts', $searchParam, $displayFilters);
     break;
 
         case 'features':
             $result = $conn->query("SELECT * FROM Features ORDER BY FeatureName");
-            echo "<h2>Manage Features</h2>";
+            echo "<h2 class='section-title'>Manage Features</h2>";
             if ($result->num_rows === 0) {
-                echo "<p>No features found.</p>";
+                echo "<p class='no-results'>No features found.</p>";
                 break;
             }
             echo "<div class='table-container'>";
-            echo "<form method='POST' action='update_features.php'>";
-            echo "<table class='data-table'> <tr><th>Feature</th><th>Enabled</th></tr>";
+            echo "<form method='POST' action='update_features.php' class='features-form'>";
+            echo "<table class='data-table'> <thead><tr><th class='table-header'>Feature</th><th class='table-header'>Enabled</th></tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
-                echo "<tr> <td>".escape($row['FeatureName'])."</td> <td> <input type='checkbox' name='features[]' value='".escape($row['FeatureID'])."' ".($row['IsEnabled'] ? 'checked' : '')."> </td> </tr>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['FeatureName'])."</td> <td class='table-cell'> <input type='checkbox' name='features[]' value='".escape($row['FeatureID'])."' ".($row['IsEnabled'] ? 'checked' : '')." class='feature-checkbox'> </td> </tr>";
             }
-            echo "</table><br> <button type='submit' class='btn btn-primary'>Save Changes</button> </form>";
+            echo "</tbody></table><br> <button type='submit' class='btn btn-primary save-features-btn'>Save Changes</button> </form>";
             echo "</div>";
             break;
 
@@ -703,7 +703,7 @@ case 'contacts':
             $totalPages = ceil($totalRecords / $limit);
 
             // Add button
-            echo '<a href="add_gallery.php?view=gallery&search=' . $searchParam . '" class="add-btn"><span>+</span> Add Gallery Item</a>';
+            echo '<a href="add_gallery.php?view=gallery&search=' . $searchParam . '" class="add-btn"><span class="add-btn-icon">+</span> Add Gallery Item</a>';
 
             // Fetch gallery items
             $stmt = $conn->prepare("
@@ -720,38 +720,41 @@ case 'contacts':
             $stmt->execute();
             $result = $stmt->get_result();
 
-            echo "<h2>Gallery (Total: $totalRecords)</h2>";
+            echo "<h2 class='section-title'>Gallery (Total: $totalRecords)</h2>";
 
             if ($result->num_rows === 0) {
-                echo "<p>No gallery items found.</p>";
+                echo "<p class='no-results'>No gallery items found.</p>";
                 break;
             }
 
             echo "<div class='table-container gallery-table'>";
             echo "<table class='data-table'>
+                    <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Image</th>
-                        <th>Created At</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>";
+                        <th class='table-header'>ID</th>
+                        <th class='table-header'>Title</th>
+                        <th class='table-header'>Description</th>
+                        <th class='table-header'>Image</th>
+                        <th class='table-header'>Created At</th>
+                        <th class='table-header'>Status</th>
+                        <th class='table-header'>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>";
 
             while ($row = $result->fetch_assoc()) {
-                $imagePath = "uploads/gallery/" . escape($row['ImageUrl']);
+                $imagePath = "Img/" . escape($row['ImageUrl']);
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
 
-                echo "<tr>
-                        <td>" . escape($row['GalleryID']) . "</td>
-                        <td>" . escape($row['Title']) . "</td>
-                        <td>" . escape($row['Description']) . "</td>
-                        <td><img src='" . escape($imagePath) . "' alt='Gallery Image' class='gallery-thumb'></td>
-                        <td>" . escape($row['CreatedAt']) . "</td>
-                        <td class='$statusClass'>$statusText</td>
-                        <td>
+                echo "<tr class='table-row'>
+                        <td class='table-cell'>" . escape($row['GalleryID']) . "</td>
+                        <td class='table-cell'>" . escape($row['Title']) . "</td>
+                        <td class='table-cell'>" . escape($row['Description']) . "</td>
+                        <td class='table-cell'><img src='" . escape($imagePath) . "' alt='Gallery Image' class='gallery-thumb'></td>
+                        <td class='table-cell'>" . escape($row['CreatedAt']) . "</td>
+                        <td class='table-cell $statusClass'>$statusText</td>
+                        <td class='table-cell'>
                             <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Gallery&id=" . escape($row['GalleryID']) . "&view=gallery&search=$searchParam&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
@@ -764,7 +767,7 @@ case 'contacts':
                     </tr>";
             }
 
-            echo "</table>";
+            echo "</tbody></table>";
             echo "</div>";
 
             displayPagination($totalPages, $page, 'gallery', $searchParam, $displayFilters);

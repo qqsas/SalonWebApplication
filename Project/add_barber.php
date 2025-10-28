@@ -93,6 +93,7 @@ if ($success) {
 ?>
 
 <form method="POST" action="">
+    <link href="addedit.css" rel="stylesheet">
     <h3>User Account</h3>
     <label>Name:</label><br>
     <input type="text" name="UserName" value="<?php echo htmlspecialchars($user_name ?? ''); ?>" required><br><br>

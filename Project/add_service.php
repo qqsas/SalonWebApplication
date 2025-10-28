@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <h2>Add New Service</h2>
 
+    <link href="addedit.css" rel="stylesheet">
 <?php
 if (!empty($errors)) {
     echo "<div style='color:red;'><ul>";

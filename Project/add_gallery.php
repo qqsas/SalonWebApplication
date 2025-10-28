@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <h2>Add Gallery Item</h2>
+    <link href="addedit.css" rel="stylesheet">
 
 <?php if (!empty($errors)): ?>
     <div style="color:red;">

@@ -94,6 +94,7 @@ $barbers = $conn->query("SELECT BarberID, Name FROM Barber WHERE IsDeleted=0");
 ?>
 
 <h2>Add New Appointment</h2>
+    <link href="addedit.css" rel="stylesheet">
 
 <?php if ($errors): ?>
     <div style="color:red;"><ul>
