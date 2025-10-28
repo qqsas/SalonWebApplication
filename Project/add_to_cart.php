@@ -68,7 +68,7 @@ if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
     }
 
     // Redirect back
-    $redirect = !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "homepage.php";
+    $redirect = !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "index.php";
     header("Location: " . $redirect);
     exit();
 } else {

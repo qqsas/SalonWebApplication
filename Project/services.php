@@ -4,7 +4,7 @@ include 'db.php';
 include 'header.php';
 
 // Fetch all services
-$serviceQuery = "SELECT ServicesID, Name, Description, Price, Time 
+$serviceQuery = "SELECT * 
                  FROM Services 
                  WHERE IsDeleted = 0 
                  ORDER BY Name ASC";
@@ -17,7 +17,7 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
 <head>
     <meta charset="UTF-8">
     <title>Our Services - Kumar Kailey Hair & Beauty</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -51,73 +51,105 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
         <p>No services available at the moment.</p>
     <?php else: ?>
         <div class="services-grid" id="servicesGrid">
-            <?php foreach($services as $service): ?>
-                <div class="service-card" 
-                     data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
-                     data-price="<?= $service['Price'] ?>" 
-                     data-time="<?= $service['Time'] ?>">
-                    <h2><?= htmlspecialchars($service['Name']) ?></h2>
-                    <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
-                    <p><strong>Price:</strong> R<?= number_format($service['Price'],2) ?></p>
-                    <p><strong>Duration:</strong> <?= htmlspecialchars($service['Time']) ?> mins</p>
+<?php foreach($services as $service): ?>
+    <div class="service-card" 
+         data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
+         data-price="<?= $service['Price'] ?>" 
+         data-time="<?= $service['Time'] ?>">
+        
+        <!-- Service Image -->
+        <?php if(!empty($service['ImgUrl'])): ?>
+          <div class="service-image" style="background-image: url('<?php echo ($service['ImgUrl']) ? htmlspecialchars($service['ImgUrl']) : 'default-image.jpg'; ?>')"></div>
+        <?php endif; ?>
 
-                    <div class="service-buttons">
-                        <?php
-                        $barberStmt = $conn->prepare("
-                            SELECT b.BarberID, b.Name 
-                            FROM Barber b
-                            JOIN BarberServices bs ON b.BarberID = bs.BarberID
-                            WHERE bs.ServicesID = ? AND bs.IsDeleted = 0
-                            ORDER BY b.Name ASC
-                        ");
-                        $barberStmt->bind_param("i", $service['ServicesID']);
-                        $barberStmt->execute();
-                        $barberResult = $barberStmt->get_result();
-                        $barbers = $barberResult ? $barberResult->fetch_all(MYSQLI_ASSOC) : [];
-                        $barberStmt->close();
+        <h2><?= htmlspecialchars($service['Name']) ?></h2>
+        <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
+        <p><strong>Price:</strong> R<?= number_format($service['Price'],2) ?></p>
+        <p><strong>Duration:</strong> <?= htmlspecialchars($service['Time']) ?> mins</p>
 
-                        if(!empty($barbers)):
-                            foreach($barbers as $barber): ?>
-                                <a href="make_appointment.php?ServicesID=<?= $service['ServicesID'] ?>&BarberID=<?= $barber['BarberID'] ?>" class="btn">
-                                    Book with <?= htmlspecialchars($barber['Name']) ?>
-                                </a>
-                            <?php endforeach;
-                        else: ?>
-                            <p>No barbers available for this service.</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+        <div class="service-buttons">
+            <?php
+            $barberStmt = $conn->prepare("
+                SELECT b.BarberID, b.Name 
+                FROM Barber b
+                JOIN BarberServices bs ON b.BarberID = bs.BarberID
+                WHERE bs.ServicesID = ? AND bs.IsDeleted = 0
+                ORDER BY b.Name ASC
+            ");
+            $barberStmt->bind_param("i", $service['ServicesID']);
+            $barberStmt->execute();
+            $barberResult = $barberStmt->get_result();
+            $barbers = $barberResult ? $barberResult->fetch_all(MYSQLI_ASSOC) : [];
+            $barberStmt->close();
+
+            if(!empty($barbers)):
+                foreach($barbers as $barber): ?>
+                    <a href="make_appointment.php?ServicesID=<?= $service['ServicesID'] ?>&BarberID=<?= $barber['BarberID'] ?>" class="btn">
+                        Book with <?= htmlspecialchars($barber['Name']) ?>
+                    </a>
+                <?php endforeach;
+            else: ?>
+                <p>No barbers available for this service.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>
 
 <script>
-// SEARCH AND SORT FUNCTIONALITY
+// ENHANCED SEARCH AND SORT FUNCTIONALITY
 const searchInput = document.getElementById('serviceSearch');
 const sortSelect = document.getElementById('serviceSort');
 const servicesGrid = document.getElementById('servicesGrid');
 const serviceCards = Array.from(servicesGrid.children);
 
-// FILTER FUNCTION
+// Create no results message
+const noResults = document.createElement('div');
+noResults.className = 'no-results';
+noResults.innerHTML = '<p>No services found matching your search. Try different keywords.</p>';
+servicesGrid.parentNode.insertBefore(noResults, servicesGrid.nextSibling);
+
+// ENHANCED FILTER FUNCTION
 function filterServices() {
-    const searchTerm = searchInput.value.toLowerCase();
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    let hasMatches = false;
+    
+    servicesGrid.classList.add('filtering');
+    
     serviceCards.forEach(card => {
         const name = card.dataset.name;
         const description = card.querySelector('p').innerText.toLowerCase();
-        if(name.includes(searchTerm) || description.includes(searchTerm)) {
+        const isMatch = name.includes(searchTerm) || description.includes(searchTerm);
+        
+        if(isMatch) {
             card.style.display = '';
+            card.classList.add('matched');
+            hasMatches = true;
         } else {
             card.style.display = 'none';
+            card.classList.remove('matched');
         }
     });
+    
+    // Show/hide no results message
+    if (!hasMatches && searchTerm !== '') {
+        noResults.classList.add('show');
+    } else {
+        noResults.classList.remove('show');
+    }
+    
+    setTimeout(() => {
+        servicesGrid.classList.remove('filtering');
+    }, 300);
 }
 
-// SORT FUNCTION
+// ENHANCED SORT FUNCTION
 function sortServices() {
     const sortValue = sortSelect.value;
-    let sortedCards = [...serviceCards];
-
+    let sortedCards = [...serviceCards].filter(card => card.style.display !== 'none');
+    
     sortedCards.sort((a,b) => {
         switch(sortValue) {
             case 'name-asc': return a.dataset.name.localeCompare(b.dataset.name);
@@ -129,18 +161,34 @@ function sortServices() {
             default: return 0;
         }
     });
-
-    // Re-append sorted cards
-    sortedCards.forEach(card => servicesGrid.appendChild(card));
+    
+    // Smooth reordering
+    servicesGrid.style.opacity = '0.7';
+    sortedCards.forEach((card, index) => {
+        setTimeout(() => {
+            servicesGrid.appendChild(card);
+        }, index * 50);
+    });
+    
+    setTimeout(() => {
+        servicesGrid.style.opacity = '1';
+    }, sortedCards.length * 50);
 }
 
 // EVENT LISTENERS
 searchInput.addEventListener('input', () => {
     filterServices();
-    sortServices(); // keep sorted after filtering
+    sortServices();
 });
+
 sortSelect.addEventListener('change', sortServices);
-</script>
+
+// Initialize with fade-in
+document.addEventListener('DOMContentLoaded', () => {
+    serviceCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+});</script>
 
 </body>
 </html>

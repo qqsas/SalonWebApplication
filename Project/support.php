@@ -8,59 +8,86 @@ include 'mail.php'; // PHPMailer setup
 // Handle AJAX contact form submission **before including header.php**
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['ajax'])) {
     $name = trim($_POST['name']);
-    $contactInfo = trim($_POST['contact']); // combined email/phone
+    $contactInfo = trim($_POST['contact']); // could be email or phone
     $message_text = trim($_POST['message']);
 
     $error = '';
     $success = '';
     $userID = isset($_SESSION['UserID']) ? $_SESSION['UserID'] : null;
 
-    if (empty($contactInfo)) {
+    // --- Validate Name ---
+    if (empty($name)) {
+        $error = "Please enter your full name.";
+    }
+
+    // --- Validate Contact Info ---
+    elseif (empty($contactInfo)) {
         $error = "Please provide your email or phone number.";
-    } else {
-        // Insert guest if no user logged in
+    } 
+    else {
+        $isEmail = filter_var($contactInfo, FILTER_VALIDATE_EMAIL);
+        $isPhone = preg_match('/^\+?\d{7,15}$/', $contactInfo); // supports 7–15 digits, optional '+'
+
+        if (!$isEmail && !$isPhone) {
+            $error = "Please enter a valid email address or phone number.";
+        }
+    }
+
+    // --- Validate Message ---
+    if (empty($message_text) && !$error) {
+        $error = "Please enter a message before submitting.";
+    }
+
+    // --- Proceed if no errors ---
+    if (empty($error)) {
+        // Create guest user if not logged in
         if (!$userID) {
-            $stmt = $conn->prepare("INSERT INTO User (Name, Email, Number, Password, Role) VALUES (?, ?, '', '', 'guest')");
-            $stmt->bind_param("ss", $name, $contactInfo);
+            $email = $isEmail ? $contactInfo : ''; // if it's email, store here
+            $number = $isPhone ? $contactInfo : ''; // if it's phone, store here
+            $stmt = $conn->prepare("INSERT INTO User (Name, Email, Number, Password, Role) VALUES (?, ?, ?, '', 'guest')");
+            $stmt->bind_param("sss", $name, $email, $number);
             if ($stmt->execute()) {
                 $userID = $stmt->insert_id;
             }
             $stmt->close();
         }
 
-        // Insert into Contact table
+        // Save contact message
         $stmt = $conn->prepare("INSERT INTO Contact (UserID, Message, ContactInfo) VALUES (?, ?, ?)");
         $stmt->bind_param("iss", $userID, $message_text, $contactInfo);
         if ($stmt->execute()) {
-            $success = "✅ Your message has been sent successfully!";
+            $success = " Your message has been sent successfully!";
         } else {
-            $error = "❌ There was an error sending your message. Please try again.";
+            $error = " There was an error sending your message. Please try again.";
         }
         $stmt->close();
 
-        // Send email notification
-        $mail = getMailer();
-        if ($mail) {
-            try {
-                $mail->addAddress('support@yourbusiness.com', 'Support Team');
-                $mail->Subject = "New Contact Message from $name";
-                $mail->Body = "Name: $name\nContact: $contactInfo\nMessage:\n$message_text";
-                $mail->send();
-            } catch (Exception $e) {
-                error_log("Mail Exception: " . $e->getMessage());
+        // Send email notification (optional)
+        if (empty($error)) {
+            $mail = getMailer();
+            if ($mail) {
+                try {
+                    $mail->addAddress('support@yourbusiness.com', 'Support Team');
+                    $mail->Subject = "New Contact Message from $name";
+                    $mail->Body = "Name: $name\nContact: $contactInfo\nMessage:\n$message_text";
+                    $mail->send();
+                } catch (Exception $e) {
+                    error_log("Mail Exception: " . $e->getMessage());
+                }
             }
         }
     }
 
+    // --- Response Output ---
     if ($error) {
         echo '<p class="error">' . htmlspecialchars($error) . '</p>';
     } elseif ($success) {
         echo '<p class="success">' . htmlspecialchars($success) . '</p>';
     }
-    exit; // important: stops header.php and full page from loading
+    exit; // prevent page load for AJAX requests
 }
 
-// --- Now include header.php for normal page loads ---
+// --- Normal Page Load ---
 include 'header.php';
 ?>
 <!DOCTYPE html>
@@ -68,7 +95,7 @@ include 'header.php';
 <head>
   <meta charset="UTF-8">
   <title>Contact - My Business</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles2.css">
   <style>
     .error { color: red; margin-bottom: 15px; }
     .success { color: green; margin-bottom: 15px; }
@@ -126,21 +153,15 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-    formData.append('ajax', '1'); // mark AJAX request
+    formData.append('ajax', '1');
 
-    fetch('', {
-        method: 'POST',
-        body: formData
-    })
+    fetch('', { method: 'POST', body: formData })
     .then(response => response.text())
     .then(html => {
         const formMessages = document.getElementById('form-messages');
         formMessages.innerHTML = html;
 
-        if (html.includes('✅')) {
-            form.reset();
-        }
-
+        if (html.includes('')) form.reset();
         document.getElementById('contact-section').scrollIntoView({ behavior: 'smooth' });
     })
     .catch(err => console.error('Error:', err));
