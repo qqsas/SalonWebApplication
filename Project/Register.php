@@ -119,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Register</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <style>
         .error { 
             color: hsl(var(--secondary-hue), var(--saturation), 40%); 
@@ -143,7 +143,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Full Name</label>
           <input type="text" name="name" class="form-control" 
                  value="<?= htmlspecialchars($_POST["name"] ?? '') ?>" required>
-          <span class="error"><?= htmlspecialchars($nameError) ?></span>
         </div>
 
         <div class="contact-note">Please provide either an email or a phone number</div>
@@ -151,7 +150,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Email or Phone</label>
           <input type="text" name="contact" class="form-control" 
                  value="<?= htmlspecialchars($_POST["contact"] ?? '') ?>" required>
-          <span class="error"><?= htmlspecialchars($contactError) ?></span>
         </div>
 
         <div class="form-group">
@@ -164,20 +162,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <li>Include at least one special character</li>
               </ul>
           </div>
-          <span class="error"><?= htmlspecialchars($passwordError) ?></span>
         </div>
 
         <div class="form-group">
           <label>Confirm Password</label>
           <input type="password" name="confirm_password" class="form-control" required>
-          <span class="error"><?= htmlspecialchars($confirmPasswordError) ?></span>
         </div>
 
         <input type="submit" value="Register" class="btn-primary">
       </form>
 
       <p class="text-center mt-3">Already have an account? <a href="Login.php">Login here</a></p>
-      <p class="text-center" style="color: var(--accent-color);"><?= htmlspecialchars($message) ?></p>
     </div>
   </div>
 </div>

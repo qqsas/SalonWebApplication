@@ -51,44 +51,44 @@ $related_result = $related_stmt->get_result();
 <body>
 
 <!-- Product Details -->
-<div class="product-page">
-    <div class="product-details">
-        <div class="image-section">
+<div class="item-detail-page">
+    <div class="item-detail__container">
+        <div class="item-detail__media">
             <?php $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
-            <img src="<?= $product_img ?>" class="product-main-image" alt="<?= htmlspecialchars($product['Name']) ?>">
+            <img src="<?= $product_img ?>" class="item-detail__primary-image" alt="<?= htmlspecialchars($product['Name']) ?>">
         </div>
-        <div class="product-info-section">
-            <h2 class="product-name"><?= htmlspecialchars($product['Name']) ?></h2>
-            <p><strong>Category:</strong> <?= htmlspecialchars($product['Category']) ?></p>
-            <p><strong>Price:</strong> R<?= number_format($product['Price'], 2) ?></p>
-            <p><strong>In Stock:</strong> <?= htmlspecialchars($product['Stock']) ?></p>
+        <div class="item-detail__content">
+            <h2 class="item-detail__title"><?= htmlspecialchars($product['Name']) ?></h2>
+            <p class="item-detail__meta"><strong>Category:</strong> <?= htmlspecialchars($product['Category']) ?></p>
+            <p class="item-detail__price"><strong>Price:</strong> R<?= number_format($product['Price'], 2) ?></p>
+            <p class="item-detail__stock"><strong>In Stock:</strong> <?= htmlspecialchars($product['Stock']) ?></p>
             
-            <form action="add_to_cart.php" method="POST" class="add-to-cart-form">
+            <form action="add_to_cart.php" method="POST" class="item-detail__action-form">
                 <input type="hidden" name="product_id" value="<?= $product['ProductID']; ?>">
                 
-                <div class="form-group">
-                    <label for="quantity"><strong>Quantity:</strong></label>
-                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?= $product['Stock'] ?>" class="quantity-input" required>
+                <div class="item-detail__form-control">
+                    <label for="quantity" class="item-detail__form-label"><strong>Quantity:</strong></label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?= $product['Stock'] ?>" class="item-detail__quantity-selector" required>
                 </div>
                 
-                <button type="submit" class="btn">Add to Cart</button>
+                <button type="submit" class="item-detail__action-btn">Add to Cart</button>
             </form>
         </div>
     </div>
 </div>
 
 <?php if ($related_result && $related_result->num_rows > 0): ?>
-<div class="related-products-section">
-    <h4 class="related-products-title">More from this category</h4>
-    <div class="related-products-list">
+<div class="similar-items-section">
+    <h4 class="similar-items__heading">More from this category</h4>
+    <div class="similar-items__grid">
         <?php while ($related = $related_result->fetch_assoc()): ?>
-            <div class="related-product-card">
+            <div class="similar-item-card">
                 <?php $related_img = !empty($related['ImgUrl']) ? htmlspecialchars($related['ImgUrl']) : 'default.png'; ?>
-                <img src="<?= $related_img ?>" class="related-product-image" alt="<?= htmlspecialchars($related['Name']) ?>">
-                <div class="related-product-info">
-                    <h5 class="related-product-name"><?= htmlspecialchars($related['Name']) ?></h5>
-                    <p class="related-product-price">R<?= number_format($related['Price'], 2) ?></p>
-                    <a href="product_details.php?id=<?= $related['ProductID'] ?>" class="btn">View</a>
+                <img src="<?= $related_img ?>" class="similar-item__image" alt="<?= htmlspecialchars($related['Name']) ?>">
+                <div class="similar-item__details">
+                    <h5 class="similar-item__title"><?= htmlspecialchars($related['Name']) ?></h5>
+                    <p class="similar-item__price">R<?= number_format($related['Price'], 2) ?></p>
+                    <a href="product_details.php?id=<?= $related['ProductID'] ?>" class="similar-item__link">View Details</a>
                 </div>
             </div>
         <?php endwhile; ?>
@@ -98,4 +98,3 @@ $related_result = $related_stmt->get_result();
 
 </body>
 </html>
-

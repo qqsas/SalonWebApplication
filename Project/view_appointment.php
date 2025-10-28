@@ -39,7 +39,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<div class="container">
+<div class="Acontainer">
   <link rel="stylesheet" href="styles2.css">
     <h1>My Appointments</h1>
 

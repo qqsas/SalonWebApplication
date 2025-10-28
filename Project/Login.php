@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Login</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <style>
         .error { 
             color: hsl(var(--secondary-hue), var(--saturation), 40%); 
@@ -119,14 +119,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="form-group">
           <label>Password</label>
           <input type="password" name="password" class="form-control" required>
-          <span class="error"><?= $loginError ?></span>
         </div>
 
         <input type="submit" value="Login" class="btn-primary">
       </form>
 
       <p class="text-center mt-3">Don't have an account? <a href="Register.php">Register here</a></p>
-      <p class="text-center" style="color: var(--accent-color);"><?php echo $message; ?></p>
     </div>
   </div>
 </div>

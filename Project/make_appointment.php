@@ -141,7 +141,7 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <div class="container">
+    <div class="Acontainer">
         <!-- Header Section -->
         <div class="booking-header">
             <h1>Book Your Appointment</h1>
