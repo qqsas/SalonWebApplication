@@ -743,7 +743,7 @@ case 'contacts':
                     <tbody>";
 
             while ($row = $result->fetch_assoc()) {
-                $imagePath = "Img/" . escape($row['ImageUrl']);
+                $imagePath = "" . escape($row['ImageUrl']);
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
 
