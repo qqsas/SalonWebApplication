@@ -146,6 +146,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 </div>
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const pass = document.querySelector('input[name="password"]');
+  const id = document.querySelector('input[name="identifier"]');
+  const form = document.querySelector("form");
+
+  // Wrap password input in a relative container
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "relative";
+  pass.parentNode.insertBefore(wrapper, pass);
+  wrapper.appendChild(pass);
+
+  // Create eye icon inside the box
+  const eye = document.createElement("span");
+  eye.textContent = "👁";
+  eye.style.position = "absolute";
+  eye.style.right = "10px";
+  eye.style.top = "50%";
+  eye.style.transform = "translateY(-50%)";
+  eye.style.cursor = "pointer";
+  eye.style.userSelect = "none";
+  wrapper.appendChild(eye);
+
+  eye.addEventListener("click", () => {
+    const isHidden = pass.type === "password";
+    pass.type = isHidden ? "text" : "password";
+    eye.textContent = isHidden ? "🚫" : "👁";
+  });
+
+  // Highlight input while typing
+  [id, pass].forEach((input) => {
+    input.addEventListener("focus", () => input.style.background = "#fff7e6");
+    input.addEventListener("blur", () => input.style.background = "");
+  });
+
+  // Fun greeting in tab title
+  id.addEventListener("input", () => {
+    if (id.value.length > 2) {
+      document.title = "👋 Welcome, " + id.value + "!";
+    } else {
+      document.title = "Login";
+    }
+  });
+
+  // Submit animation
+  form.addEventListener("submit", (e) => {
+    const btn = form.querySelector('input[type="submit"]');
+    btn.value = "Logging in...";
+    btn.style.background = "#28a745";
+    btn.style.transition = "0.3s";
+  });
+});
+</script>
+
 </html> 
 
 
