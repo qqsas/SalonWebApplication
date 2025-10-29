@@ -177,5 +177,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 </div>
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const pass = document.querySelector('input[name="password"]');
+  const confirm = document.querySelector('input[name="confirm_password"]');
+  const contact = document.querySelector('input[name="contact"]');
+  const form = document.querySelector("form");
+
+  // Show/hide password toggle
+  const toggle = document.createElement("span");
+  toggle.textContent = "👁";
+  toggle.style.cursor = "pointer";
+  toggle.style.marginLeft = "8px";
+  pass.parentNode.insertBefore(toggle, pass.nextSibling);
+  toggle.addEventListener("click", () => {
+    const type = pass.type === "password" ? "text" : "password";
+    pass.type = confirm.type = type;
+  });
+
+  // Password match check
+  confirm.addEventListener("input", () => {
+    confirm.style.borderColor = confirm.value === pass.value ? "green" : "red";
+  });
+
+  // Detect email or phone
+  contact.addEventListener("input", () => {
+    const val = contact.value.trim();
+    if (val.includes("@")) contact.style.borderColor = "green";
+    else if (/^\d+$/.test(val)) contact.style.borderColor = "blue";
+    else contact.style.borderColor = "";
+  });
+
+  // Prevent submit if passwords don’t match
+  form.addEventListener("submit", (e) => {
+    if (pass.value !== confirm.value) {
+      e.preventDefault();
+      alert("Passwords do not match!");
+    }
+  });
+});
+</script>
+
 </html>
 
