@@ -104,7 +104,7 @@ if (!$services) {
 <html>
 <head>
     <title>Add Service</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="addedit.css">
 </head>
 <body>
     <?php include 'header.php'; ?>

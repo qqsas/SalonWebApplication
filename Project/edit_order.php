@@ -94,6 +94,7 @@ $stmt->close();
 <?php include 'header.php'; ?>
 <div class="container">
     <h2>Edit Order #<?php echo htmlspecialchars($order['OrderID']); ?></h2>
+    <link href="addedit.css" rel="stylesheet">
 
     <p><strong>Customer:</strong> <?php echo htmlspecialchars($order['CustomerName']); ?> (<?php echo htmlspecialchars($order['Email']); ?>)</p>
     <p><strong>Current Status:</strong> <?php echo htmlspecialchars($order['Status']); ?></p>

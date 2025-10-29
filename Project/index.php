@@ -27,7 +27,7 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
 <head>
   <meta charset="UTF-8">
   <title>Home - My Business</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles2.css">
   <style>
     .error { color: red; margin-bottom: 15px; }
     .success { color: green; margin-bottom: 15px; }
@@ -56,6 +56,37 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
           </div>
         </div>
       <?php endforeach; ?>
+    </div>
+  </section>
+  
+<!-- Gallery Section -->
+  <?php
+  // Get Gallery items
+  $stmt = $conn->prepare("SELECT * FROM Gallery WHERE IsDeleted = 0 ORDER BY CreatedAt DESC");
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $getGallery = $result->fetch_all(MYSQLI_ASSOC);
+  $stmt->close();
+  ?>
+
+  <section class="gallery">
+    <h2>Our Gallery</h2>
+    <div class="gallery-list">
+      <?php if (empty($getGallery)): ?>
+        <p>No gallery images available yet. Please check back later.</p>
+      <?php else: ?>
+        <?php foreach ($getGallery as $item): ?>
+          <div class="gallery-card">
+            <div class="gallery-image" 
+                 style="background-image: url('<?php echo htmlspecialchars($item['ImageUrl']); ?>');">
+            </div>
+            <div class="card-content">
+              <h3><?php echo htmlspecialchars($item['Title'] ?? 'Untitled'); ?></h3>
+              <p><?php echo htmlspecialchars($item['Description'] ?? ''); ?></p>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
   </section>
 

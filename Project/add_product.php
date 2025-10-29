@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <h2>Add New Product</h2>
+    <link href="addedit.css" rel="stylesheet">
 
 <?php if (!empty($errors)): ?>
     <div style="color:red;">

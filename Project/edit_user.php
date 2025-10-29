@@ -80,6 +80,7 @@ $stmt->close();
 
 <div class="container">
     <h2>Edit User</h2>
+    <link href="addedit.css" rel="stylesheet">
     <form method="POST" action="">
         <label for="name">Name:</label><br>
         <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['Name']); ?>" required><br><br>

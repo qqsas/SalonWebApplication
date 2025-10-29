@@ -1,9 +1,7 @@
 Check every place an email/number is requiered that it supports the use of only 1
 Test and improve user-friendliness
 Ensure every word displayed is proffesional and every email sent is proffesional
-Do the CSS for every page
 Test Email Services when deployed
-Staff detail.php call from correct database
 
 -Unify config for db. (SalonDB has had more use overall, so should just stick to that)
 

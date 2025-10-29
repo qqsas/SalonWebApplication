@@ -48,7 +48,7 @@ function escape($str) {
 function usdToZar($usdAmount) {
     // You can use a fixed exchange rate or fetch from an API
     // For now, using a fixed rate of 18.5 (approximate)
-    $exchangeRate = 18.5;
+    $exchangeRate = 1;
     return number_format($usdAmount * $exchangeRate, 2);
 }
 
@@ -107,8 +107,7 @@ while ($row = $result->fetch_assoc()) {
 ?>
 
 <div class="barber-dashboard">
-    <link rel="stylesheet" href="barberstyle.css">
-    <link rel="stylesheet" href="adminstyle.css">
+    <link rel="stylesheet" href="barberstyle2.css">
 
     <div class="dashboard-header">
         <div class="barber-welcome">
@@ -450,19 +449,21 @@ while ($row = $result->fetch_assoc()) {
                     echo "<div class='availability-day'>
                             <div class='day-name'>$dayName</div>
                             <div class='time-inputs'>
-                                <input type='time' name='startTime[$dayNum]' value='$startTime' class='form-control' $isWorking>
-                                <span>to</span>
-                                <input type='time' name='endTime[$dayNum]' value='$endTime' class='form-control' $isWorking>
+                                <input type='time' name='startTime[$dayNum]' value='$startTime' class='form-control time-input' $isWorking>
+                                <span class='time-separator'>to</span>
+                                <input type='time' name='endTime[$dayNum]' value='$endTime' class='form-control time-input' $isWorking>
                             </div>
                             <div class='working-toggle'>
-                                <input type='checkbox' name='workingDays[]' value='$dayNum' id='day$dayNum' $isWorking>
-                                <label for='day$dayNum'>Working</label>
+                                <input type='checkbox' name='workingDays[]' value='$dayNum' id='day$dayNum' class='working-checkbox' $isWorking>
+                                <label for='day$dayNum' class='working-label'>Working</label>
                             </div>
                           </div>";
                 }
                 
                 echo "</div>";
-                echo "<br><button type='submit' class='btn btn-primary'>Save Working Hours</button>";
+                echo "<div class='form-actions'>";
+                echo "<button type='submit' class='btn btn-primary save-hours-btn'>Save Working Hours</button>";
+                echo "</div>";
                 echo "</form>";
                 echo "</div>";
 
@@ -483,49 +484,72 @@ while ($row = $result->fetch_assoc()) {
                 $result = $stmt->get_result();
                 $unavailability = $result->fetch_all(MYSQLI_ASSOC);
 
-                echo "<h3>Mark Unavailability</h3>";
+                echo "<div class='unavailability-section'>";
+                echo "<h3 class='section-title'>Mark Unavailability</h3>";
                 echo "<form method='POST' action='update_unavailability.php' class='unavailability-form'>";
                 echo "<input type='hidden' name='BarberID' value='$barberID'>";
                 echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>";
 
-                echo "<div class='unavailability-inputs'>
-                        <label>Date:</label>
-                        <input type='date' name='Date' required>
-                        <label>Start Time (optional):</label>
-                        <input type='time' name='StartTime'>
-                        <label>End Time (optional):</label>
-                        <input type='time' name='EndTime'>
-                        <label>Reason (optional):</label>
-                        <input type='text' name='Reason' maxlength='255'>
-                        <button type='submit' class='btn btn-warning'>Add Unavailability</button>
-                      </div>";
-
+                echo "<div class='unavailability-inputs'>";
+                echo "<div class='input-row'>";
+                echo "<div class='input-group'>";
+                echo "<label class='input-label'>Date</label>";
+                echo "<input type='date' name='Date' class='input-field date-input' required>";
+                echo "</div>";
+                
+                echo "<div class='input-group'>";
+                echo "<label class='input-label'>Start Time (optional)</label>";
+                echo "<input type='time' name='StartTime' class='input-field time-input'>";
+                echo "</div>";
+                
+                echo "<div class='input-group'>";
+                echo "<label class='input-label'>End Time (optional)</label>";
+                echo "<input type='time' name='EndTime' class='input-field time-input'>";
+                echo "</div>";
+                echo "</div>"; // .input-row
+                
+                echo "<div class='input-group full-width'>";
+                echo "<label class='input-label'>Reason (optional)</label>";
+                echo "<input type='text' name='Reason' class='input-field text-input' maxlength='255' placeholder='Enter reason for unavailability'>";
+                echo "</div>";
+                
+                echo "<div class='form-actions'>";
+                echo "<button type='submit' class='btn btn-warning add-unavailability-btn'>Add Unavailability</button>";
+                echo "</div>";
+                echo "</div>"; // .unavailability-inputs
                 echo "</form>";
 
                 if ($unavailability) {
-                    echo "<h4>Existing Unavailability" . ($date ? " for " . escape($date) : "") . "</h4>";
-                    echo "<table class='data-table'>
-                            <tr><th>Date</th><th>Start</th><th>End</th><th>Reason</th><th>Actions</th></tr>";
+                    echo "<div class='existing-unavailability'>";
+                    echo "<h4 class='section-subtitle'>Existing Unavailability" . ($date ? " for " . escape($date) : "") . "</h4>";
+                    echo "<div class='table-container'>";
+                    echo "<table class='data-table unavailability-table'>";
+                    echo "<thead><tr><th>Date</th><th>Start</th><th>End</th><th>Reason</th><th>Actions</th></tr></thead>";
+                    echo "<tbody>";
                     foreach ($unavailability as $u) {
                         $start = $u['StartTime'] ?? '-';
                         $end = $u['EndTime'] ?? '-';
                         $reason = htmlspecialchars($u['Reason']);
-                        echo "<tr>
-                                <td>{$u['Date']}</td>
-                                <td>{$start}</td>
-                                <td>{$end}</td>
-                                <td>{$reason}</td>
-                                <td>
-                                    <form method='POST' action='delete_unavailability.php' style='display:inline'>
+                        echo "<tr class='unavailability-item'>
+                                <td class='unavailability-date'>{$u['Date']}</td>
+                                <td class='unavailability-start'>{$start}</td>
+                                <td class='unavailability-end'>{$end}</td>
+                                <td class='unavailability-reason'>{$reason}</td>
+                                <td class='unavailability-actions'>
+                                    <form method='POST' action='delete_unavailability.php' class='inline-form'>
                                         <input type='hidden' name='UnavailabilityID' value='{$u['UnavailabilityID']}'>
                                         <input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>
-                                        <button type='submit' onclick='return confirm(\"Remove this unavailability?\")' class='btn btn-sm btn-danger'>Remove</button>
+                                        <button type='submit' onclick='return confirm(\"Remove this unavailability?\")' class='btn btn-sm btn-danger remove-unavailability-btn'>Remove</button>
                                     </form>
                                 </td>
                               </tr>";
                     }
+                    echo "</tbody>";
                     echo "</table>";
+                    echo "</div>"; // .table-container
+                    echo "</div>"; // .existing-unavailability
                 }
+                echo "</div>"; // .unavailability-section
                 break;
 
             case 'profile':

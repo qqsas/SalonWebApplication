@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Assign services
             if (!empty($services)) {
-                $stmt = $conn->prepare("INSERT INTO Barber_Services (BarberID, ServiceID) VALUES (?, ?)");
+                $stmt = $conn->prepare("INSERT INTO BarberServices (BarberID, ServicesID) VALUES (?, ?)");
                 foreach ($services as $service_id) {
                     $stmt->bind_param("ii", $barber_id, $service_id);
                     $stmt->execute();
@@ -93,6 +93,7 @@ if ($success) {
 ?>
 
 <form method="POST" action="">
+    <link href="addedit.css" rel="stylesheet">
     <h3>User Account</h3>
     <label>Name:</label><br>
     <input type="text" name="UserName" value="<?php echo htmlspecialchars($user_name ?? ''); ?>" required><br><br>

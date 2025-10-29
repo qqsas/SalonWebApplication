@@ -105,6 +105,7 @@ $products = $conn->query("SELECT ProductID, Name FROM Products WHERE IsDeleted=0
 ?>
 
 <h2>Add New Order</h2>
+    <link href="addedit.css" rel="stylesheet">
 
 <?php if ($errors): ?>
     <div style="color:red;"><ul>

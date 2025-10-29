@@ -1,12 +1,12 @@
 /* Color Palette Variables */
 :root {
-  --primary-color: #c44536;
-  --secondary-color: #e67e22;
-  --accent-color: #d35400;
+  --primary-color: #545885;
+  --secondary-color: #5A502A;
+  --accent-color: #B2A783;
   --background-light: #fef5e7;
   --background-dark: #2c3e50;
-  --text-dark: #2c3e50;
-  --text-light: #7f8c8d;
+  --text-dark: #050401;
+  --text-light: #dddddd;
   --white: #ffffff;
   --gray-light: #ecf0f1;
   --gray-medium: #bdc3c7;
@@ -295,7 +295,7 @@ body {
 /* Default placeholder images */
 .service-image::before,
 .staff-image::before {
-  content: "📷";
+  content: "";
   font-size: 3rem;
   position: absolute;
   top: 50%;

@@ -75,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <h2>Add New User</h2>
 
+    <link href="addedit.css" rel="stylesheet">
 <?php if (!empty($errors)): ?>
     <div style='color:red;'><ul>
     <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>

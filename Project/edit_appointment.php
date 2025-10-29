@@ -116,6 +116,7 @@ include 'header.php';
 <div class="container">
     <h2>Edit Appointment</h2>
 
+    <link href="addedit.css" rel="stylesheet">
     <form method="post">
         <div>
             <label for="forName">For Name:</label><br>

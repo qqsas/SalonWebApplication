@@ -44,12 +44,12 @@ $barberResult = $barberStmt->get_result();
 $barber = $barberResult->fetch_assoc();
 if (!$barber) exit("Barber not found.");
 
-// Week offset (0 = this week, 1 = next week, etc.)
-$week_offset = isset($_GET['week']) ? max(0, (int)$_GET['week']) : 0;
+// Week offset (0 = current week starting from today, 1 = next week, etc.)
+$week_offset = isset($_GET['week']) ? (int)$_GET['week'] : 0;
 
-// Dates to display (7 days starting from week_offset)
+// Dates to display (7 days starting from today + week offset)
 $dates = [];
-$startDate = strtotime("+$week_offset week Monday");
+$startDate = strtotime("+$week_offset week"); // Start from today
 for ($i = 0; $i < 7; $i++) {
     $dates[] = date('Y-m-d', strtotime("+$i day", $startDate));
 }
@@ -126,6 +126,10 @@ for ($hour = $day_start_hour; $hour < $day_end_hour; $hour++) {
         $slots[] = $hour * 3600 + $minute * 60;
     }
 }
+
+// Calculate display dates for the header
+$startDateDisplay = date('M j, Y', strtotime($dates[0]));
+$endDateDisplay = date('M j, Y', strtotime(end($dates)));
 ?>
 
 <!DOCTYPE html>
@@ -133,128 +137,354 @@ for ($hour = $day_start_hour; $hour < $day_end_hour; $hour++) {
 <head>
     <meta charset="UTF-8">
     <title>Book Appointment - <?= htmlspecialchars($service['Name']) ?></title>
-    <link href="styles.css" rel="stylesheet">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1,h2,h3,h4 { margin-bottom: 10px; }
-        .calendar { border-collapse: collapse; width: 100%; max-width: 900px; margin-top: 20px; }
-        .calendar th, .calendar td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        .calendar th { background-color: #f0f0f0; }
-        .time-column { background-color: #fafafa; font-weight: bold; width: 80px; }
-        .available { background-color: #e8f5e8; cursor: pointer; }
-        .unavailable { background-color: #f5e8e8; color: #888; cursor: not-allowed; }
-        .booked { background-color: #d3d3d3; color: #666; cursor: not-allowed; }
-        .selected { background-color: #007bff; color: #fff; }
-    </style>
-    <script>
-        let selectedSlot = null;
-        function selectSlot(elem, datetime) {
-            if(elem.classList.contains('unavailable') || elem.classList.contains('booked')) return;
-            if(selectedSlot) selectedSlot.classList.remove('selected');
-            elem.classList.add('selected');
-            selectedSlot = elem;
-            document.getElementById('selected_time').value = datetime;
-        }
-    </script>
+    <link href="styles2.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<h1>Book Appointment</h1>
-<h2>Service: <?= htmlspecialchars($service['Name']) ?> (<?= $service['Time'] ?> mins)</h2>
-<h3>Barber: <?= htmlspecialchars($barber['Name']) ?></h3>
+    <div class="Acontainer">
+        <!-- Header Section -->
+        <div class="booking-header">
+            <h1>Book Your Appointment</h1>
+            <h2><?= htmlspecialchars($service['Name']) ?> (<?= $service['Time'] ?> minutes)</h2>
+            <h3>with <?= htmlspecialchars($barber['Name']) ?></h3>
+            <p>Price: R<?= number_format($service['Price'], 2) ?></p>
+        </div>
 
-<div class="week-nav">
-<?php 
-$startDateDisplay = date('M j, Y', strtotime($dates[0]));
-$endDateDisplay = date('M j, Y', strtotime(end($dates)));
-?>
-<p>Showing appointments from <strong><?= $startDateDisplay ?></strong> to <strong><?= $endDateDisplay ?></strong></p>
-<a href="?ServicesID=<?= $ServicesID ?>&BarberID=<?= $BarberID ?>&week=<?= max(0, $week_offset-1) ?>">Previous Week</a>
-<span>Week <?= $week_offset+1 ?></span>
-<a href="?ServicesID=<?= $ServicesID ?>&BarberID=<?= $BarberID ?>&week=<?= $week_offset+1 ?>">Next Week</a>
-</div>
+        <!-- Week Navigation -->
+        <div class="week-nav">
+            <?php if ($week_offset > 0): ?>
+                <a href="?ServicesID=<?= $ServicesID ?>&BarberID=<?= $BarberID ?>&week=<?= $week_offset-1 ?>">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                    Previous Week
+                </a>
+            <?php else: ?>
+                <span></span> <!-- Empty space for layout -->
+            <?php endif; ?>
+            
+            <p>Showing appointments from <strong><?= $startDateDisplay ?></strong> to <strong><?= $endDateDisplay ?></strong></p>
+            
+            <span>
+                <?php if ($week_offset == 0): ?>
+                    This Week
+                <?php else: ?>
+                    Week <?= $week_offset+1 ?>
+                <?php endif; ?>
+            </span>
+            
+            <a href="?ServicesID=<?= $ServicesID ?>&BarberID=<?= $BarberID ?>&week=<?= $week_offset+1 ?>">
+                Next Week
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </a>
+        </div>
 
-<form action="confirm_appointment.php" method="POST">
-    <input type="hidden" name="ServicesID" value="<?= $ServicesID ?>">
-    <input type="hidden" name="BarberID" value="<?= $BarberID ?>">
-    <input type="hidden" name="UserID" value="<?= $UserID ?>">
-    <input type="hidden" name="selected_time" id="selected_time">
+        <!-- Calendar Legend -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <div class="legend-color legend-available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-booked"></div>
+                <span>Booked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-unavailable"></div>
+                <span>Unavailable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-selected"></div>
+                <span>Selected</span>
+            </div>
+        </div>
 
-    <table class="calendar">
-        <tr>
-            <th class="time-column">Time</th>
-            <?php foreach ($dates as $date): ?>
-                <th><?= date('D, M j', strtotime($date)) ?></th>
-            <?php endforeach; ?>
-        </tr>
+        <form action="confirm_appointment.php" method="POST" class="booking-form" id="bookingForm">
+            <input type="hidden" name="ServicesID" value="<?= $ServicesID ?>">
+            <input type="hidden" name="BarberID" value="<?= $BarberID ?>">
+            <input type="hidden" name="UserID" value="<?= $UserID ?>">
+            <input type="hidden" name="selected_time" id="selected_time">
 
-        <?php foreach ($slots as $offset): 
-            $timeLabel = gmdate('H:i', $offset);
-        ?>
-            <tr>
-                <td class="time-column"><?= $timeLabel ?></td>
+            <div class="calendar-container">
+                <table class="calendar">
+                    <tr>
+                        <th class="time-column">Time</th>
+                        <?php foreach ($dates as $date): 
+                            $isToday = $date == date('Y-m-d');
+                            $dayClass = $isToday ? 'today' : '';
+                        ?>
+                            <th class="<?= $dayClass ?>">
+                                <?= date('D, M j', strtotime($date)) ?>
+                                <?php if ($isToday): ?>
+                                    <br><small>(Today)</small>
+                                <?php endif; ?>
+                            </th>
+                        <?php endforeach; ?>
+                    </tr>
 
-                <?php foreach ($dates as $date): 
-                    $slot_start = strtotime($date) + $offset;
-                    $slot_end   = $slot_start + $slot_duration;
+                    <?php foreach ($slots as $offset): 
+                        $timeLabel = gmdate('H:i', $offset);
+                    ?>
+                        <tr>
+                            <td class="time-column"><?= $timeLabel ?></td>
 
-                    $class = 'available';
+                            <?php foreach ($dates as $date): 
+                                $slot_start = strtotime($date) + $offset;
+                                $slot_end   = $slot_start + $slot_duration;
 
-                    // Check working hours
-                    $in_working = false;
-                    foreach ($working_hours[$date] as $wh) {
-                        if ($slot_start >= $wh['start'] && $slot_end <= $wh['end']) {
-                            $in_working = true;
-                            break;
+                                $class = 'available';
+
+                                // Check working hours
+                                $in_working = false;
+                                foreach ($working_hours[$date] as $wh) {
+                                    if ($slot_start >= $wh['start'] && $slot_end <= $wh['end']) {
+                                        $in_working = true;
+                                        break;
+                                    }
+                                }
+                                if (!$in_working) {
+                                    $class = 'unavailable';
+                                }
+
+                                // Check booked appointments
+                                if ($class === 'available') {
+                                    foreach ($appointments[$date] as $app) {
+                                        $overlap = ($slot_start >= $app['start'] && $slot_start < $app['end']) ||
+                                                  ($slot_end > $app['start'] && $slot_end <= $app['end']) ||
+                                                  ($slot_start <= $app['start'] && $slot_end >= $app['end']);
+                                        if ($overlap) {
+                                            $class = 'booked';
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // Check unavailability
+                                if ($class === 'available') {
+                                    foreach ($unavailable[$date] as $ua) {
+                                        $overlap = ($slot_start >= $ua['start'] && $slot_start < $ua['end']) ||
+                                                  ($slot_end > $ua['start'] && $slot_end <= $ua['end']) ||
+                                                  ($slot_start <= $ua['start'] && $slot_end >= $ua['end']);
+                                        if ($overlap) {
+                                            $class = 'unavailable';
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // Past times
+                                if ($class === 'available' && $slot_start < time()) {
+                                    $class = 'unavailable';
+                                }
+                            ?>
+                                <td class="<?= $class ?>" 
+                                    data-datetime="<?= date('Y-m-d H:i:s', $slot_start) ?>"
+                                    tabindex="<?= $class === 'available' ? '0' : '-1' ?>">
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+
+            <div class="booking-actions">
+                <button type="submit" id="submitButton" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    Confirm Appointment
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Appointment</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to book this appointment?</p>
+                <div class="appointment-details">
+                    <p><strong>Service:</strong> <?= htmlspecialchars($service['Name']) ?></p>
+                    <p><strong>Barber:</strong> <?= htmlspecialchars($barber['Name']) ?></p>
+                    <p><strong>Date & Time:</strong> <span id="confirmDateTime"></span></p>
+                    <p><strong>Duration:</strong> <?= $service['Time'] ?> minutes</p>
+                    <p><strong>Price:</strong> R<?= number_format($service['Price'], 2) ?></p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="confirmBooking" class="btn-confirm">Yes, Book Appointment</button>
+                <button type="button" id="cancelBooking" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global function for slot selection (needed for inline onclick)
+        let selectedSlot = null;
+        const selectedTimeInput = document.getElementById('selected_time');
+        const submitButton = document.getElementById('submitButton');
+        const bookingForm = document.getElementById('bookingForm');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmDateTime = document.getElementById('confirmDateTime');
+        const confirmBookingBtn = document.getElementById('confirmBooking');
+        const cancelBookingBtn = document.getElementById('cancelBooking');
+        const closeModal = document.querySelector('.close');
+        
+        function selectSlot(elem, datetime) {
+            if(elem.classList.contains('unavailable') || elem.classList.contains('booked')) return;
+            
+            // Remove previous selection
+            if(selectedSlot) {
+                selectedSlot.classList.remove('selected');
+            }
+            
+            // Add new selection
+            elem.classList.add('selected');
+            selectedSlot = elem;
+            selectedTimeInput.value = datetime;
+            
+            // Update display
+            const date = new Date(datetime);
+            let selectedTimeDisplay = document.querySelector('.selected-time-display');
+            if (!selectedTimeDisplay) {
+                selectedTimeDisplay = document.createElement('div');
+                selectedTimeDisplay.className = 'selected-time-display';
+                document.querySelector('.booking-form').insertBefore(selectedTimeDisplay, document.querySelector('.booking-actions'));
+            }
+            
+            selectedTimeDisplay.innerHTML = `
+                <strong>Selected Time:</strong> 
+                ${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} 
+                at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            `;
+            selectedTimeDisplay.classList.add('show');
+            
+            // Enable submit button
+            submitButton.disabled = false;
+        }
+
+        // Enhanced booking functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedTimeDisplay = document.createElement('div');
+            
+            // Create selected time display
+            selectedTimeDisplay.className = 'selected-time-display';
+            document.querySelector('.booking-form').insertBefore(selectedTimeDisplay, document.querySelector('.booking-actions'));
+            
+            // Add click event listeners to all available slots
+            document.querySelectorAll('.calendar td.available').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    const datetime = this.getAttribute('data-datetime');
+                    selectSlot(this, datetime);
+                });
+            });
+            
+            // Add tooltips to slots
+            document.querySelectorAll('.calendar td').forEach(slot => {
+                const time = slot.parentElement.querySelector('.time-column').textContent;
+                const dateHeader = slot.cellIndex > 0 ? 
+                    document.querySelectorAll('.calendar th')[slot.cellIndex].textContent : '';
+                
+                if(slot.classList.contains('available')) {
+                    slot.setAttribute('data-tooltip', `Click to select ${dateHeader} at ${time}`);
+                } else if(slot.classList.contains('booked')) {
+                    slot.setAttribute('data-tooltip', 'This slot is already booked');
+                } else if(slot.classList.contains('unavailable')) {
+                    slot.setAttribute('data-tooltip', 'This slot is unavailable');
+                }
+            });
+            
+            // Keyboard navigation for accessibility
+            document.addEventListener('keydown', function(e) {
+                if(!selectedSlot) return;
+                
+                const currentRow = selectedSlot.parentElement;
+                const currentCell = selectedSlot.cellIndex;
+                let newSlot = null;
+                
+                switch(e.key) {
+                    case 'ArrowUp':
+                        newSlot = currentRow.previousElementSibling?.cells[currentCell];
+                        break;
+                    case 'ArrowDown':
+                        newSlot = currentRow.nextElementSibling?.cells[currentCell];
+                        break;
+                    case 'ArrowLeft':
+                        newSlot = currentRow.cells[currentCell - 1];
+                        break;
+                    case 'ArrowRight':
+                        newSlot = currentRow.cells[currentCell + 1];
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        if(selectedSlot.classList.contains('available')) {
+                            const datetime = selectedSlot.getAttribute('data-datetime');
+                            if(datetime) selectSlot(selectedSlot, datetime);
                         }
-                    }
-                    if (!$in_working) {
-                        $class = 'unavailable';
-                    }
-
-                    // Check booked appointments
-                    if ($class === 'available') {
-                        foreach ($appointments[$date] as $app) {
-                            $overlap = ($slot_start >= $app['start'] && $slot_start < $app['end']) ||
-                                      ($slot_end > $app['start'] && $slot_end <= $app['end']) ||
-                                      ($slot_start <= $app['start'] && $slot_end >= $app['end']);
-                            if ($overlap) {
-                                $class = 'booked';
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check unavailability
-                    if ($class === 'available') {
-                        foreach ($unavailable[$date] as $ua) {
-                            $overlap = ($slot_start >= $ua['start'] && $slot_start < $ua['end']) ||
-                                      ($slot_end > $ua['start'] && $slot_end <= $ua['end']) ||
-                                      ($slot_start <= $ua['start'] && $slot_end >= $ua['end']);
-                            if ($overlap) {
-                                $class = 'unavailable';
-                                break;
-                            }
-                        }
-                    }
-
-                    // Past times
-                    if ($class === 'available' && $slot_start < time()) {
-                        $class = 'unavailable';
-                    }
-                ?>
-                    <td class="<?= $class ?>" 
-                        onclick="selectSlot(this,'<?= date('Y-m-d H:i:s', $slot_start) ?>')">
-                    </td>
-                <?php endforeach; ?>
-            </tr>
-        <?php endforeach; ?>
-    </table>
-
-    <button type="submit" style="margin-top:20px; padding:10px 20px; background:#007bff; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-        Confirm Appointment
-    </button>
-</form>
+                        break;
+                }
+                
+                if(newSlot && newSlot.classList.contains('available')) {
+                    e.preventDefault();
+                    const datetime = newSlot.getAttribute('data-datetime');
+                    if(datetime) selectSlot(newSlot, datetime);
+                }
+            });
+            
+            // Form submission with confirmation
+            bookingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if(!selectedTimeInput.value) {
+                    alert('Please select a time slot for your appointment.');
+                    return false;
+                }
+                
+                // Show confirmation modal
+                const selectedDate = new Date(selectedTimeInput.value);
+                confirmDateTime.textContent = 
+                    `${selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+                
+                confirmationModal.style.display = 'block';
+            });
+            
+            // Confirm booking
+            confirmBookingBtn.addEventListener('click', function() {
+                // Show loading state
+                submitButton.innerHTML = 'Booking...';
+                submitButton.disabled = true;
+                
+                // Close modal
+                confirmationModal.style.display = 'none';
+                
+                // Submit the form
+                bookingForm.submit();
+            });
+            
+            // Cancel booking
+            cancelBookingBtn.addEventListener('click', function() {
+                confirmationModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking X
+            closeModal.addEventListener('click', function() {
+                confirmationModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === confirmationModal) {
+                    confirmationModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
-

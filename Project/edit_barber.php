@@ -138,6 +138,7 @@ while ($row = $res->fetch_assoc()) {
 <div class="container" style="max-width:700px; margin:auto; padding:20px;">
     <h2>Edit Barber</h2>
 
+    <link href="addedit.css" rel="stylesheet">
     <form method="post" enctype="multipart/form-data" style="background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
         <div style="margin-bottom:15px;">
             <label for="name"><strong>Name:</strong></label><br>

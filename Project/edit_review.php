@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include 'header.php'; ?>
 <div class="container">
     <h2>Edit Review Status</h2>
+    <link href="addedit.css" rel="stylesheet">
 
     <form method="post">
         <div>

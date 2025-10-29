@@ -99,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include 'header.php'; ?>
 <div class="container">
+    <link href="addedit.css" rel="stylesheet">
     <h2>Edit Product</h2>
 
     <?php if ($errors): ?>
