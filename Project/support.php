@@ -129,7 +129,7 @@ include 'header.php';
       <div class="contact-links">
         <h3>Other Ways to Reach Us</h3>
         <div class="link-grid">
-          <a href="https://wa.me/1234567890" target="_blank">
+          <a href="https://wa.me/084 327 6420" target="_blank">
             <img src="Img/Whatsapp.png" alt="WhatsApp Logo"> WhatsApp
           </a>
           <a href="https://www.facebook.com/YourPage" target="_blank">

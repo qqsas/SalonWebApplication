@@ -1231,6 +1231,27 @@ footer {
   line-height: 1.4;
 }
 
+/* Neater, smaller product titles in cards (does not affect detail page) */
+.product-card .product-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+  .product-card .product-name {
+    font-size: 1rem;
+  }
+}
+
 .product-price {
   font-size: 1.25rem;
   font-weight: 700;
@@ -4244,6 +4265,18 @@ span[style*="color: gray"] {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
   color: var(--text-dark);
+}
+
+/* Keep related product titles compact and tidy */
+.related-product-card .related-product-name {
+  font-size: 1rem;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .related-product-price {
