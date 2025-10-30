@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   toggle.addEventListener("click", () => {
     const isPassword = pass.type === "password";
     pass.type = confirm.type = isPassword ? "text" : "password";
-    toggle.textContent = isPassword ? "🙈" : "👁";
+    toggle.textContent = isPassword ? "🚫" : "👁";
   });
 
   confirm.addEventListener("input", () => {
