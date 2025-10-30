@@ -2147,10 +2147,11 @@ table thead {
 	color: #444;
 	font-size: 1.1rem;
 	line-height: 1.7;
-	padding-left: 2.5rem;
+	padding-left: 5.5rem;
 	padding: 1rem 0;
 	position: relative;
 	transition: background-color 0.2s ease;
+	align-items: center;
 }
 
 .custom-list li::before {
@@ -2193,6 +2194,7 @@ table thead {
 	color: var(--text-dark);
 	font-size: 1.15rem;
 	font-weight: 600;
+	padding-left: 2.75rem;
 }
 
 .error {
@@ -6087,7 +6089,7 @@ table thead {
 
 	.custom-list li {
 		font-size: 1rem;
-		padding: 0.75rem 0 0.75rem 2rem;
+		padding: 5.75rem 0 0.75rem 2rem;
 	}
 
 	.custom-list li::before {
@@ -6095,6 +6097,7 @@ table thead {
 		height: 1.4rem;
 		top: 0.75rem;
 		width: 1.4rem;
+		padding: 5.75rem 0 0.75rem 2rem;
 	}
 
 	.error {

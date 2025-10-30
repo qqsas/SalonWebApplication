@@ -48,10 +48,10 @@ include 'header.php';
     <div class="section">
         <h3>Why Choose Us?</h3>
         <ul class="custom-list">
-            <li>Experienced barbers and stylists with a passion for hair and beauty</li>
-            <li>A clean, relaxing, and welcoming salon environment</li>
-            <li>Affordable pricing with premium service quality</li>
-            <li>Tailored grooming and beauty solutions for every client</li>
+            <li><strong></strong>Experienced barbers and stylists with a passion for hair and beauty</li>
+            <li><strong></strong>A clean, relaxing, and welcoming salon environment</li>
+            <li><strong></strong>Affordable pricing with premium service quality</li>
+            <li><strong></strong>Tailored grooming and beauty solutions for every client</li>
         </ul>
     </div>
 
