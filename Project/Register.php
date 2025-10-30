@@ -111,11 +111,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Register</title>
     <link href="styles.css" rel="stylesheet">
     <style>
-        .error { 
+        /* Hide error messages by default */
+        .error {
             color: #d9534f;
             font-size: 0.9rem;
-            display: block;
             margin-top: 4px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error.visible {
+            display: block;
+            opacity: 1;
         }
 
         .password-wrapper {
@@ -142,6 +150,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .toggle-eye:hover {
           color: #000;
         }
+
+        .password-requirements {
+          font-size: 0.85rem;
+          color: #666;
+          margin-top: 5px;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -154,7 +168,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Full Name</label>
           <input type="text" name="name" class="form-control" 
                  value="<?= htmlspecialchars($_POST["name"] ?? '') ?>" required>
-          <span class="error"><?= htmlspecialchars($nameError) ?></span>
+          <span class="error <?= !empty($nameError) ? 'visible' : '' ?>">
+            <?= htmlspecialchars($nameError) ?>
+          </span>
         </div>
 
         <div class="contact-note">Please provide either an email or a phone number</div>
@@ -162,7 +178,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Email or Phone</label>
           <input type="text" name="contact" class="form-control" 
                  value="<?= htmlspecialchars($_POST["contact"] ?? '') ?>" required>
-          <span class="error"><?= htmlspecialchars($contactError) ?></span>
+          <span class="error <?= !empty($contactError) ? 'visible' : '' ?>">
+            <?= htmlspecialchars($contactError) ?>
+          </span>
         </div>
 
         <div class="form-group">
@@ -178,13 +196,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <li>Include at least one special character</li>
               </ul>
           </div>
-          <span class="error"><?= htmlspecialchars($passwordError) ?></span>
+          <span class="error <?= !empty($passwordError) ? 'visible' : '' ?>">
+            <?= $passwordError ?>
+          </span>
         </div>
 
         <div class="form-group">
           <label>Confirm Password</label>
           <input type="password" name="confirm_password" class="form-control" required>
-          <span class="error"><?= htmlspecialchars($confirmPasswordError) ?></span>
+          <span class="error <?= !empty($confirmPasswordError) ? 'visible' : '' ?>">
+            <?= htmlspecialchars($confirmPasswordError) ?>
+          </span>
         </div>
 
         <input type="submit" value="Register" class="btn-primary">
@@ -204,16 +226,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("form");
   const toggle = document.querySelector(".toggle-eye");
 
+  // Toggle password visibility
   toggle.addEventListener("click", () => {
     const isPassword = pass.type === "password";
     pass.type = confirm.type = isPassword ? "text" : "password";
     toggle.textContent = isPassword ? "🚫" : "👁";
   });
 
+  // Match password validation
   confirm.addEventListener("input", () => {
     confirm.style.borderColor = confirm.value === pass.value ? "green" : "red";
   });
 
+  // Detect input type for contact field
   contact.addEventListener("input", () => {
     const val = contact.value.trim();
     if (val.includes("@")) contact.style.borderColor = "green";
@@ -221,6 +246,13 @@ document.addEventListener("DOMContentLoaded", function () {
     else contact.style.borderColor = "";
   });
 
+  // Show red border if PHP error exists
+  document.querySelectorAll('.error.visible').forEach(err => {
+    const input = err.closest('.form-group').querySelector('input');
+    if (input) input.style.borderColor = 'red';
+  });
+
+  // Prevent form submit if passwords don't match
   form.addEventListener("submit", (e) => {
     if (pass.value !== confirm.value) {
       e.preventDefault();
