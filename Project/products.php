@@ -81,18 +81,21 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             display: none !important;
         }
     }
+    .no-results { display: none; text-align: center; margin-top: 20px; font-size: 1.1em; }
+    .no-results.show { display: block; }
     </style>
 </head>
 <body>
 
-    <h1 class="product-title">All Products</h1>
+<h1 class="product-title">All Products</h1>
+
 <!-- Search and Filter Section -->
 <div class="filter-container">
-    <form method="get" class="filter-form">
-        <input type="text" name="search" class="filter-search" placeholder="Search products..." 
-               value="<?= htmlspecialchars($searchTerm) ?>">
+    <form method="get" class="filter-form" id="productFilterForm">
+        <input type="text" name="search" id="productSearch" class="filter-search"
+               placeholder="Search products..." value="<?= htmlspecialchars($searchTerm) ?>">
 
-        <select name="sort" class="filter-sort">
+        <select name="sort" id="productSort" class="filter-sort">
             <option value="newest" <?= $sortOption === 'newest' ? 'selected' : '' ?>>Newest</option>
             <option value="price_asc" <?= $sortOption === 'price_asc' ? 'selected' : '' ?>>Price: Low to High</option>
             <option value="price_desc" <?= $sortOption === 'price_desc' ? 'selected' : '' ?>>Price: High to Low</option>
@@ -100,7 +103,7 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <option value="name_desc" <?= $sortOption === 'name_desc' ? 'selected' : '' ?>>Name: Z to A</option>
         </select>
 
-        <select name="category" class="filter-category">
+        <select name="category" id="productCategory" class="filter-category">
             <option value="">All Categories</option>
             <?php foreach ($categories as $cat): ?>
                 <option value="<?= htmlspecialchars($cat['Category']) ?>" 
@@ -110,7 +113,7 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <?php endforeach; ?>
         </select>
 
-        <button type="submit" class="filter-button">Apply</button>
+        <button type="submit" class="filter-button" id="applyButton">Apply</button>
     </form>
 </div>
 
@@ -120,9 +123,12 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     <?php if (empty($products)): ?>
         <p class="no-products-message">No products found.</p>
     <?php else: ?>
-        <div class="product-grid">
+        <div class="product-grid" id="productsGrid">
             <?php foreach ($products as $product): ?>
-                <div class="product-card">
+                <div class="product-card"
+                     data-name="<?= htmlspecialchars(strtolower($product['Name'])) ?>"
+                     data-price="<?= $product['Price'] ?>"
+                     data-category="<?= htmlspecialchars(strtolower($product['Category'])) ?>">
                     <?php $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
                     <img src="<?= $product_img ?>" alt="<?= htmlspecialchars($product['Name']) ?>" class="product-image">
 
@@ -133,10 +139,7 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                         <p class="product-stock">In Stock: <?= htmlspecialchars($product['Stock']) ?></p>
                         
                         <div class="product-buttons" style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <!-- View Product Button -->
                             <a href="product_details.php?id=<?= $product['ProductID'] ?>" class="btn">View Product</a>
-                            
-                            <!-- Add to Cart Button -->
                             <form method="POST" action="add_to_cart.php" style="display:inline;">
                                 <input type="hidden" name="product_id" value="<?= $product['ProductID'] ?>">
                                 <input type="hidden" name="quantity" value="1">
@@ -147,8 +150,84 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                 </div>
             <?php endforeach; ?>
         </div>
+        <div class="no-results">No products found matching your filters.</div>
     <?php endif; ?>
 </div>
+
+<script>
+// ===== CLIENT-SIDE FILTERING AND SORTING =====
+const searchInput = document.getElementById('productSearch');
+const sortSelect = document.getElementById('productSort');
+const categorySelect = document.getElementById('productCategory');
+const productsGrid = document.getElementById('productsGrid');
+const productCards = Array.from(productsGrid ? productsGrid.children : []);
+const noResults = document.querySelector('.no-results');
+
+// FILTER FUNCTION
+function filterProducts() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedCategory = categorySelect.value.toLowerCase();
+    let hasMatches = false;
+
+    productCards.forEach(card => {
+        const name = card.dataset.name;
+        const category = card.dataset.category;
+
+        const matchSearch = name.includes(searchTerm);
+        const matchCategory = !selectedCategory || category === selectedCategory.toLowerCase();
+
+        const match = matchSearch && matchCategory;
+        card.style.display = match ? '' : 'none';
+        if (match) hasMatches = true;
+    });
+
+    noResults.classList.toggle('show', !hasMatches);
+}
+
+// SORT FUNCTION
+function sortProducts() {
+    const sortValue = sortSelect.value;
+    let sortedCards = [...productCards].filter(card => card.style.display !== 'none');
+
+    sortedCards.sort((a,b) => {
+        const priceA = parseFloat(a.dataset.price);
+        const priceB = parseFloat(b.dataset.price);
+        const nameA = a.dataset.name;
+        const nameB = b.dataset.name;
+
+        switch(sortValue) {
+            case 'price_asc': return priceA - priceB;
+            case 'price_desc': return priceB - priceA;
+            case 'name_asc': return nameA.localeCompare(nameB);
+            case 'name_desc': return nameB.localeCompare(nameA);
+            case 'newest':
+            default: return 0; // Already sorted server-side by date
+        }
+    });
+
+    sortedCards.forEach(card => productsGrid.appendChild(card));
+}
+
+// EVENT LISTENERS
+searchInput.addEventListener('input', () => {
+    filterProducts();
+    sortProducts();
+});
+sortSelect.addEventListener('change', sortProducts);
+categorySelect.addEventListener('change', () => {
+    filterProducts();
+    sortProducts();
+});
+
+// Apply button refreshes server results but also works instantly on client
+const applyButton = document.getElementById('applyButton');
+applyButton.addEventListener('click', (e) => {
+    // Optional: Uncomment to disable full reload and make it JS-only
+    // e.preventDefault();
+    filterProducts();
+    sortProducts();
+});
+</script>
 
 </body>
 </html>

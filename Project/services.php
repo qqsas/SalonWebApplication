@@ -20,14 +20,6 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
     <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    @media (min-width:769px) {
-        .menu-toggle { display: none !important; }
-    }
-    .service-card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; }
-    .service-buttons { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    .controls { margin-bottom: 20px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
-    </style>
 </head>
 <body>
 
@@ -45,6 +37,8 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
             <option value="time-asc">Duration Short → Long</option>
             <option value="time-desc">Duration Long → Short</option>
         </select>
+        <!-- ADDED: Apply button only -->
+        <button id="applyButton" class="filter-button">Apply</button>
     </div>
 
     <?php if(empty($services)): ?>
@@ -183,12 +177,22 @@ searchInput.addEventListener('input', () => {
 
 sortSelect.addEventListener('change', sortServices);
 
+// Apply button: trigger current filters/sort (button was added only)
+const applyButton = document.getElementById('applyButton');
+if (applyButton) {
+    applyButton.addEventListener('click', () => {
+        filterServices();
+        sortServices();
+    });
+}
+
 // Initialize with fade-in
 document.addEventListener('DOMContentLoaded', () => {
     serviceCards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
     });
-});</script>
+});
+</script>
 
 </body>
 </html>

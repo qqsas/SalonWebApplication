@@ -21,21 +21,10 @@ $barbers = $barberResult ? $barberResult->fetch_all(MYSQLI_ASSOC) : [];
     <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .staff-grid { display:flex; flex-wrap:wrap; gap:15px; }
-        .staff-card { border:1px solid #ddd; padding:15px; border-radius:8px; flex:1 1 250px; text-align:center; }
-        .staff-card h2 { margin-top:10px; }
-        .staff-card p { margin:5px 0; }
-        .staff-image img { width:100%; height:200px; object-fit:cover; border-radius:8px; }
-        .btn { display:inline-block; padding:6px 12px; background:#007BFF; color:white; text-decoration:none; border-radius:4px; margin-top:10px; }
-        .controls { margin-bottom:20px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
-        .no-results { display:none; color:red; margin-top:10px; }
-        .no-results.show { display:block; }
-    </style>
 </head>
 <body>
 
-<div class="staff-container">
+<div class="services-container">
     <h1>Meet Our Barbers</h1>
 
     <?php if(!empty($barbers)): ?>
@@ -48,6 +37,8 @@ $barbers = $barberResult ? $barberResult->fetch_all(MYSQLI_ASSOC) : [];
             <option value="email-asc">Email A → Z</option>
             <option value="email-desc">Email Z → A</option>
         </select>
+        <!-- ADDED: Apply button only -->
+        <button id="applyButton" class="filter-button">Apply</button>
     </div>
     <?php endif; ?>
 
@@ -130,6 +121,15 @@ searchInput.addEventListener('input', () => {
     sortStaff();
 });
 sortSelect.addEventListener('change', sortStaff);
+
+// Apply button: trigger current filters/sort (button was added only)
+const applyButton = document.getElementById('applyButton');
+if (applyButton) {
+    applyButton.addEventListener('click', () => {
+        filterStaff();
+        sortStaff();
+    });
+}
 </script>
 
 </body>
