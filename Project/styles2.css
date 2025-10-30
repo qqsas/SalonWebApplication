@@ -214,21 +214,7 @@ table tbody tr:hover {
 	background: var(--background-light);
 }
 
-table tbody tr:last-child {
-	background: var(--primary-color);
-	border-bottom: none;
-	color: var(--white);
-}
 
-table tbody tr:last-child td {
-	color: var(--white);
-	font-size: 1.2rem;
-	font-weight: 700;
-}
-
-table tbody tr:last-child:hover {
-	background: var(--primary-color);
-}
 
 table tbody tr:nth-child(1) {
 	animation-delay: 0.1s;
@@ -564,16 +550,15 @@ table thead {
 
 #serviceSearch {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	flex: 1;
 	font-size: 1.1rem;
-	max-width: 400px;
 	min-width: 300px;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
-	border-color: var(--accent-color);
 }
 
 #serviceSearch::placeholder {
@@ -590,13 +575,13 @@ table thead {
 
 #serviceSort {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	font-size: 1.1rem;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
-	border-color: var(--accent-color);
 }
 
 #serviceSort:focus {
@@ -626,16 +611,15 @@ table thead {
 
 #staffSearch {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	flex: 1;
 	font-size: 1.1rem;
-	max-width: 400px;
 	min-width: 300px;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
-	border-color: var(--accent-color);
 }
 
 #staffSearch::placeholder {
@@ -658,13 +642,13 @@ table thead {
 
 #staffSort {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	font-size: 1.1rem;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
-	border-color: var(--accent-color);
 }
 
 #staffSort:focus {
@@ -1491,7 +1475,6 @@ table thead {
 
 .cart-table tbody tr {
 	animation: slideInUp 0.5s ease-out;
-	border-bottom: 1px solid var(--gray-light);
 	transition: background-color var(--transition-fast);
 }
 
@@ -1499,9 +1482,6 @@ table thead {
 	background: var(--background-light);
 }
 
-.cart-table tbody tr:last-child {
-	border-bottom: none;
-}
 
 .cart-table tbody tr:nth-child(1) {
 	animation-delay: 0.1s;
@@ -2143,6 +2123,7 @@ table thead {
 }
 
 .custom-list li {
+	align-items: center;
 	border-bottom: 1px solid var(--gray-light);
 	color: #444;
 	font-size: 1.1rem;
@@ -2151,7 +2132,6 @@ table thead {
 	padding: 1rem 0;
 	position: relative;
 	transition: background-color 0.2s ease;
-	align-items: center;
 }
 
 .custom-list li::before {
@@ -2253,13 +2233,13 @@ table thead {
 
 .filter-category, .filter-search, .filter-sort {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	font-size: 1.1rem;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
-	border-color: var(--accent-color);
 }
 
 .filter-category:focus, .filter-search:focus, .filter-sort:focus {
@@ -3635,6 +3615,7 @@ table thead {
 	font-size: 1.1rem;
 	line-height: 1.6;
 	margin-bottom: var(--space-sm);
+    max-width: 300px;
 }
 
 .order-card > p strong {
@@ -4527,7 +4508,6 @@ table thead {
 }
 
 .service-buttons .btn::before {
-	background: rgba(255,255,255,0.2);
 	background: rgba(255,255,255,0.2);
 	content: '';
 	height: 100%;
@@ -5704,7 +5684,6 @@ table thead {
 	}
 }
 
-
 @keyframes slideDown {
 	from {
 		max-height: 0;
@@ -6095,9 +6074,9 @@ table thead {
 	.custom-list li::before {
 		font-size: 0.75rem;
 		height: 1.4rem;
+		padding: 5.75rem 0 0.75rem 2rem;
 		top: 0.75rem;
 		width: 1.4rem;
-		padding: 5.75rem 0 0.75rem 2rem;
 	}
 
 	.error {
@@ -7645,11 +7624,21 @@ table thead {
 		scroll-behavior: auto;
 	}
 
+	input[type="submit"], .card, .card-body a, .error, .form-control {
+		animation: none;
+		transition: none;
+	}
+
+	input[type="submit"], .card, .card-body a, .error, .form-control, .contact-note, .password-requirements {
+		animation: none;
+		transition: none;
+	}
+
 	input[type="submit"]::before {
 		display: none;
 	}
 
-	#profileForm, .form-group input, .form-actions a, .form-actions button {
+	#profileForm, .form-actions a, .form-actions button, .form-group input {
 		animation: none;
 		transition: none;
 	}
@@ -7658,19 +7647,13 @@ table thead {
 		transform: none;
 	}
 
-	.calendar td, .week-nav a, .booking-actions button {
+	.booking-actions button, .calendar td, .week-nav a {
 		animation: none;
 		transition: none;
 	}
 
-	.card, .form-control, input[type="submit"], .card-body a, .error {
+	.confirmation-actions, .confirmation-container h1, .confirmation-container h1::after, .confirmation-details, .confirmation-message {
 		animation: none;
-		transition: none;
-	}
-
-	.card, .form-control, input[type="submit"], .card-body a, .error, .contact-note, .password-requirements {
-		animation: none;
-		transition: none;
 	}
 
 	.confirmation-btn::before {
@@ -7679,10 +7662,6 @@ table thead {
 
 	.confirmation-btn:hover {
 		transform: none;
-	}
-
-	.confirmation-container h1, .confirmation-details, .confirmation-message, .confirmation-actions, .confirmation-container h1::after {
-		animation: none;
 	}
 
 	.form-actions a:hover, .form-actions button:hover {
@@ -7702,17 +7681,17 @@ table thead {
 		transform: none;
 	}
 
+	.info-item, .profile-card, .profile-table {
+		animation: none;
+		transition: none;
+	}
+
 	.info-item:hover {
 		transform: none;
 	}
 
 	.profile-actions .btn:hover {
 		transform: none;
-	}
-
-	.profile-card, .profile-table, .info-item {
-		animation: none;
-		transition: none;
 	}
 }
 
@@ -7740,19 +7719,23 @@ table thead {
 		font-size: 10pt;
 	}
 
+	#appointmentsTable .btn, #appointmentsTable td:last-child, #appointmentsTable th:last-child, #sortColumn {
+		display: none;
+	}
+
 	#appointmentsTable th {
 		background: #fff;
 		border-bottom: 1px solid #000;
 		color: #000;
 	}
 
+	#online_payment_form, .btn-cancel, .btn-reserve {
+		display: none;
+	}
+
 	#profileForm {
 		border: 1px solid #ddd;
 		box-shadow: none;
-	}
-
-	#sortColumn, #appointmentsTable .btn, #appointmentsTable td:last-child, #appointmentsTable th:last-child {
-		display: none;
 	}
 
 	.available {
@@ -7763,17 +7746,17 @@ table thead {
 		background: #f5e8e8 !important;
 	}
 
-	.btn, .nav-link, .menu-toggle {
+	.booking-actions, .week-nav {
+		display: none;
+	}
+
+	.btn, .menu-toggle, .nav-link {
 		background: none !important;
 		border: 1px solid #000 !important;
 		color: #000 !important;
 	}
 
-	.btn-reserve, .btn-cancel, #online_payment_form {
-		display: none;
-	}
-
-	.button.secondary, .button.danger, .cart-table form {
+	.button.danger, .button.secondary, .cart-table form {
 		display: none;
 	}
 
@@ -7820,7 +7803,7 @@ table thead {
 		display: none;
 	}
 
-	.filters, .order-card form, .order-card .btn:not(.btn-restore):not(.btn-cancel) {
+	.filters, .order-card .btn:not(.btn-restore):not(.btn-cancel), .order-card form {
 		display: none;
 	}
 
@@ -7922,8 +7905,9 @@ table thead {
 	.unavailable {
 		background: #f0f0f0 !important;
 	}
+}
 
-	.week-nav, .booking-actions {
-		display: none;
-	}
+.textOrder {
+    display: grid;
+    justify-items: center;
 }
