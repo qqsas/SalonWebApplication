@@ -161,7 +161,7 @@ $stmt->close();
     </tbody>
 </table>
                 <?php if ($canModify): ?>
-                    <form method="post" style="margin-top:10px;">
+                    <form method="post" style="margin-top:10px;" >
                         <input type="hidden" name="OrderID" value="<?= $order['OrderID']; ?>">
                         <?php if ($order['Status'] !== 'Cancelled'): ?>
                             <button type="submit" name="action" value="cancel" class="btn btn-cancel">Cancel</button>
