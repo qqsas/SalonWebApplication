@@ -11,7 +11,7 @@ $confirmPasswordError = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST["name"] ?? '');
-    $contact = trim($_POST["contact"] ?? ''); // Combined email/phone input
+    $contact = trim($_POST["contact"] ?? '');
     $password = $_POST["password"] ?? '';
     $confirm_password = $_POST["confirm_password"] ?? '';
 
@@ -21,10 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!$conn) die("Database connection failed: " . mysqli_connect_error());
 
-    // Require name
     if (empty($name)) { $nameError = "Name is required."; $hasError = true; }
-
-    // At least one contact required
     if (empty($contact)) { $contactError = "Please provide either an email or phone number."; $hasError = true; }
 
     // Determine if contact is email or phone
@@ -32,21 +29,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (filter_var($contact, FILTER_VALIDATE_EMAIL)) {
             $email = $contact;
         } else {
-            // Normalize phone number to +27xxxxxxxxx
-            $number = preg_replace('/\D/', '', $contact); // digits only
+            $number = preg_replace('/\D/', '', $contact);
             if (substr($number, 0, 1) === '0' && strlen($number) === 10) {
                 $number = '+27' . substr($number, 1);
             } elseif (substr($number, 0, 2) === '27' && strlen($number) === 11) {
                 $number = '+' . $number;
             } elseif (substr($number, 0, 3) === '271') {
-                $number = '+' . $number; // already correct
+                $number = '+' . $number;
             } else {
-                $number = '+27' . $number; // fallback
+                $number = '+27' . $number;
             }
         }
     }
 
-    // Check email uniqueness
     if (!empty($email)) {
         $stmt = $conn->prepare("SELECT 1 FROM User WHERE Email = ?");
         $stmt->bind_param("s", $email);
@@ -56,7 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 
-    // Check number uniqueness
     if (!empty($number)) {
         $stmt = $conn->prepare("SELECT 1 FROM User WHERE Number = ?");
         $stmt->bind_param("s", $number);
@@ -66,7 +60,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 
-    // Password validation
     if (empty($password)) {
         $passwordError = "Password is required."; $hasError = true;
     } else {
@@ -79,11 +72,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($password !== $confirm_password) { $confirmPasswordError = "Passwords do not match."; $hasError = true; }
 
-    // Insert into database if no errors
     if (!$hasError) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $role = "customer";
-
+        $role = "client";
         $emailToInsert = $email ?? '';
         $numberToInsert = $number ?? '';
 
@@ -91,13 +82,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("sssss", $name, $emailToInsert, $numberToInsert, $hashed_password, $role);
 
         if ($stmt->execute()) {
-            // Send welcome email
             if (!empty($email)) {
                 $subject = "Welcome to Our Store!";
                 $body = "<p>Hi " . htmlspecialchars($name) . ",</p>
                          <p>Thank you for registering at our store. Your account is now active!</p>
                          <p>We look forward to serving you.</p>";
-                $adminEmails = ['store@example.com']; // Optional: notify admin(s)
+                $adminEmails = ['store@example.com'];
                 sendEmail($email, $subject, $body, $adminEmails);
             }
 
@@ -119,17 +109,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Register</title>
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <style>
         .error { 
-            color: hsl(var(--secondary-hue), var(--saturation), 40%); 
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+            color: #d9534f;
+            font-size: 0.9rem;
             display: block;
-            background: hsl(var(--secondary-hue), var(--saturation), 95%);
-            padding: 0.5rem;
-            border-radius: var(--border-radius-sm);
-            border-left: 4px solid var(--secondary-color);
+            margin-top: 4px;
+        }
+
+        .password-wrapper {
+          position: relative;
+          width: 100%;
+        }
+
+        .password-wrapper input {
+          width: 100%;
+          padding-right: 35px;
+          box-sizing: border-box;
+        }
+
+        .toggle-eye {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          font-size: 18px;
+          color: #777;
+        }
+
+        .toggle-eye:hover {
+          color: #000;
         }
     </style>
 </head>
@@ -143,6 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Full Name</label>
           <input type="text" name="name" class="form-control" 
                  value="<?= htmlspecialchars($_POST["name"] ?? '') ?>" required>
+          <span class="error"><?= htmlspecialchars($nameError) ?></span>
         </div>
 
         <div class="contact-note">Please provide either an email or a phone number</div>
@@ -150,11 +162,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Email or Phone</label>
           <input type="text" name="contact" class="form-control" 
                  value="<?= htmlspecialchars($_POST["contact"] ?? '') ?>" required>
+          <span class="error"><?= htmlspecialchars($contactError) ?></span>
         </div>
 
         <div class="form-group">
           <label>Password</label>
-          <input type="password" name="password" class="form-control" required>
+          <div class="password-wrapper">
+            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+            <span class="toggle-eye">👁</span>
+          </div>
           <div class="password-requirements">
               <strong>Password must:</strong>
               <ul>
@@ -162,45 +178,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <li>Include at least one special character</li>
               </ul>
           </div>
+          <span class="error"><?= htmlspecialchars($passwordError) ?></span>
         </div>
 
         <div class="form-group">
           <label>Confirm Password</label>
           <input type="password" name="confirm_password" class="form-control" required>
+          <span class="error"><?= htmlspecialchars($confirmPasswordError) ?></span>
         </div>
 
         <input type="submit" value="Register" class="btn-primary">
       </form>
 
       <p class="text-center mt-3">Already have an account? <a href="Login.php">Login here</a></p>
+      <p class="text-center" style="color: var(--accent-color);"><?= htmlspecialchars($message) ?></p>
     </div>
   </div>
 </div>
-</body>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const pass = document.querySelector('input[name="password"]');
   const confirm = document.querySelector('input[name="confirm_password"]');
   const contact = document.querySelector('input[name="contact"]');
   const form = document.querySelector("form");
+  const toggle = document.querySelector(".toggle-eye");
 
-  // Show/hide password toggle
-  const toggle = document.createElement("span");
-  toggle.textContent = "👁";
-  toggle.style.cursor = "pointer";
-  toggle.style.marginLeft = "8px";
-  pass.parentNode.insertBefore(toggle, pass.nextSibling);
   toggle.addEventListener("click", () => {
-    const type = pass.type === "password" ? "text" : "password";
-    pass.type = confirm.type = type;
+    const isPassword = pass.type === "password";
+    pass.type = confirm.type = isPassword ? "text" : "password";
+    toggle.textContent = isPassword ? "🙈" : "👁";
   });
 
-  // Password match check
   confirm.addEventListener("input", () => {
     confirm.style.borderColor = confirm.value === pass.value ? "green" : "red";
   });
 
-  // Detect email or phone
   contact.addEventListener("input", () => {
     const val = contact.value.trim();
     if (val.includes("@")) contact.style.borderColor = "green";
@@ -208,7 +221,6 @@ document.addEventListener("DOMContentLoaded", function () {
     else contact.style.borderColor = "";
   });
 
-  // Prevent submit if passwords don’t match
   form.addEventListener("submit", (e) => {
     if (pass.value !== confirm.value) {
       e.preventDefault();
@@ -217,6 +229,5 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
-
+</body>
 </html>
-
