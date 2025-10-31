@@ -11,35 +11,139 @@ include 'header.php';
 $errors = [];
 $success = '';
 
+// Get all unique categories from existing services - FIXED QUERY
+$allCategories = [];
+
+// First, try to extract categories from JSON arrays
+$jsonCategoryQuery = $conn->query("
+    SELECT Category 
+    FROM Services 
+    WHERE Category IS NOT NULL 
+    AND Category != 'null' 
+    AND Category LIKE '[%'
+");
+
+if ($jsonCategoryQuery) {
+    while ($row = $jsonCategoryQuery->fetch_assoc()) {
+        if (!empty($row['Category'])) {
+            try {
+                // Decode the JSON array
+                $categories = json_decode($row['Category'], true);
+                if (is_array($categories)) {
+                    foreach ($categories as $category) {
+                        if (!empty($category) && is_string($category)) {
+                            $allCategories[] = trim($category);
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                // If JSON decoding fails, skip this entry
+                continue;
+            }
+        }
+    }
+}
+
+// Also get legacy single categories
+$legacyCategoryQuery = $conn->query("
+    SELECT Category 
+    FROM Services 
+    WHERE Category IS NOT NULL 
+    AND Category != '' 
+    AND Category NOT LIKE '[%'
+");
+
+if ($legacyCategoryQuery) {
+    while ($row = $legacyCategoryQuery->fetch_assoc()) {
+        if (!empty($row['Category'])) {
+            $category = trim($row['Category']);
+            // Clean up any escaped quotes or JSON artifacts
+            $category = str_replace(['\"', '"', '[', ']'], '', $category);
+            if (!empty($category)) {
+                $allCategories[] = $category;
+            }
+        }
+    }
+}
+
+// Clean and deduplicate categories
+$allCategories = array_map(function($cat) {
+    // Remove any remaining JSON artifacts and trim
+    $cleanCat = trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
+    return $cleanCat;
+}, $allCategories);
+
+$allCategories = array_filter($allCategories); // Remove empty values
+$allCategories = array_unique($allCategories); // Remove duplicates
+sort($allCategories); // Sort alphabetically
+
+// Debug: Uncomment the line below to see what categories are being extracted
+// echo "<pre>Extracted Categories: "; print_r($allCategories); echo "</pre>";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['Name']);
     $description = trim($_POST['Description']);
     $price = trim($_POST['Price']);
     $time = trim($_POST['Time']);
     $imageName = null;
+    
+    // Handle multiple categories
+    $categories = [];
+    if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+        $categories = array_filter($_POST['categories']); // Remove empty values
+        $categories = array_map('trim', $categories); // Trim whitespace
+    }
+    
+    // Handle new category input
+    $newCategory = trim($_POST['new_category'] ?? '');
+    if (!empty($newCategory)) {
+        $categories[] = $newCategory;
+    }
+    
+    // Remove duplicates and empty values
+    $categories = array_unique(array_filter($categories));
+    
+    // Convert to JSON for storage
+    $categoryJson = !empty($categories) ? json_encode(array_values($categories)) : null;
 
     if (empty($name)) $errors[] = "Service name is required.";
+    if (empty($categories)) $errors[] = "At least one category is required.";
     if (!is_numeric($price) || $price < 0) $errors[] = "Price must be a valid positive number.";
-    if (empty($time)) $errors[] = "Service time is required.";
+    if (empty($time) || $time <= 0) $errors[] = "Service time is required and must be greater than 0.";
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $imageName = uniqid() . "." . strtolower($ext);
-        $targetDir = __DIR__ . "/Img/";
-        $targetFile = $targetDir . $imageName;
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = $_FILES['image']['type'];
+        
+        if (!in_array($fileType, $allowedTypes)) {
+            $errors[] = "Only JPG, JPEG, PNG, GIF, and WebP images are allowed.";
+        } else {
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $imageName = uniqid() . "." . strtolower($ext);
+            $targetDir = __DIR__ . "/Img/";
+            
+            // Create directory if it doesn't exist
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+            
+            $targetFile = $targetDir . $imageName;
 
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-            $errors[] = "Failed to upload image.";
-            $imageName = null;
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                $errors[] = "Failed to upload image.";
+                $imageName = null;
+            }
         }
     }
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO Services (Name, Description, Price, Time, ImgUrl) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssdss", $name, $description, $price, $time, $imageName);
+        $stmt = $conn->prepare("INSERT INTO Services (Name, Category, Description, Price, Time, ImgUrl) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssdss", $name, $categoryJson, $description, $price, $time, $imageName);
         if ($stmt->execute()) {
             $success = "Service added successfully!";
+            // Clear form
             $name = $description = $price = $time = '';
+            $categories = [];
         } else {
             $errors[] = "Database error: " . $stmt->error;
         }
@@ -50,34 +154,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <h2>Add New Service</h2>
 
-    <link href="addedit.css" rel="stylesheet">
+<link href="addedit.css" rel="stylesheet">
 <?php
 if (!empty($errors)) {
-    echo "<div style='color:red;'><ul>";
+    echo "<div class='error-message'><ul>";
     foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>";
     echo "</ul></div>";
 }
 
 if ($success) {
-    echo "<div style='color:green;'>" . htmlspecialchars($success) . "</div>";
+    echo "<div class='success-message'>" . htmlspecialchars($success) . "</div>";
 }
 ?>
 
 <form method="POST" action="" enctype="multipart/form-data">
-    <label>Service Name:</label><br>
-    <input type="text" name="Name" value="<?php echo htmlspecialchars($name ?? ''); ?>" required><br><br>
+    <div class="form-group">
+        <label for="Name">Service Name:</label>
+        <input type="text" name="Name" id="Name" value="<?php echo htmlspecialchars($name ?? ''); ?>" required>
+    </div>
 
-    <label>Description:</label><br>
-    <textarea name="Description"><?php echo htmlspecialchars($description ?? ''); ?></textarea><br><br>
+    <div class="form-group">
+        <label>Categories:</label>
+        <div class="categories-container">
+            <?php if (!empty($allCategories)): ?>
+                <div class="existing-categories">
+                    <label class="sub-label">Select from existing categories:</label>
+                    <div class="categories-checkboxes">
+                        <?php foreach ($allCategories as $cat): ?>
+                            <?php if (!empty(trim($cat))): ?>
+                                <div class="category-checkbox-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="categories[]" value="<?php echo htmlspecialchars($cat); ?>" 
+                                            <?php echo (isset($categories) && in_array($cat, $categories)) ? 'checked' : ''; ?>>
+                                        <span class="checkbox-text"><?php echo htmlspecialchars($cat); ?></span>
+                                    </label>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="no-categories">
+                    <p>No existing categories found. Add your first category below.</p>
+                </div>
+            <?php endif; ?>
+            
+            <div class="new-category">
+                <label class="sub-label">Or add a new category:</label>
+                <input type="text" name="new_category" id="new_category" placeholder="Enter new category name" 
+                       value="<?php echo htmlspecialchars($_POST['new_category'] ?? ''); ?>">
+                <small class="help-text">You can add multiple categories by checking existing ones and/or entering a new one.</small>
+            </div>
+        </div>
+    </div>
 
-    <label>Price:</label><br>
-    <input type="number" step="0.01" name="Price" value="<?php echo htmlspecialchars($price ?? ''); ?>" required><br><br>
+    <div class="form-group">
+        <label for="Description">Description:</label>
+        <textarea name="Description" id="Description" rows="4"><?php echo htmlspecialchars($description ?? ''); ?></textarea>
+    </div>
 
-    <label>Time (minutes):</label><br>
-    <input type="number" name="Time" value="<?php echo htmlspecialchars($time ?? ''); ?>" required><br><br>
+    <div class="form-group">
+        <label for="Price">Price (R):</label>
+        <input type="number" step="0.01" min="0" name="Price" id="Price" value="<?php echo htmlspecialchars($price ?? ''); ?>" required>
+    </div>
 
-    <label>Service Image:</label><br>
-    <input type="file" name="image" accept="image/*"><br><br>
+    <div class="form-group">
+        <label for="Time">Duration (minutes):</label>
+        <input type="number" min="1" name="Time" id="Time" value="<?php echo htmlspecialchars($time ?? ''); ?>" required>
+    </div>
 
-    <button type="submit">Add Service</button>
+    <div class="form-group">
+        <label for="image">Service Image:</label>
+        <input type="file" name="image" id="image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp">
+        <small class="help-text">Allowed formats: JPG, JPEG, PNG, GIF, WebP</small>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Add Service</button>
+        <a href="admin_dashboard.php?view=services" class="btn-cancel">Cancel</a>
+    </div>
 </form>
+
+<?php include 'footer.php'; ?>

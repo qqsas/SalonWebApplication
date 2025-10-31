@@ -435,58 +435,89 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             displayPagination($totalPages, $page, 'products', $searchParam, $displayFilters);
             break;
 
-        case 'services':
-            $where = "LOWER(Name) LIKE ?";
-            $params = [$searchLike];
-            $types = "s";
-            
-            switch($displayFilters['services']) {
-                case 'active':
-                    $where .= " AND IsDeleted = 0";
-                    break;
-                case 'deleted':
-                    $where .= " AND IsDeleted = 1";
-                    break;
-            }
-            
-            $totalRecords = getRecordCount($conn, 'Services', $where, $params, $types);
-            $totalPages = ceil($totalRecords / $limit);
-            
-            echo '<a href="add_service.php?view=services&search='.$searchParam.'&services_filter='.$displayFilters['services'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Service </a>';
-            
-            $stmt = $conn->prepare("SELECT * FROM Services WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
-            $params[] = $limit;
-            $params[] = $offset;
-            $types .= "ii";
-            $stmt->bind_param($types, ...$params);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            echo "<h2 class='section-title'>Services (Total: $totalRecords)</h2>";
-            if ($result->num_rows === 0) {
-                echo "<p class='no-results'>No services found.</p>";
-                break;
-            }
-            
-            echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Description</th><th class='table-header'>Price</th><th class='table-header'>Time</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
-            while ($row = $result->fetch_assoc()) {
-                $descPreview = strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description'];
-                $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
-                $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ServicesID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell description-cell' title='".escape($row['Description'])."'>".escape($descPreview)."</td> <td class='table-cell'>R".escape($row['Price'])."</td> <td class='table-cell'>".escape($row['Time'])." minutes</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
-                if ($row['IsDeleted']) {
-                    echo "<a href='restore.php?table=Services&id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
-                } else {
-                    echo "<a href='edit_service.php?id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
-                    echo "<a href='soft_delete.php?table=Services&id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
-                }
-                echo " </div> </td> </tr>";
-            }
-            echo "</tbody></table>";
-            echo "</div>";
-            displayPagination($totalPages, $page, 'services', $searchParam, $displayFilters);
+case 'services':
+    $where = "LOWER(Name) LIKE ?";
+    $params = [$searchLike];
+    $types = "s";
+    
+    switch($displayFilters['services']) {
+        case 'active':
+            $where .= " AND IsDeleted = 0";
             break;
+        case 'deleted':
+            $where .= " AND IsDeleted = 1";
+            break;
+    }
+    
+    $totalRecords = getRecordCount($conn, 'Services', $where, $params, $types);
+    $totalPages = ceil($totalRecords / $limit);
+    
+    echo '<a href="add_service.php?view=services&search='.$searchParam.'&services_filter='.$displayFilters['services'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Service </a>';
+    
+    $stmt = $conn->prepare("SELECT * FROM Services WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    echo "<h2 class='section-title'>Services (Total: $totalRecords)</h2>";
+    if ($result->num_rows === 0) {
+        echo "<p class='no-results'>No services found.</p>";
+        break;
+    }
+    
+    echo "<div class='table-container'>";
+    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Categories</th><th class='table-header'>Description</th><th class='table-header'>Price</th><th class='table-header'>Time</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+    while ($row = $result->fetch_assoc()) {
+        $descPreview = strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description'];
+        $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
+        $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+        
+        // Handle JSON categories
+        $categories = [];
+        if (!empty($row['Category'])) {
+            // If it's a JSON string, decode it
+            if (is_string($row['Category']) && $row['Category'][0] === '[') {
+                $categories = json_decode($row['Category'], true) ?: [];
+            } 
+            // If it's already an array (from json_decode), use it directly
+            elseif (is_array($row['Category'])) {
+                $categories = $row['Category'];
+            }
+            // If it's a single string (legacy data), wrap it in an array
+            elseif (is_string($row['Category'])) {
+                $categories = [$row['Category']];
+            }
+        }
+        
+        $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
+        
+        echo "<tr class='table-row'> 
+                <td class='table-cell'>".escape($row['ServicesID'])."</td> 
+                <td class='table-cell'>".escape($row['Name'])."</td> 
+                <td class='table-cell categories-cell' title='".$categoriesDisplay."'>".$categoriesDisplay."</td> 
+                <td class='table-cell description-cell' title='".escape($row['Description'])."'>".escape($descPreview)."</td> 
+                <td class='table-cell'>R".escape($row['Price'])."</td> 
+                <td class='table-cell'>".escape($row['Time'])." minutes</td> 
+                <td class='table-cell $statusClass'>$statusText</td> 
+                <td class='table-cell'> 
+                    <div class='action-buttons'>";
+        if ($row['IsDeleted']) {
+            echo "<a href='restore.php?table=Services&id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
+        } else {
+            echo "<a href='edit_service.php?id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
+            echo "<a href='soft_delete.php?table=Services&id=".escape($row['ServicesID'])."&view=services&search=$searchParam&services_filter=".$displayFilters['services']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
+        }
+        echo "      </div> 
+                </td> 
+              </tr>";
+    }
+    echo "</tbody></table>";
+    echo "</div>";
+    displayPagination($totalPages, $page, 'services', $searchParam, $displayFilters);
+    break;
 
         case 'orders':
             $where = "LOWER(u.Name) LIKE ?";
