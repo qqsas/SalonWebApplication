@@ -222,7 +222,7 @@ function scrollServices(direction) {
   if (scrollPosition < 0) {
     scrollPosition = totalWidth - (cardWidth * 3);
   } else if (scrollPosition >= totalWidth * 2 - (cardWidth * 2)) {
-    scrollPosition = 0;
+    scrollPosition = totalWidth - (cardWidth);
   }
 
   serviceList.scrollTo({
