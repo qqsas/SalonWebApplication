@@ -93,59 +93,97 @@ $users   = $conn->query("SELECT UserID, Name FROM User WHERE IsDeleted=0");
 $barbers = $conn->query("SELECT BarberID, Name FROM Barber WHERE IsDeleted=0");
 ?>
 
-<h2>Add New Appointment</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Appointment - Admin</title>
     <link href="addedit.css" rel="stylesheet">
+</head>
+<body>
 
-<?php if ($errors): ?>
-    <div style="color:red;"><ul>
-    <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
-    </ul></div>
-<?php endif; ?>
+<div class="form-container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
+    <h2>Add New Appointment</h2>
 
-<?php if ($success): ?>
-    <div style="color:green;"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
+    <?php if (!empty($errors)): ?>
+        <div class="message error">
+            <ul>
+            <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-<form method="POST">
-    <label>User:</label><br>
-    <select name="UserID" required>
-        <?php while($u = $users->fetch_assoc()): ?>
-            <option value="<?= $u['UserID'] ?>"><?= htmlspecialchars($u['Name']) ?></option>
-        <?php endwhile; ?>
-    </select><br><br>
+    <?php if ($success): ?>
+        <div class="message success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
 
-    <label>Barber:</label><br>
-    <select name="BarberID" required>
-        <?php while($b = $barbers->fetch_assoc()): ?>
-            <option value="<?= $b['BarberID'] ?>"><?= htmlspecialchars($b['Name']) ?></option>
-        <?php endwhile; ?>
-    </select><br><br>
+    <form method="POST" action="">
+        <div class="form-group">
+            <label>User:</label>
+            <select name="UserID" required>
+                <?php while($u = $users->fetch_assoc()): ?>
+                    <option value="<?= $u['UserID'] ?>"><?= htmlspecialchars($u['Name']) ?></option>
+                <?php endwhile; ?>
+            </select>
+        </div>
 
-    <label>For Name:</label><br>
-    <input type="text" name="ForName" required><br><br>
+        <div class="form-group">
+            <label>Barber:</label>
+            <select name="BarberID" required>
+                <?php while($b = $barbers->fetch_assoc()): ?>
+                    <option value="<?= $b['BarberID'] ?>"><?= htmlspecialchars($b['Name']) ?></option>
+                <?php endwhile; ?>
+            </select>
+        </div>
 
-    <label>For Age:</label><br>
-    <input type="number" name="ForAge" min="1" required><br><br>
+        <div class="form-group">
+            <label>For Name:</label>
+            <input type="text" name="ForName" required>
+        </div>
 
-    <label>Type:</label><br>
-    <input type="text" name="Type" required><br><br>
+        <div class="form-group">
+            <label>For Age:</label>
+            <input type="number" name="ForAge" min="1" required>
+        </div>
 
-    <label>Time:</label><br>
-    <input type="datetime-local" name="Time" required><br><br>
+        <div class="form-group">
+            <label>Type:</label>
+            <input type="text" name="Type" required>
+        </div>
 
-    <label>Duration (minutes):</label><br>
-    <input type="number" name="Duration" min="1" required><br><br>
+        <div class="form-group">
+            <label>Time:</label>
+            <input type="datetime-local" name="Time" required>
+        </div>
 
-    <label>Cost:</label><br>
-    <input type="number" step="0.01" name="Cost" min="0" required><br><br>
+        <div class="form-group">
+            <label>Duration (minutes):</label>
+            <input type="number" name="Duration" min="1" required>
+        </div>
 
-    <label>Status:</label><br>
-    <select name="Status">
-        <option value="Scheduled">Scheduled</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-    </select><br><br>
+        <div class="form-group">
+            <label>Cost:</label>
+            <input type="number" step="0.01" name="Cost" min="0" required>
+        </div>
 
-    <button type="submit">Add Appointment</button>
-</form>
+        <div class="form-group">
+            <label>Status:</label>
+            <select name="Status">
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+        </div>
 
+        <div class="button-group">
+            <button type="submit">Add Appointment</button>
+            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

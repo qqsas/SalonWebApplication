@@ -79,47 +79,67 @@ while ($row = $result->fetch_assoc()) {
 }
 ?>
 
-<h2>Add New Barber with User Account & Services</h2>
-
-<?php
-if (!empty($errors)) {
-    echo "<div style='color:red;'><ul>";
-    foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>";
-    echo "</ul></div>";
-}
-if ($success) {
-    echo "<div style='color:green;'>" . htmlspecialchars($success) . "</div>";
-}
-?>
-
-<form method="POST" action="">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Barber - Admin</title>
     <link href="addedit.css" rel="stylesheet">
-    <h3>User Account</h3>
-    <label>Name:</label><br>
-    <input type="text" name="UserName" value="<?php echo htmlspecialchars($user_name ?? ''); ?>" required><br><br>
+</head>
+<body>
 
-    <label>Email:</label><br>
-    <input type="email" name="Email" value="<?php echo htmlspecialchars($user_email ?? ''); ?>" required><br><br>
+<div class="form-container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
+    <h2>Add New Barber with User Account & Services</h2>
 
-    <label>Number:</label><br>
-    <input type="text" name="Number" value="<?php echo htmlspecialchars($user_number ?? ''); ?>"><br><br>
+    <?php if (!empty($errors)): ?>
+        <div class="message error">
+            <ul>
+            <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-    <label>Password:</label><br>
-    <input type="password" name="Password" value="" required><br><br>
+    <?php if ($success): ?>
+        <div class="message success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
 
-    <h3>Barber Profile</h3>
-    <label>Bio:</label><br>
-    <textarea name="Bio"><?php echo htmlspecialchars($barber_bio ?? ''); ?></textarea><br><br>
+    <form method="POST" action="">
+        <h3>User Account</h3>
+        <label>Name:</label><br>
+        <input type="text" name="UserName" value="<?php echo htmlspecialchars($user_name ?? ''); ?>" required><br><br>
 
-    <h3>Assign Services</h3>
-    <select name="Services[]" multiple size="5">
-        <?php foreach ($all_services as $s): ?>
-            <option value="<?php echo $s['ServicesID']; ?>" <?php if(in_array($s['ServicesID'], $services ?? [])) echo 'selected'; ?>>
-                <?php echo htmlspecialchars($s['Name']); ?>
-            </option>
-        <?php endforeach; ?>
-    </select><br><br>
+        <label>Email:</label><br>
+        <input type="email" name="Email" value="<?php echo htmlspecialchars($user_email ?? ''); ?>" required><br><br>
 
-    <button type="submit">Add Barber</button>
-</form>
+        <label>Phone Number:</label><br>
+        <input type="text" name="Number" value="<?php echo htmlspecialchars($user_number ?? ''); ?>"><br><br>
 
+        <label>Password:</label><br>
+        <input type="password" name="Password" value="" required><br><br>
+
+        <h3>Barber Profile</h3>
+        <label>Bio:</label><br>
+        <textarea name="Bio"><?php echo htmlspecialchars($barber_bio ?? ''); ?></textarea><br><br>
+
+        <h3>Assign Services</h3>
+        <label>Select services this barber can provide (hold Ctrl/Cmd to select multiple):</label><br>
+        <select name="Services[]" multiple size="5">
+            <?php foreach ($all_services as $s): ?>
+                <option value="<?php echo $s['ServicesID']; ?>" <?php if(in_array($s['ServicesID'], $services ?? [])) echo 'selected'; ?>>
+                    <?php echo htmlspecialchars($s['Name']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select><br><br>
+
+        <div class="button-group">
+            <button type="submit">Add Barber</button>
+            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

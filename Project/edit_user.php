@@ -78,9 +78,29 @@ $user = $result->fetch_assoc();
 $stmt->close();
 ?>
 
-<div class="container">
-    <h2>Edit User</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User - Admin</title>
     <link href="addedit.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
+    <h2>Edit User</h2>
+
+    <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($stmt)): ?>
+        <?php if ($stmt->execute()): ?>
+            <div class="message success">User updated successfully.</div>
+        <?php else: ?>
+            <div class="message error">Error updating user: <?php echo $stmt->error; ?></div>
+        <?php endif; ?>
+    <?php endif; ?>
+
     <form method="POST" action="">
         <label for="name">Name:</label><br>
         <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['Name']); ?>" required><br><br>
@@ -98,9 +118,11 @@ $stmt->close();
             <option value="admin" <?php if ($user['Role'] === 'admin') echo 'selected'; ?>>Admin</option>
         </select><br><br>
 
-        <button type="submit">Update User</button>
+        <div class="button-group">
+            <button type="submit">Update User</button>
+            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+        </div>
     </form>
 </div>
 
 <?php include 'footer.php'; ?>
-

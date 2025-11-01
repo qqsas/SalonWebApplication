@@ -104,58 +104,97 @@ $users = $conn->query("SELECT UserID, Name FROM User WHERE IsDeleted=0");
 $products = $conn->query("SELECT ProductID, Name FROM Products WHERE IsDeleted=0");
 ?>
 
-<h2>Add New Order</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Order - Admin</title>
     <link href="addedit.css" rel="stylesheet">
+</head>
+<body>
 
-<?php if ($errors): ?>
-    <div style="color:red;"><ul>
-    <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
-    </ul></div>
-<?php endif; ?>
+<div class="form-container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
+    <h2>Add New Order</h2>
 
-<?php if ($success): ?>
-    <div style="color:green;"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
-
-<form method="POST">
-    <label>User:</label><br>
-    <select name="UserID" required>
-        <?php while($u = $users->fetch_assoc()): ?>
-            <option value="<?= $u['UserID'] ?>"><?= htmlspecialchars($u['Name']) ?></option>
-        <?php endwhile; ?>
-    </select><br><br>
-
-    <div id="productContainer">
-        <div class="productRow">
-            <label>Product:</label><br>
-            <select name="ProductID[]" required>
-                <?php $products->data_seek(0); while($p = $products->fetch_assoc()): ?>
-                    <option value="<?= $p['ProductID'] ?>"><?= htmlspecialchars($p['Name']) ?></option>
-                <?php endwhile; ?>
-            </select><br>
-
-            <label>Quantity:</label><br>
-            <input type="number" name="Quantity[]" min="1" required><br><br>
+    <?php if (!empty($errors)): ?>
+        <div class="message error">
+            <ul>
+            <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
+            </ul>
         </div>
-    </div>
+    <?php endif; ?>
 
-    <button type="button" onclick="addProductRow()">+ Add Another Product</button><br><br>
+    <?php if ($success): ?>
+        <div class="message success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
 
-    <label>Status:</label><br>
-    <select name="Status">
-        <option value="Pending">Pending</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-    </select><br><br>
+    <form method="POST">
+        <div class="form-group">
+            <label>User:</label>
+            <select name="UserID" required>
+                <?php while($u = $users->fetch_assoc()): ?>
+                    <option value="<?= $u['UserID'] ?>"><?= htmlspecialchars($u['Name']) ?></option>
+                <?php endwhile; ?>
+            </select>
+        </div>
 
-    <button type="submit">Add Order</button>
-</form>
+        <div id="productContainer">
+            <div class="product-row">
+                <div class="form-group">
+                    <label>Product:</label>
+                    <select name="ProductID[]" required>
+                        <?php $products->data_seek(0); while($p = $products->fetch_assoc()): ?>
+                            <option value="<?= $p['ProductID'] ?>"><?= htmlspecialchars($p['Name']) ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity:</label>
+                    <input type="number" name="Quantity[]" min="1" required>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="add-product-btn" onclick="addProductRow()">+ Add Another Product</button>
+
+        <div class="form-group">
+            <label>Status:</label>
+            <select name="Status">
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button type="submit">Add Order</button>
+            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
 
 <script>
 function addProductRow() {
     const container = document.getElementById('productContainer');
-    const row = document.querySelector('.productRow').cloneNode(true);
+    const row = document.querySelector('.product-row').cloneNode(true);
+    
+    // Clear the values in the cloned row
+    const inputs = row.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        if (input.type === 'number') {
+            input.value = '';
+        } else if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+        }
+    });
+    
     container.appendChild(row);
 }
 </script>
 
+</body>
+</html>

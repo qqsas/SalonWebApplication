@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="file" name="ImgFile" accept="image/*" required><br><br>
 
     <button type="submit">Add Gallery Item</button>
-    <a href="admin_dashboard.php?view=gallery">Cancel</a>
+    <a class="btn" href="admin_dashboard.php?view=gallery">Cancel</a>
 </form>
 
 <?php include 'footer.php'; ?>

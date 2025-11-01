@@ -73,32 +73,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<h2>Add New User</h2>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New User - Admin</title>
     <link href="addedit.css" rel="stylesheet">
-<?php if (!empty($errors)): ?>
-    <div style='color:red;'><ul>
-    <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
-    </ul></div>
-<?php endif; ?>
+</head>
+<body>
 
-<?php if ($success): ?>
-    <div style='color:green;'><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
+<div class="form-container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
+    <h2>Add New User</h2>
 
-<form method="POST" action="">
-    <label>Name:</label><br>
-    <input type="text" name="Name" value="<?= isset($name) ? htmlspecialchars($name) : '' ?>" required><br><br>
+    <?php if (!empty($errors)): ?>
+        <div style='color:red; margin-bottom: 20px;'>
+            <ul>
+            <?php foreach ($errors as $e) echo "<li>" . htmlspecialchars($e) . "</li>"; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-    <label>Email:</label><br>
-    <input type="email" name="Email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required><br><br>
+    <?php if ($success): ?>
+        <div style='color:green; margin-bottom: 20px;'><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
 
-    <label>Phone Number:</label><br>
-    <input type="text" name="Number" value="<?= isset($number) ? htmlspecialchars($number) : '' ?>"><br><br>
+    <form method="POST" action="">
+        <label>Name:</label><br>
+        <input type="text" name="Name" value="<?= isset($name) ? htmlspecialchars($name) : '' ?>" required><br><br>
 
-    <label>Password:</label><br>
-    <input type="password" name="Password" required><br><br>
+        <label>Email:</label><br>
+        <input type="email" name="Email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required><br><br>
 
-    <button type="submit">Add User</button>
-</form>
+        <label>Phone Number:</label><br>
+        <input type="text" name="Number" value="<?= isset($number) ? htmlspecialchars($number) : '' ?>"><br><br>
 
+        <label>Password:</label><br>
+        <input type="password" name="Password" required><br><br>
+
+        <div class="button-group">
+            <button type="submit">Add User</button>
+            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
