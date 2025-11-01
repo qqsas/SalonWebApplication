@@ -3529,7 +3529,9 @@ table thead {
 .navbar-brand img {
 	height: clamp(28px,4vw,35px);
 	margin-right: 0.75rem;
+    filter: brightness(0) invert(1);
 }
+
 
 .navbar-nav {
 	align-items: center;
