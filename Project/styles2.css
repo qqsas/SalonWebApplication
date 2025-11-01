@@ -573,7 +573,7 @@ table thead {
 	transform: translateY(-2px);
 }
 
-#serviceSort {
+#serviceSort, #categoryFilter {
 	background: var(--white);
 	border-color: var(--accent-color);
 	border-radius: 50px;
@@ -4502,8 +4502,7 @@ table thead {
 
 .service-buttons {
 	border-top: 2px solid var(--gray-light);
-	display: flex;
-	flex-direction: column;
+	display: inline-flex;
 	gap: 1rem;
 	margin-top: 2rem;
 	margin-top: auto;
@@ -4592,7 +4591,7 @@ table thead {
 	box-shadow: var(--card-shadow);
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	height: fit-content;
 	overflow: hidden;
 	padding: 2.5rem;
 	padding: var(--space-lg);
@@ -4659,7 +4658,7 @@ table thead {
 	cursor: pointer;
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	height: fit-content;
 	overflow: hidden;
 	position: relative;
 	transition: all var(--transition-normal);
@@ -8027,7 +8026,7 @@ table thead {
 
 .service-card {
   flex: 0 0 300px; /* uniform width */
-  height: 500px; /* uniform height */
+  height: 100%; /* uniform height */
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);

@@ -10,6 +10,30 @@ $serviceQuery = "SELECT *
                  ORDER BY Name ASC";
 $serviceResult = $conn->query($serviceQuery);
 $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
+
+// Extract all unique categories for the filter
+$allCategories = [];
+foreach ($services as $service) {
+    if (!empty($service['Category'])) {
+        try {
+            $categories = json_decode($service['Category'], true);
+            if (is_array($categories)) {
+                foreach ($categories as $category) {
+                    if (!empty($category) && is_string($category)) {
+                        $cleanCategory = trim(str_replace(['\"', '"', '[', ']', '\\'], '', $category));
+                        if (!empty($cleanCategory) && !in_array($cleanCategory, $allCategories)) {
+                            $allCategories[] = $cleanCategory;
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Skip malformed JSON
+            continue;
+        }
+    }
+}
+sort($allCategories);
 ?>
 
 <!DOCTYPE html>
@@ -36,8 +60,19 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
             <option value="price-desc">Price High → Low</option>
             <option value="time-asc">Duration Short → Long</option>
             <option value="time-desc">Duration Long → Short</option>
+            <option value="category-asc">Category A → Z</option>
+            <option value="category-desc">Category Z → A</option>
         </select>
-        <!-- ADDED: Apply button only -->
+        
+        <!-- Category Filter -->
+        <select id="categoryFilter">
+            <option value="">All Categories</option>
+            <?php foreach($allCategories as $category): ?>
+                <option value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></option>
+            <?php endforeach; ?>
+        </select>
+        
+        <!-- Apply button only -->
         <button id="applyButton" class="filter-button">Apply</button>
     </div>
 
@@ -45,11 +80,34 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
         <p>No services available at the moment.</p>
     <?php else: ?>
         <div class="services-grid" id="servicesGrid">
-<?php foreach($services as $service): ?>
+<?php foreach($services as $service): 
+    // Parse categories for this service
+    $serviceCategories = [];
+    if (!empty($service['Category'])) {
+        try {
+            $categories = json_decode($service['Category'], true);
+            if (is_array($categories)) {
+                foreach ($categories as $category) {
+                    if (!empty($category) && is_string($category)) {
+                        $cleanCategory = trim(str_replace(['\"', '"', '[', ']', '\\'], '', $category));
+                        if (!empty($cleanCategory)) {
+                            $serviceCategories[] = $cleanCategory;
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Skip malformed JSON
+        }
+    }
+    $primaryCategory = !empty($serviceCategories) ? $serviceCategories[0] : 'Uncategorized';
+?>
     <div class="service-card" 
          data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
          data-price="<?= $service['Price'] ?>" 
-         data-time="<?= $service['Time'] ?>">
+         data-time="<?= $service['Time'] ?>"
+         data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
+         data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>">
         
         <!-- Service Image -->
         <?php if(!empty($service['ImgUrl'])): ?>
@@ -57,6 +115,16 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
         <?php endif; ?>
 
         <h2><?= htmlspecialchars($service['Name']) ?></h2>
+        
+        <!-- Display Categories -->
+        <?php if(!empty($serviceCategories)): ?>
+            <div class="service-categories">
+                <?php foreach($serviceCategories as $category): ?>
+                    <span class="category-tag"><?= htmlspecialchars($category) ?></span>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        
         <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
         <p><strong>Price:</strong> R<?= number_format($service['Price'],2) ?></p>
         <p><strong>Duration:</strong> <?= htmlspecialchars($service['Time']) ?> mins</p>
@@ -96,6 +164,7 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
 // ENHANCED SEARCH AND SORT FUNCTIONALITY
 const searchInput = document.getElementById('serviceSearch');
 const sortSelect = document.getElementById('serviceSort');
+const categoryFilter = document.getElementById('categoryFilter');
 const servicesGrid = document.getElementById('servicesGrid');
 const serviceCards = Array.from(servicesGrid.children);
 
@@ -108,6 +177,7 @@ servicesGrid.parentNode.insertBefore(noResults, servicesGrid.nextSibling);
 // ENHANCED FILTER FUNCTION
 function filterServices() {
     const searchTerm = searchInput.value.toLowerCase().trim();
+    const selectedCategory = categoryFilter.value.toLowerCase();
     let hasMatches = false;
     
     servicesGrid.classList.add('filtering');
@@ -115,7 +185,11 @@ function filterServices() {
     serviceCards.forEach(card => {
         const name = card.dataset.name;
         const description = card.querySelector('p').innerText.toLowerCase();
-        const isMatch = name.includes(searchTerm) || description.includes(searchTerm);
+        const categories = JSON.parse(card.dataset.categories || '[]');
+        const hasCategory = selectedCategory === '' || 
+                           categories.some(cat => cat.toLowerCase() === selectedCategory);
+        
+        const isMatch = hasCategory && (name.includes(searchTerm) || description.includes(searchTerm));
         
         if(isMatch) {
             card.style.display = '';
@@ -128,7 +202,7 @@ function filterServices() {
     });
     
     // Show/hide no results message
-    if (!hasMatches && searchTerm !== '') {
+    if (!hasMatches && (searchTerm !== '' || selectedCategory !== '')) {
         noResults.classList.add('show');
     } else {
         noResults.classList.remove('show');
@@ -137,6 +211,8 @@ function filterServices() {
     setTimeout(() => {
         servicesGrid.classList.remove('filtering');
     }, 300);
+    
+    return hasMatches;
 }
 
 // ENHANCED SORT FUNCTION
@@ -152,6 +228,8 @@ function sortServices() {
             case 'price-desc': return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
             case 'time-asc': return parseInt(a.dataset.time) - parseInt(b.dataset.time);
             case 'time-desc': return parseInt(b.dataset.time) - parseInt(a.dataset.time);
+            case 'category-asc': return a.dataset.category.localeCompare(b.dataset.category);
+            case 'category-desc': return b.dataset.category.localeCompare(a.dataset.category);
             default: return 0;
         }
     });
@@ -176,8 +254,12 @@ searchInput.addEventListener('input', () => {
 });
 
 sortSelect.addEventListener('change', sortServices);
+categoryFilter.addEventListener('change', () => {
+    filterServices();
+    sortServices();
+});
 
-// Apply button: trigger current filters/sort (button was added only)
+// Apply button: trigger current filters/sort
 const applyButton = document.getElementById('applyButton');
 if (applyButton) {
     applyButton.addEventListener('click', () => {
@@ -191,9 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
     serviceCards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
     });
+    // Initial filter and sort
+    filterServices();
+    sortServices();
 });
 </script>
 
+
 </body>
 </html>
-
