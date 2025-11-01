@@ -550,7 +550,15 @@ case 'services':
             
             echo '<a href="add_order.php?view=orders&search='.$searchParam.'&orders_filter='.$displayFilters['orders'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Order </a>';
             
-            $stmt = $conn->prepare("SELECT o.*, u.Name AS UserName FROM Orders o LEFT JOIN User u ON o.UserID = u.UserID WHERE $where ORDER BY o.CreatedAt DESC LIMIT ? OFFSET ?");
+            // Modified query to include order items
+            $stmt = $conn->prepare("
+                SELECT o.*, u.Name AS UserName 
+                FROM Orders o 
+                LEFT JOIN User u ON o.UserID = u.UserID 
+                WHERE $where 
+                ORDER BY o.CreatedAt DESC 
+                LIMIT ? OFFSET ?
+            ");
             $params[] = $limit;
             $params[] = $offset;
             $types .= "ii";
@@ -565,19 +573,90 @@ case 'services':
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>TotalPrice</th><th class='table-header'>Status</th><th class='table-header'>CreatedAt</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> 
+                <thead>
+                    <tr> 
+                        <th class='table-header'>ID</th>
+                        <th class='table-header'>User</th>
+                        <th class='table-header'>Products</th>
+                        <th class='table-header'>TotalPrice</th>
+                        <th class='table-header'>Status</th>
+                        <th class='table-header'>CreatedAt</th>
+                        <th class='table-header'>Actions</th> 
+                    </tr>
+                </thead>
+                <tbody>";
+            
             while($row = $result->fetch_assoc()) {
+                // Fetch order items for this order
+                $orderItemsStmt = $conn->prepare("
+                    SELECT oi.*, p.Name AS ProductName, p.Price AS UnitPrice, p.ImgUrl 
+                    FROM OrderItems oi 
+                    LEFT JOIN Products p ON oi.ProductID = p.ProductID 
+                    WHERE oi.OrderID = ? AND oi.IsDeleted = 0
+                ");
+                $orderItemsStmt->bind_param("i", $row['OrderID']);
+                $orderItemsStmt->execute();
+                $orderItemsResult = $orderItemsStmt->get_result();
+                $orderItems = $orderItemsResult->fetch_all(MYSQLI_ASSOC);
+                $orderItemsStmt->close();
+                
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['OrderID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>R".escape($row['TotalPrice'])."</td> <td class='table-cell'> <form method='POST' action='update_order_status.php' class='inline-form'> <input type='hidden' name='OrderID' value='".escape($row['OrderID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option> <option value='Processing' ".($row['Status']=='Processing'?'selected':'').">Processing</option> <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option> <option value='Cancelled' ".($row['Status']=='Cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell'> <div class='action-buttons'>";
+                
+                echo "<tr class='table-row'> 
+                    <td class='table-cell'>".escape($row['OrderID'])."</td> 
+                    <td class='table-cell'>".escape($row['UserName'])."</td> 
+                    <td class='table-cell'>";
+                
+                // Display order items
+                if (!empty($orderItems)) {
+                    echo "<div class='order-items'>";
+                    foreach ($orderItems as $item) {
+                        $itemTotal = $item['Quantity'] * $item['UnitPrice'];
+                        echo "<div class='order-item'>
+                                <div class='order-item-info'>
+                                    <strong>".escape($item['ProductName'])."</strong>
+                                    <br>
+                                    <small>Qty: ".escape($item['Quantity'])." × R".number_format($item['UnitPrice'], 2)." = R".number_format($itemTotal, 2)."</small>
+                                </div>
+                              </div>";
+                    }
+                    echo "</div>";
+                } else {
+                    echo "<span class='no-items'>No items</span>";
+                }
+                
+                echo "</td> 
+                    <td class='table-cell'>R".escape($row['TotalPrice'])."</td> 
+                    <td class='table-cell'> 
+                        <form method='POST' action='update_order_status.php' class='inline-form'> 
+                            <input type='hidden' name='OrderID' value='".escape($row['OrderID'])."'> 
+                            <input type='hidden' name='redirect' value='admin_dashboard.php?view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page'> 
+                            <select name='Status' onchange='this.form.submit()' class='status-select'> 
+                                <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option> 
+                                <option value='Processing' ".($row['Status']=='Processing'?'selected':'').">Processing</option> 
+                                <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option> 
+                                <option value='Cancelled' ".($row['Status']=='Cancelled'?'selected':'').">Cancelled</option> 
+                            </select> 
+                        </form> 
+                    </td> 
+                    <td class='table-cell'>".escape($row['CreatedAt'])."</td> 
+                    <td class='table-cell'> 
+                        <div class='action-buttons'>";
+                
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Orders&id=".escape($row['OrderID'])."&view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
                     echo "<a href='edit_order.php?id=".escape($row['OrderID'])."&view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
                     echo "<a href='soft_delete.php?table=Orders&id=".escape($row['OrderID'])."&view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
                 }
-                echo " </div> </td> </tr>";
+                
+                echo " </div> 
+                    </td> 
+                </tr>";
             }
+            
             echo "</tbody></table>";
             echo "</div>";
             displayPagination($totalPages, $page, 'orders', $searchParam, $displayFilters);
