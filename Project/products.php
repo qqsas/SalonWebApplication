@@ -8,10 +8,65 @@ $searchTerm = $_GET['search'] ?? '';
 $sortOption = $_GET['sort'] ?? 'newest';
 $selectedCategory = $_GET['category'] ?? '';
 
-// Fetch distinct categories from Products table
-$categoryQuery = "SELECT DISTINCT Category FROM Products";
-$categoryResult = $conn->query($categoryQuery);
-$categories = $categoryResult ? $categoryResult->fetch_all(MYSQLI_ASSOC) : [];
+// Fetch all unique categories from Products table (handling JSON arrays)
+$allCategories = [];
+
+// First, extract categories from JSON arrays
+$jsonCategoryQuery = $conn->query("
+    SELECT Category 
+    FROM Products 
+    WHERE Category IS NOT NULL 
+    AND Category != 'null' 
+    AND Category LIKE '[%'
+");
+
+if ($jsonCategoryQuery) {
+    while ($row = $jsonCategoryQuery->fetch_assoc()) {
+        if (!empty($row['Category'])) {
+            try {
+                $categories = json_decode($row['Category'], true);
+                if (is_array($categories)) {
+                    foreach ($categories as $category) {
+                        if (!empty($category) && is_string($category)) {
+                            $allCategories[] = trim($category);
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                continue;
+            }
+        }
+    }
+}
+
+// Also get legacy single categories
+$legacyCategoryQuery = $conn->query("
+    SELECT Category 
+    FROM Products 
+    WHERE Category IS NOT NULL 
+    AND Category != '' 
+    AND Category NOT LIKE '[%'
+");
+
+if ($legacyCategoryQuery) {
+    while ($row = $legacyCategoryQuery->fetch_assoc()) {
+        if (!empty($row['Category'])) {
+            $category = trim($row['Category']);
+            $category = str_replace(['\"', '"', '[', ']'], '', $category);
+            if (!empty($category)) {
+                $allCategories[] = $category;
+            }
+        }
+    }
+}
+
+// Clean and deduplicate categories
+$allCategories = array_map(function($cat) {
+    return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
+}, $allCategories);
+$allCategories = array_filter($allCategories);
+$allCategories = array_unique($allCategories);
+sort($allCategories);
 
 // Base query
 $query = "SELECT ProductID, Name, Price, Category, Stock, ImgUrl, CreatedAt 
@@ -23,17 +78,21 @@ $types = "";
 
 // Search filter
 if (!empty($searchTerm)) {
-    $query .= " AND Name LIKE ?";
+    $query .= " AND (Name LIKE ? OR Category LIKE ?)";
     $searchWildcard = "%{$searchTerm}%";
     $params[] = $searchWildcard;
-    $types .= "s";
+    $params[] = $searchWildcard;
+    $types .= "ss";
 }
 
-// Category filter
+// Category filter - modified to handle JSON arrays
 if (!empty($selectedCategory)) {
-    $query .= " AND Category = ?";
-    $params[] = $selectedCategory;
-    $types .= "s";
+    $query .= " AND (Category LIKE ? OR Category LIKE ?)";
+    $jsonPattern = '%"' . $selectedCategory . '"%';
+    $legacyPattern = '%' . $selectedCategory . '%';
+    $params[] = $jsonPattern;
+    $params[] = $legacyPattern;
+    $types .= "ss";
 }
 
 // Sort logic
@@ -65,25 +124,45 @@ if (!empty($params)) {
 $stmt->execute();
 $result = $stmt->get_result();
 $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
+// Process products to parse categories for display
+foreach ($products as &$product) {
+    $categories = [];
+    if (!empty($product['Category'])) {
+        // If it's a JSON string, decode it
+        if (is_string($product['Category']) && $product['Category'][0] === '[') {
+            $categories = json_decode($product['Category'], true) ?: [];
+        } 
+        // If it's already an array, use it directly
+        elseif (is_array($product['Category'])) {
+            $categories = $product['Category'];
+        }
+        // If it's a single string (legacy data), wrap it in an array
+        elseif (is_string($product['Category'])) {
+            $categories = [$product['Category']];
+        }
+    }
+    
+    // Clean categories for display
+    $categories = array_map(function($cat) {
+        return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
+    }, $categories);
+    $categories = array_filter($categories);
+    
+    $product['ParsedCategories'] = $categories;
+    $product['CategoriesDisplay'] = !empty($categories) ? implode(', ', $categories) : 'Uncategorized';
+}
+unset($product); // Break the reference
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>All Products - Kumar Kailey’s Hair & Beauty</title>
+    <title>All Products - Kumar Kailey's Hair & Beauty</title>
     <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    @media (min-width: 769px) {
-        .menu-toggle {
-            display: none !important;
-        }
-    }
-    .no-results { display: none; text-align: center; margin-top: 20px; font-size: 1.1em; }
-    .no-results.show { display: block; }
-    </style>
 </head>
 <body>
 
@@ -93,7 +172,7 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 <div class="filter-container">
     <form method="get" class="filter-form" id="productFilterForm">
         <input type="text" name="search" id="productSearch" class="filter-search"
-               placeholder="Search products..." value="<?= htmlspecialchars($searchTerm) ?>">
+               placeholder="Search products or categories..." value="<?= htmlspecialchars($searchTerm) ?>">
 
         <select name="sort" id="productSort" class="filter-sort">
             <option value="newest" <?= $sortOption === 'newest' ? 'selected' : '' ?>>Newest</option>
@@ -105,10 +184,10 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
         <select name="category" id="productCategory" class="filter-category">
             <option value="">All Categories</option>
-            <?php foreach ($categories as $cat): ?>
-                <option value="<?= htmlspecialchars($cat['Category']) ?>" 
-                        <?= $selectedCategory == $cat['Category'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($cat['Category']) ?>
+            <?php foreach ($allCategories as $cat): ?>
+                <option value="<?= htmlspecialchars($cat) ?>" 
+                        <?= $selectedCategory == $cat ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($cat) ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -119,7 +198,6 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
 <!-- Product Listing Section -->
 <div class="product-section">
-
     <?php if (empty($products)): ?>
         <p class="no-products-message">No products found.</p>
     <?php else: ?>
@@ -128,23 +206,49 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                 <div class="product-card"
                      data-name="<?= htmlspecialchars(strtolower($product['Name'])) ?>"
                      data-price="<?= $product['Price'] ?>"
-                     data-category="<?= htmlspecialchars(strtolower($product['Category'])) ?>">
-                    <?php $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
-                    <img src="<?= $product_img ?>" alt="<?= htmlspecialchars($product['Name']) ?>" class="product-image">
+                     data-categories="<?= htmlspecialchars(strtolower(implode(',', $product['ParsedCategories']))) ?>">
+                    <?php 
+                    $product_img = !empty($product['ImgUrl']) ? "" . htmlspecialchars($product['ImgUrl']) : 'Img/default-product.jpg';
+                    ?>
+                    <img src="<?= $product_img ?>" 
+                         alt="<?= htmlspecialchars($product['Name']) ?>" 
+                         class="product-image"
+                         onerror="this.src='Img/default-product.jpg'">
 
                     <div class="product-details">
                         <h2 class="product-name"><?= htmlspecialchars($product['Name']) ?></h2>
-                        <p class="product-price">Price: R<?= number_format($product['Price'], 2) ?></p>
-                        <p class="product-category">Category: <?= htmlspecialchars($product['Category']) ?></p>
-                        <p class="product-stock">In Stock: <?= htmlspecialchars($product['Stock']) ?></p>
+                        <p class="product-price">R<?= number_format($product['Price'], 2) ?></p>
                         
-                        <div class="product-buttons" style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <div class="product-category">
+                            <div class="categories-tags">
+                                <?php foreach ($product['ParsedCategories'] as $category): ?>
+                                    <span class="category-tag"><?= htmlspecialchars($category) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="product-stock">
+                            <?php
+                            $stock = $product['Stock'];
+                            if ($stock > 10) {
+                                echo '<span class="stock-status in-stock">In Stock (' . $stock . ')</span>';
+                            } elseif ($stock > 0) {
+                                echo '<span class="stock-status low-stock">Low Stock (' . $stock . ')</span>';
+                            } else {
+                                echo '<span class="stock-status out-of-stock">Out of Stock</span>';
+                            }
+                            ?>
+                        </div>
+                        
+                        <div class="product-buttons">
                             <a href="product_details.php?id=<?= $product['ProductID'] ?>" class="btn">View Product</a>
+                            <?php if ($product['Stock'] > 0): ?>
                             <form method="POST" action="add_to_cart.php" style="display:inline;">
                                 <input type="hidden" name="product_id" value="<?= $product['ProductID'] ?>">
                                 <input type="hidden" name="quantity" value="1">
                                 <button type="submit" class="btn">Add to Cart</button>
                             </form>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -171,10 +275,10 @@ function filterProducts() {
 
     productCards.forEach(card => {
         const name = card.dataset.name;
-        const category = card.dataset.category;
+        const categories = card.dataset.categories;
 
-        const matchSearch = name.includes(searchTerm);
-        const matchCategory = !selectedCategory || category === selectedCategory.toLowerCase();
+        const matchSearch = name.includes(searchTerm) || categories.includes(searchTerm);
+        const matchCategory = !selectedCategory || categories.includes(selectedCategory);
 
         const match = matchSearch && matchCategory;
         card.style.display = match ? '' : 'none';
@@ -227,8 +331,13 @@ applyButton.addEventListener('click', (e) => {
     filterProducts();
     sortProducts();
 });
+
+// Initialize filtering on page load
+document.addEventListener('DOMContentLoaded', function() {
+    filterProducts();
+    sortProducts();
+});
 </script>
 
 </body>
 </html>
-

@@ -416,19 +416,80 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Price</th><th class='table-header'>Category</th><th class='table-header'>Stock</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> 
+                <thead>
+                    <tr> 
+                        <th class='table-header'>ID</th>
+                        <th class='table-header'>Image</th>
+                        <th class='table-header'>Name</th>
+                        <th class='table-header'>Price</th>
+                        <th class='table-header'>Categories</th>
+                        <th class='table-header'>Stock</th>
+                        <th class='table-header'>Status</th>
+                        <th class='table-header'>Actions</th> 
+                    </tr>
+                </thead>
+                <tbody>";
+            
             while ($row = $result->fetch_assoc()) {
                 $stockClass = $row['Stock'] == 0 ? 'out-of-stock' : ($row['Stock'] < 10 ? 'low-stock' : 'in-stock');
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ProductID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell'>R".escape($row['Price'])."</td> <td class='table-cell'>".escape($row['Category'])."</td> <td class='table-cell $stockClass'>".escape($row['Stock'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
+                
+                // Handle product categories
+                $categories = [];
+                if (!empty($row['Category'])) {
+                    // If it's a JSON string, decode it
+                    if (is_string($row['Category']) && $row['Category'][0] === '[') {
+                        $categories = json_decode($row['Category'], true) ?: [];
+                    } 
+                    // If it's already an array, use it directly
+                    elseif (is_array($row['Category'])) {
+                        $categories = $row['Category'];
+                    }
+                    // If it's a single string (legacy data), wrap it in an array
+                    elseif (is_string($row['Category'])) {
+                        $categories = [$row['Category']];
+                    }
+                }
+                
+                // Clean categories for display
+                $categories = array_map(function($cat) {
+                    return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
+                }, $categories);
+                $categories = array_filter($categories);
+                $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
+                
+                // Handle product image
+                $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'default-product.jpg';
+                $imagePath = "Img/" . $productImage;
+                $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/default-product.jpg";
+                
+                echo "<tr class='table-row'> 
+                        <td class='table-cell'>".escape($row['ProductID'])."</td> 
+                        <td class='table-cell'>
+                            <img src='".escape($imageSrc)."' 
+                                 alt='".escape($row['Name'])."' 
+                                 class='product-thumb'
+                                 style='width: 50px; height: 50px; object-fit: cover; border-radius: 4px;'
+                                 onerror=\"this.src='Img/default-product.jpg'\">
+                        </td>
+                        <td class='table-cell'>".escape($row['Name'])."</td> 
+                        <td class='table-cell'>R".number_format($row['Price'], 2)."</td> 
+                        <td class='table-cell categories-cell' title='".$categoriesDisplay."'>".$categoriesDisplay."</td> 
+                        <td class='table-cell $stockClass'>".escape($row['Stock'])."</td> 
+                        <td class='table-cell $statusClass'>$statusText</td> 
+                        <td class='table-cell'> 
+                            <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
                     echo "<a href='edit_product.php?id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
                     echo "<a href='soft_delete.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
                 }
-                echo " </div> </td> </tr>";
+                echo "      </div> 
+                        </td> 
+                      </tr>";
             }
             echo "</tbody></table>";
             echo "</div>";
