@@ -76,8 +76,11 @@ html {
 
 .action-buttons {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 0.5rem;
+	align-items: center;
+	justify-content: flex-start;
+	min-width: max-content;
 }
 
 .add-btn {
@@ -405,10 +408,8 @@ html {
 }
 
 .display-filter {
-	align-items: center;
 	background: var(--card-gradient);
 	border-radius: var(--border-radius);
-	box-shadow: var(--card-shadow);
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--space-md);
@@ -416,19 +417,17 @@ html {
 	padding: var(--space-md);
 	transition: var(--transition);
 	border-radius: var(--border-radius-lg);
-	border: 1px solid var(--gray-medium);
 }
 
 .display-filter-label {
 	color: var(--text-dark);
-	font-size: 0.9rem;
+	font-size: 1.5rem;
 	font-weight: 600;
 	margin: 0;
 }
 
 .display-filter-select, .role-select, .status-select {
 	appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23545885' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%%3E%3C/svg%3E");
 	background-position: right 12px center;
 	background-repeat: no-repeat;
 	background-size: 14px;
@@ -442,7 +441,7 @@ html {
 	padding-right: 16px;
 	padding: 10px;
 	transition: var(--transition);
-    display: flex;
+	display: flex;
 }
 
 .display-filter-select:focus {
@@ -1049,7 +1048,7 @@ html {
 }
 
 .search-container {
-	align-item: center;
+	align-items: center;
 	border-radius: var(--border-radius-lg);
 	border: 1px solid var(--gray-medium);
 	box-shadow: var(--card-shadow);
@@ -1057,13 +1056,17 @@ html {
 }
 
 .search-controls {
-	align-items: center;
 	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: nowrap;
 }
 
-
 .search-form {
-	align-item: center;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
 }
 
 .search-input {
@@ -1074,6 +1077,7 @@ html {
 	font-size: 1rem;
 	padding: var(--space-sm);
 	transition: all var(--transition-fast);
+	min-width: 250px;
 }
 
 .search-input:focus {
@@ -1367,7 +1371,6 @@ html {
 		gap: var(--space-sm);
 		padding: var(--space-lg);
 		padding: var(--space-sm);
-		text-align: center;
 	}
 
 	.display-filter label {
@@ -1492,9 +1495,7 @@ html {
 		color: var(--text-dark);
 	}
 
-
 	.overview-card .count {
-		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background: var(--primary-gradient);
 	}
@@ -1618,8 +1619,4 @@ html {
 		backdrop-filter: blur(20px);
 		background: rgba(255,255,255,0.85);
 	}
-
-	}
 }
-
-
