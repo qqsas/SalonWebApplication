@@ -179,13 +179,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (move_uploaded_file($fileTmp, $targetFile)) {
                 // Delete old image if it exists and is not the default
-                if (!empty($product['ImgUrl']) && $product['ImgUrl'] !== 'default-product.jpg') {
-                    $oldFile = $targetDir . $product['ImgUrl'];
+                if (!empty($product['ImgUrl']) && $product['ImgUrl'] !== 'Img/default-product.jpg' && strpos($product['ImgUrl'], 'default-product.jpg') === false) {
+                    $oldFile = $product['ImgUrl']; // Now contains full path
                     if (file_exists($oldFile)) {
                         unlink($oldFile);
                     }
                 }
-                $imgUrl = $fileName; // Store just the filename
+                $imgUrl = "Img/" . $fileName; // Store full path including Img/ folder
             } else {
                 $errors[] = "Failed to upload image.";
             }

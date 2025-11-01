@@ -149,6 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
                 $errors[] = "Failed to upload image.";
                 $imageName = null;
+            } else {
+                // Add "Img/" to the stored URL
+                $imageName = "Img/" . $imageName;
             }
         }
     }

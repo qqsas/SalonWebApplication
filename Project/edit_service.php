@@ -141,6 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $targetFile = $targetDir . $newImage;
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                // Add "Img/" to the stored URL
+                $newImage = "Img/" . $newImage;
+                
                 $stmt = $conn->prepare("SELECT ImgUrl FROM Services WHERE ServicesID=?");
                 $stmt->bind_param("i", $service_id);
                 $stmt->execute();
@@ -148,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
 
                 if ($old && !empty($old['ImgUrl'])) {
-                    $oldFile = $targetDir . $old['ImgUrl'];
+                    $oldFile = $old['ImgUrl']; // Now contains full path
                     if (file_exists($oldFile)) unlink($oldFile);
                 }
             } else {

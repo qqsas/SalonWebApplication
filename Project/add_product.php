@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $targetFile = $targetDir . $fileName;
 
             if (move_uploaded_file($fileTmp, $targetFile)) {
-                $imgUrl = $fileName; // Store just the filename
+                $imgUrl = "Img/" . $fileName; // Store full path including Img/ folder
             } else {
                 $errors[] = "Failed to upload image.";
             }
