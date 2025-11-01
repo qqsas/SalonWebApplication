@@ -83,7 +83,10 @@ sort($allCategories); // Sort alphabetically
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['Name']);
     $description = trim($_POST['Description']);
-    $price = trim($_POST['Price']);
+    $priceType = $_POST['PriceType'] ?? 'fixed';
+    $price = trim($_POST['Price'] ?? '');
+    $minPrice = trim($_POST['MinPrice'] ?? '');
+    $maxPrice = trim($_POST['MaxPrice'] ?? '');
     $time = trim($_POST['Time']);
     $imageName = null;
     
@@ -106,10 +109,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Convert to JSON for storage
     $categoryJson = !empty($categories) ? json_encode(array_values($categories)) : null;
 
+    // Validation
     if (empty($name)) $errors[] = "Service name is required.";
     if (empty($categories)) $errors[] = "At least one category is required.";
-    if (!is_numeric($price) || $price < 0) $errors[] = "Price must be a valid positive number.";
     if (empty($time) || $time <= 0) $errors[] = "Service time is required and must be greater than 0.";
+    
+    // Price validation based on price type
+    if ($priceType === 'fixed') {
+        if (!is_numeric($price) || $price < 0) $errors[] = "Price must be a valid positive number.";
+        // Set min and max price to null for fixed pricing
+        $minPrice = null;
+        $maxPrice = null;
+    } else { // range pricing
+        if (!is_numeric($minPrice) || $minPrice < 0) $errors[] = "Minimum price must be a valid positive number.";
+        if (!is_numeric($maxPrice) || $maxPrice < 0) $errors[] = "Maximum price must be a valid positive number.";
+        if ($minPrice >= $maxPrice) $errors[] = "Maximum price must be greater than minimum price.";
+        // Set fixed price to null for range pricing
+        $price = null;
+    }
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -137,12 +154,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO Services (Name, Category, Description, Price, Time, ImgUrl) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssdss", $name, $categoryJson, $description, $price, $time, $imageName);
+        $stmt = $conn->prepare("INSERT INTO Services (Name, Category, Description, Price, PriceType, MinPrice, MaxPrice, Time, ImgUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        // Bind parameters based on price type
+        if ($priceType === 'fixed') {
+            $stmt->bind_param("sssdssiss", $name, $categoryJson, $description, $price, $priceType, $minPrice, $maxPrice, $time, $imageName);
+        } else {
+            $stmt->bind_param("sssssdsis", $name, $categoryJson, $description, $price, $priceType, $minPrice, $maxPrice, $time, $imageName);
+        }
+        
         if ($stmt->execute()) {
             $success = "Service added successfully!";
             // Clear form
-            $name = $description = $price = $time = '';
+            $name = $description = $price = $minPrice = $maxPrice = $time = '';
+            $priceType = 'fixed';
             $categories = [];
         } else {
             $errors[] = "Database error: " . $stmt->error;
@@ -214,8 +239,36 @@ if ($success) {
     </div>
 
     <div class="form-group">
+        <label for="PriceType">Price Type:</label>
+        <select name="PriceType" id="PriceType" onchange="togglePriceFields()" required>
+            <option value="fixed" <?php echo ($priceType ?? 'fixed') === 'fixed' ? 'selected' : ''; ?>>Fixed Price</option>
+            <option value="range" <?php echo ($priceType ?? 'fixed') === 'range' ? 'selected' : ''; ?>>Price Range</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="fixedPriceField" style="display: <?php echo ($priceType ?? 'fixed') === 'fixed' ? 'block' : 'none'; ?>;">
         <label for="Price">Price (R):</label>
-        <input type="number" step="0.01" min="0" name="Price" id="Price" value="<?php echo htmlspecialchars($price ?? ''); ?>" required>
+        <input type="number" step="0.01" min="0" name="Price" id="Price" 
+               value="<?php echo htmlspecialchars($price ?? ''); ?>" 
+               <?php echo ($priceType ?? 'fixed') === 'fixed' ? 'required' : ''; ?>>
+    </div>
+
+    <div class="form-group" id="rangePriceFields" style="display: <?php echo ($priceType ?? 'fixed') === 'range' ? 'block' : 'none'; ?>;">
+        <div class="price-range-container">
+            <div class="price-range-item">
+                <label for="MinPrice">Minimum Price (R):</label>
+                <input type="number" step="0.01" min="0" name="MinPrice" id="MinPrice" 
+                       value="<?php echo htmlspecialchars($minPrice ?? ''); ?>" 
+                       <?php echo ($priceType ?? 'fixed') === 'range' ? 'required' : ''; ?>>
+            </div>
+            <div class="price-range-item">
+                <label for="MaxPrice">Maximum Price (R):</label>
+                <input type="number" step="0.01" min="0" name="MaxPrice" id="MaxPrice" 
+                       value="<?php echo htmlspecialchars($maxPrice ?? ''); ?>" 
+                       <?php echo ($priceType ?? 'fixed') === 'range' ? 'required' : ''; ?>>
+            </div>
+        </div>
+        <small class="help-text">Maximum price must be greater than minimum price.</small>
     </div>
 
     <div class="form-group">
@@ -234,5 +287,40 @@ if ($success) {
         <a href="admin_dashboard.php?view=services" class="btn-cancel">Cancel</a>
     </div>
 </form>
+
+<script>
+function togglePriceFields() {
+    const priceType = document.getElementById('PriceType').value;
+    const fixedPriceField = document.getElementById('fixedPriceField');
+    const rangePriceFields = document.getElementById('rangePriceFields');
+    const priceInput = document.getElementById('Price');
+    const minPriceInput = document.getElementById('MinPrice');
+    const maxPriceInput = document.getElementById('MaxPrice');
+    
+    if (priceType === 'fixed') {
+        fixedPriceField.style.display = 'block';
+        rangePriceFields.style.display = 'none';
+        priceInput.required = true;
+        minPriceInput.required = false;
+        maxPriceInput.required = false;
+        // Clear range values when switching to fixed
+        minPriceInput.value = '';
+        maxPriceInput.value = '';
+    } else {
+        fixedPriceField.style.display = 'none';
+        rangePriceFields.style.display = 'block';
+        priceInput.required = false;
+        minPriceInput.required = true;
+        maxPriceInput.required = true;
+        // Clear fixed price when switching to range
+        priceInput.value = '';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    togglePriceFields();
+});
+</script>
 
 <?php include 'footer.php'; ?>

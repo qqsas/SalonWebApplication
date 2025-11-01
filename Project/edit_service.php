@@ -82,7 +82,10 @@ sort($allCategories); // Sort alphabetically
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $description = trim($_POST['description']);
-    $price = floatval($_POST['price']);
+    $priceType = $_POST['PriceType'] ?? 'fixed';
+    $price = !empty($_POST['price']) ? floatval($_POST['price']) : null;
+    $minPrice = !empty($_POST['MinPrice']) ? floatval($_POST['MinPrice']) : null;
+    $maxPrice = !empty($_POST['MaxPrice']) ? floatval($_POST['MaxPrice']) : null;
     $time = intval($_POST['time']);
     $newImage = null;
     
@@ -109,8 +112,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
     if (empty($name)) $errors[] = "Service name is required.";
     if (empty($categories)) $errors[] = "At least one category is required.";
-    if ($price < 0) $errors[] = "Price must be a valid positive number.";
     if ($time <= 0) $errors[] = "Service time must be greater than 0.";
+    
+    // Price validation based on price type
+    if ($priceType === 'fixed') {
+        if ($price === null || $price < 0) $errors[] = "Price must be a valid positive number.";
+        // Set min and max price to null for fixed pricing
+        $minPrice = null;
+        $maxPrice = null;
+    } else { // range pricing
+        if ($minPrice === null || $minPrice < 0) $errors[] = "Minimum price must be a valid positive number.";
+        if ($maxPrice === null || $maxPrice < 0) $errors[] = "Maximum price must be a valid positive number.";
+        if ($minPrice >= $maxPrice) $errors[] = "Maximum price must be greater than minimum price.";
+        // Set fixed price to null for range pricing
+        $price = null;
+    }
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -144,11 +160,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         if ($newImage) {
-            $stmt = $conn->prepare("UPDATE Services SET Name=?, Category=?, Description=?, Price=?, Time=?, ImgUrl=? WHERE ServicesID=?");
-            $stmt->bind_param("sssdisi", $name, $categoryJson, $description, $price, $time, $newImage, $service_id);
+            $stmt = $conn->prepare("UPDATE Services SET Name=?, Category=?, Description=?, Price=?, PriceType=?, MinPrice=?, MaxPrice=?, Time=?, ImgUrl=? WHERE ServicesID=?");
+            $stmt->bind_param("sssssdsisi", $name, $categoryJson, $description, $price, $priceType, $minPrice, $maxPrice, $time, $newImage, $service_id);
         } else {
-            $stmt = $conn->prepare("UPDATE Services SET Name=?, Category=?, Description=?, Price=?, Time=? WHERE ServicesID=?");
-            $stmt->bind_param("sssdii", $name, $categoryJson, $description, $price, $time, $service_id);
+            $stmt = $conn->prepare("UPDATE Services SET Name=?, Category=?, Description=?, Price=?, PriceType=?, MinPrice=?, MaxPrice=?, Time=? WHERE ServicesID=?");
+            $stmt->bind_param("sssssdsii", $name, $categoryJson, $description, $price, $priceType, $minPrice, $maxPrice, $time, $service_id);
         }
 
         if ($stmt->execute()) {
@@ -194,6 +210,9 @@ $currentCategories = array_map(function($cat) {
     return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
 }, $currentCategories);
 $currentCategories = array_filter($currentCategories);
+
+// Set default price type if not set (for existing services)
+$priceType = $service['PriceType'] ?? 'fixed';
 ?>
 
 <?php include 'header.php'; ?>
@@ -269,10 +288,38 @@ $currentCategories = array_filter($currentCategories);
             <label for="description">Description:</label>
             <textarea name="description" id="description" rows="4"><?php echo htmlspecialchars($service['Description']); ?></textarea>
         </div>
-        
+
         <div class="form-group">
+            <label for="PriceType">Price Type:</label>
+            <select name="PriceType" id="PriceType" onchange="togglePriceFields()" required>
+                <option value="fixed" <?php echo $priceType === 'fixed' ? 'selected' : ''; ?>>Fixed Price</option>
+                <option value="range" <?php echo $priceType === 'range' ? 'selected' : ''; ?>>Price Range</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="fixedPriceField" style="display: <?php echo $priceType === 'fixed' ? 'block' : 'none'; ?>;">
             <label for="price">Price (R):</label>
-            <input type="number" step="0.01" min="0" name="price" id="price" value="<?php echo htmlspecialchars($service['Price']); ?>" required>
+            <input type="number" step="0.01" min="0" name="price" id="price" 
+                   value="<?php echo htmlspecialchars($service['Price'] ?? ''); ?>" 
+                   <?php echo $priceType === 'fixed' ? 'required' : ''; ?>>
+        </div>
+
+        <div class="form-group" id="rangePriceFields" style="display: <?php echo $priceType === 'range' ? 'block' : 'none'; ?>;">
+            <div class="price-range-container">
+                <div class="price-range-item">
+                    <label for="MinPrice">Minimum Price (R):</label>
+                    <input type="number" step="0.01" min="0" name="MinPrice" id="MinPrice" 
+                           value="<?php echo htmlspecialchars($service['MinPrice'] ?? ''); ?>" 
+                           <?php echo $priceType === 'range' ? 'required' : ''; ?>>
+                </div>
+                <div class="price-range-item">
+                    <label for="MaxPrice">Maximum Price (R):</label>
+                    <input type="number" step="0.01" min="0" name="MaxPrice" id="MaxPrice" 
+                           value="<?php echo htmlspecialchars($service['MaxPrice'] ?? ''); ?>" 
+                           <?php echo $priceType === 'range' ? 'required' : ''; ?>>
+                </div>
+            </div>
+            <small class="help-text">Maximum price must be greater than minimum price.</small>
         </div>
         
         <div class="form-group">
@@ -299,5 +346,34 @@ $currentCategories = array_filter($currentCategories);
     </form>
 </div>
 
+<script>
+function togglePriceFields() {
+    const priceType = document.getElementById('PriceType').value;
+    const fixedPriceField = document.getElementById('fixedPriceField');
+    const rangePriceFields = document.getElementById('rangePriceFields');
+    const priceInput = document.getElementById('price');
+    const minPriceInput = document.getElementById('MinPrice');
+    const maxPriceInput = document.getElementById('MaxPrice');
+    
+    if (priceType === 'fixed') {
+        fixedPriceField.style.display = 'block';
+        rangePriceFields.style.display = 'none';
+        priceInput.required = true;
+        minPriceInput.required = false;
+        maxPriceInput.required = false;
+    } else {
+        fixedPriceField.style.display = 'none';
+        rangePriceFields.style.display = 'block';
+        priceInput.required = false;
+        minPriceInput.required = true;
+        maxPriceInput.required = true;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    togglePriceFields();
+});
+</script>
 
 <?php include 'footer.php'; ?>

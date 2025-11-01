@@ -469,7 +469,22 @@ case 'services':
     }
     
     echo "<div class='table-container'>";
-    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Categories</th><th class='table-header'>Description</th><th class='table-header'>Price</th><th class='table-header'>Time</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+    echo "<table class='data-table'> 
+        <thead>
+            <tr> 
+                <th class='table-header'>ID</th>
+                <th class='table-header'>Name</th>
+                <th class='table-header'>Categories</th>
+                <th class='table-header'>Description</th>
+                <th class='table-header'>Price Type</th>
+                <th class='table-header'>Price/Range</th>
+                <th class='table-header'>Time</th>
+                <th class='table-header'>Status</th>
+                <th class='table-header'>Actions</th> 
+            </tr>
+        </thead>
+        <tbody>";
+    
     while ($row = $result->fetch_assoc()) {
         $descPreview = strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description'];
         $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
@@ -494,12 +509,27 @@ case 'services':
         
         $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
         
+        // Handle price display based on price type
+        $priceDisplay = '';
+        $priceType = $row['PriceType'] ?? 'fixed';
+        
+        if ($priceType === 'range') {
+            $minPrice = $row['MinPrice'] ?? 0;
+            $maxPrice = $row['MaxPrice'] ?? 0;
+            $priceDisplay = "R" . number_format($minPrice, 2) . " - R" . number_format($maxPrice, 2);
+        } else {
+            // Fixed price
+            $price = $row['Price'] ?? 0;
+            $priceDisplay = "R" . number_format($price, 2);
+        }
+        
         echo "<tr class='table-row'> 
                 <td class='table-cell'>".escape($row['ServicesID'])."</td> 
                 <td class='table-cell'>".escape($row['Name'])."</td> 
                 <td class='table-cell categories-cell' title='".$categoriesDisplay."'>".$categoriesDisplay."</td> 
                 <td class='table-cell description-cell' title='".escape($row['Description'])."'>".escape($descPreview)."</td> 
-                <td class='table-cell'>R".escape($row['Price'])."</td> 
+                <td class='table-cell'>".escape(ucfirst($priceType))."</td> 
+                <td class='table-cell'>".$priceDisplay."</td> 
                 <td class='table-cell'>".escape($row['Time'])." minutes</td> 
                 <td class='table-cell $statusClass'>$statusText</td> 
                 <td class='table-cell'> 

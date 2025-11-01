@@ -3,7 +3,7 @@ session_start();
 include 'db.php';
 include 'header.php';
 
-// Fetch all services
+// Fetch all services with new price range support
 $serviceQuery = "SELECT * 
                  FROM Services 
                  WHERE IsDeleted = 0 
@@ -101,13 +101,28 @@ sort($allCategories);
         }
     }
     $primaryCategory = !empty($serviceCategories) ? $serviceCategories[0] : 'Uncategorized';
+    
+    // Calculate display price based on price type
+    $displayPrice = '';
+    $sortPrice = 0;
+    
+    if ($service['PriceType'] === 'range' && $service['MinPrice'] && $service['MaxPrice']) {
+        $displayPrice = 'R' . number_format($service['MinPrice'], 2) . ' - R' . number_format($service['MaxPrice'], 2);
+        $sortPrice = ($service['MinPrice'] + $service['MaxPrice']) / 2; // Use average for sorting
+    } else {
+        $displayPrice = 'R' . number_format($service['Price'], 2);
+        $sortPrice = $service['Price'];
+    }
 ?>
     <div class="service-card" 
          data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
-         data-price="<?= $service['Price'] ?>" 
+         data-price="<?= $sortPrice ?>" 
          data-time="<?= $service['Time'] ?>"
          data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
-         data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>">
+         data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>"
+         data-price-type="<?= htmlspecialchars($service['PriceType']) ?>"
+         data-min-price="<?= $service['MinPrice'] ?? 0 ?>"
+         data-max-price="<?= $service['MaxPrice'] ?? 0 ?>">
         
         <!-- Service Image -->
         <?php if(!empty($service['ImgUrl'])): ?>
@@ -126,7 +141,21 @@ sort($allCategories);
         <?php endif; ?>
         
         <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
-        <p><strong>Price:</strong> R<?= number_format($service['Price'],2) ?></p>
+        
+        <!-- Display Price based on type -->
+        <p class="service-price">
+            <strong>Price:</strong> 
+            <?php if ($service['PriceType'] === 'range' && $service['MinPrice'] && $service['MaxPrice']): ?>
+                <span class="price-range">
+                    R<?= number_format($service['MinPrice'], 2) ?> - R<?= number_format($service['MaxPrice'], 2) ?>
+                </span>
+            <?php else: ?>
+                <span class="fixed-price">
+                    R<?= number_format($service['Price'], 2) ?>
+                </span>
+            <?php endif; ?>
+        </p>
+        
         <p><strong>Duration:</strong> <?= htmlspecialchars($service['Time']) ?> mins</p>
 
         <div class="service-buttons">
