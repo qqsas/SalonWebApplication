@@ -7,12 +7,80 @@ include 'header.php';
 <html lang="en">
 <head>
     <style>
-@media (min-width: 769px) {
-      .menu-toggle {
-        display: none !important;
-      }
-    }
-        </style>
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none !important;
+            }
+        }
+        
+        .hours-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .location-section, .hours-section {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .hours-table tr {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .hours-table td {
+            padding: 10px 5px;
+        }
+        
+        .hours-table td:first-child {
+            font-weight: bold;
+            width: 120px;
+        }
+        
+        .map-link {
+            color: #007bff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .map-link:hover {
+            text-decoration: underline;
+        }
+        
+        .map-container {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .map-iframe {
+            width: 100%;
+            height: 250px;
+            border: none;
+        }
+        
+        @media (max-width: 768px) {
+            .hours-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-iframe {
+                height: 200px;
+            }
+        }
+    </style>
     <meta charset="UTF-8">
     <title>About Us - E-Commerce Platform</title>
     <link href="styles2.css" rel="stylesheet">
@@ -25,6 +93,70 @@ include 'header.php';
     <h1>About Us</h1>
 
     <p class="lead"><strong>Kumar Kailey's Hair and Beauty Salon</strong> is a professional barber shop and salon dedicated to offering quality haircuts, grooming, and beauty services in a welcoming and stylish environment.</p>
+
+    <div class="hours-container">
+        <div class="location-section">
+            <h3>Our Location</h3>
+            <p>
+                Shop 10B, The Bridge Shopping Centre<br>
+                Buccleuch Drive, Buccleuch<br>
+                Johannesburg, 2090<br>
+                South Africa
+            </p>
+            
+            <!-- Embedded Google Map -->
+            <div class="map-container">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3581.122421108743!2d28.07025927607156!3d-26.16260916292215!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e9514348a0d3a87%3A0x7d822b9b76c4b1f1!2sThe%20Bridge%20Shopping%20Centre%2C%20Buccleuch%20Dr%2C%20Buccleuch%2C%20Johannesburg%2C%202090%2C%20South%20Africa!5e0!3m2!1sen!2sza!4v1698765432107!5m2!1sen!2sza" 
+                    class="map-iframe"
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Kumar Kailey's Hair and Beauty Salon Location">
+                </iframe>
+            </div>
+            
+            <a href="https://maps.google.com/?q=Shop+10B+The+Bridge+Shopping+Centre+Buccleuch+Johannesburg+2090+South+Africa" 
+               target="_blank" 
+               class="map-link">
+                Open in Google Maps
+            </a>
+        </div>
+        
+        <div class="hours-section">
+            <h3>Opening Hours</h3>
+            <table class="hours-table">
+                <tr>
+                    <td>Monday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+                <tr>
+                    <td>Tuesday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+                <tr>
+                    <td>Wednesday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+                <tr>
+                    <td>Thursday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+                <tr>
+                    <td>Friday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+                <tr>
+                    <td>Saturday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+                <tr>
+                    <td>Sunday</td>
+                    <td>08:00 - 19:30</td>
+                </tr>
+            </table>
+        </div>
+    </div>
 
     <div class="section">
         <h3>Our Mission</h3>
@@ -52,12 +184,13 @@ include 'header.php';
             <li>A clean, relaxing, and welcoming salon environment</li>
             <li>Affordable pricing with premium service quality</li>
             <li>Tailored grooming and beauty solutions for every client</li>
+            <li>Convenient location with ample parking</li>
+            <li>Extended opening hours to suit your schedule</li>
         </ul>
     </div>
 
-    <p class="closing">Whether you're looking for a fresh haircut, a stylish new look, or a pampering beauty treatment <strong>Kumar Kailey's Hair and Beauty Salon</strong> is here to make it happen.</p>
+    <p class="closing">Whether you're looking for a fresh haircut, a stylish new look, or a pampering beauty treatment <strong>Kumar Kailey's Hair and Beauty Salon</strong> is here to make it happen. Visit us at our convenient Buccleuch location!</p>
 </div>
 
 </body>
-
 </html>

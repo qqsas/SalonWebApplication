@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sdi", $status, $totalPrice, $order_id);
 
         if ($stmt->execute()) {
-            echo "<p style='color:green;'>Order updated successfully.</p>";
+            $successMessage = "Order updated successfully.";
 
             // --- Send email notification to customer ---
             $stmtUser = $conn->prepare("SELECT u.Name, u.Email FROM Orders o JOIN User u ON o.UserID = u.UserID WHERE o.OrderID=?");
@@ -57,11 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
         } else {
-            echo "<p style='color:red;'>Error updating order: " . $conn->error . "</p>";
+            $errorMessage = "Error updating order: " . $conn->error;
         }
         $stmt->close();
     } else {
-        echo "<p style='color:red;'>Status is required.</p>";
+        $errorMessage = "Status is required.";
     }
 }
 
@@ -92,59 +92,79 @@ $stmt->close();
 ?>
 
 <?php include 'header.php'; ?>
-<div class="container">
-    <h2>Edit Order #<?php echo htmlspecialchars($order['OrderID']); ?></h2>
+    <link href="addedit.css" rel="stylesheet">
+<div class="edit-order-container">
+    <div class="edit-order-header">
+        <h2>Edit Order #<?php echo htmlspecialchars($order['OrderID']); ?></h2>
+    </div>
 
-    <p><strong>Customer:</strong> <?php echo htmlspecialchars($order['CustomerName']); ?> (<?php echo htmlspecialchars($order['Email']); ?>)</p>
-    <p><strong>Current Status:</strong> <?php echo htmlspecialchars($order['Status']); ?></p>
-    <p><strong>Created At:</strong> <?php echo htmlspecialchars($order['CreatedAt']); ?></p>
+    <?php if (isset($errorMessage)): ?>
+        <div class="order-message error"><?php echo htmlspecialchars($errorMessage); ?></div>
+    <?php endif; ?>
+    
+    <?php if (isset($successMessage)): ?>
+        <div class="order-message success"><?php echo htmlspecialchars($successMessage); ?></div>
+    <?php endif; ?>
 
-    <h3>Order Items</h3>
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Qty</th>
-            <th>Subtotal</th>
-        </tr>
-        <?php 
-        $calculated_total = 0;
-        while ($item = $order_items->fetch_assoc()) { 
-            $subtotal = $item['Price'] * $item['Quantity'];
-            $calculated_total += $subtotal;
-        ?>
-        <tr>
-            <td><?php echo htmlspecialchars($item['ProductName']); ?></td>
-            <td>R<?php echo number_format($item['Price'], 2); ?></td>
-            <td><?php echo $item['Quantity']; ?></td>
-            <td>R<?php echo number_format($subtotal, 2); ?></td>
-        </tr>
-        <?php } ?>
-    </table>
+    <div class="order-customer-info">
+        <p><strong>Customer:</strong> <?php echo htmlspecialchars($order['CustomerName']); ?> (<?php echo htmlspecialchars($order['Email']); ?>)</p>
+        <p><strong>Current Status:</strong> <span class="status-badge status-<?php echo strtolower(htmlspecialchars($order['Status'])); ?>"><?php echo htmlspecialchars($order['Status']); ?></span></p>
+        <p><strong>Created At:</strong> <?php echo htmlspecialchars($order['CreatedAt']); ?></p>
+    </div>
 
-    <p><strong>Calculated Total:</strong> R<?php echo number_format($calculated_total, 2); ?></p>
+    <div class="order-items-section">
+        <h3>Order Items</h3>
+        <table class="order-items-table">
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Subtotal</th>
+            </tr>
+            <?php 
+            $calculated_total = 0;
+            while ($item = $order_items->fetch_assoc()) { 
+                $subtotal = $item['Price'] * $item['Quantity'];
+                $calculated_total += $subtotal;
+            ?>
+            <tr>
+                <td><?php echo htmlspecialchars($item['ProductName']); ?></td>
+                <td>R<?php echo number_format($item['Price'], 2); ?></td>
+                <td><?php echo $item['Quantity']; ?></td>
+                <td>R<?php echo number_format($subtotal, 2); ?></td>
+            </tr>
+            <?php } ?>
+        </table>
+    </div>
 
-    <form method="post">
-        <div>
-            <label for="status">Status:</label><br>
-            <select name="status" id="status" required>
-                <option value="Pending"   <?php if ($order['Status']=="Pending") echo "selected"; ?>>Pending</option>
-                <option value="Processing" <?php if ($order['Status']=="Processing") echo "selected"; ?>>Processing</option>
-                <option value="Shipped"   <?php if ($order['Status']=="Shipped") echo "selected"; ?>>Shipped</option>
-                <option value="Completed" <?php if ($order['Status']=="Completed") echo "selected"; ?>>Completed</option>
-                <option value="Cancelled" <?php if ($order['Status']=="Cancelled") echo "selected"; ?>>Cancelled</option>
-            </select>
+    <div class="order-total-summary">
+        <p><strong>Calculated Total:</strong> R<?php echo number_format($calculated_total, 2); ?></p>
+    </div>
+
+    <form method="post" class="edit-order-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select name="status" id="status" class="status-select" required>
+                    <option value="Pending"   <?php if ($order['Status']=="Pending") echo "selected"; ?>>Pending</option>
+                    <option value="Processing" <?php if ($order['Status']=="Processing") echo "selected"; ?>>Processing</option>
+                    <option value="Shipped"   <?php if ($order['Status']=="Shipped") echo "selected"; ?>>Shipped</option>
+                    <option value="Completed" <?php if ($order['Status']=="Completed") echo "selected"; ?>>Completed</option>
+                    <option value="Cancelled" <?php if ($order['Status']=="Cancelled") echo "selected"; ?>>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="total_price">Total Price (can override):</label>
+                <input type="number" step="0.01" name="total_price" id="total_price" class="total-price-input"
+                       value="<?php echo htmlspecialchars($order['TotalPrice']); ?>" required>
+            </div>
         </div>
 
-        <div>
-            <label for="total_price">Total Price (can override):</label><br>
-            <input type="number" step="0.01" name="total_price" id="total_price" 
-                   value="<?php echo htmlspecialchars($order['TotalPrice']); ?>" required>
+        <div class="form-actions">
+            <a href="admin_dashboard.php?view=orders" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-update">Update Order</button>
         </div>
-
-        <br>
-        <button type="submit">Update Order</button>
     </form>
 </div>
 <?php include 'footer.php'; ?>
-

@@ -67,7 +67,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
 
-<div class="container">
+<div class="container1">
   <link rel="stylesheet" href="styles2.css">
     <h2>Your Orders</h2>
 
@@ -103,13 +103,14 @@ $stmt->close();
         ?>
             <div class="order-card" data-status="<?= htmlspecialchars($order['Status']); ?>" data-date="<?= strtotime($order['CreatedAt']); ?>" data-total="<?= $order['TotalPrice']; ?>">
                 <h3>Order #<?= $order['OrderID']; ?></h3>
+        <div class="textOrder">
                 <?php if ($isAdmin): ?>
                     <p>Customer: <?= htmlspecialchars($order['UserName']); ?></p>
                 <?php endif; ?>
                 <p>Status: <?= htmlspecialchars($order['Status']); ?></p>
                 <p>Total: R<?= number_format($order['TotalPrice'], 2); ?></p>
                 <p>Date: <?= $order['CreatedAt']; ?></p>
-
+        </div>
                 <!-- Fetch order items -->
                 <?php
                 $stmt = $conn->prepare("
@@ -160,7 +161,7 @@ $stmt->close();
     </tbody>
 </table>
                 <?php if ($canModify): ?>
-                    <form method="post" style="margin-top:10px;">
+                    <form method="post" style="margin-top:10px;" >
                         <input type="hidden" name="OrderID" value="<?= $order['OrderID']; ?>">
                         <?php if ($order['Status'] !== 'Cancelled'): ?>
                             <button type="submit" name="action" value="cancel" class="btn btn-cancel">Cancel</button>

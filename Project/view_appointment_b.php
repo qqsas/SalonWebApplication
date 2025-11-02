@@ -36,7 +36,7 @@ if (!$appointment) {
 <html>
 <head>
     <title>Appointment Details</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="barberstyle2.css">
 </head>
 <body>
     <?php include 'header.php'; ?>

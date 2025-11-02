@@ -113,71 +113,96 @@ $services = $conn->query("SELECT ServicesID, Name, Price, Time FROM Services WHE
 include 'header.php';
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Appointment - Admin</title>
+    <link href="addedit.css" rel="stylesheet">
+</head>
+<body>
+
 <div class="container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
     <h2>Edit Appointment</h2>
 
-    <form method="post">
-        <div>
-            <label for="forName">For Name:</label><br>
-            <input type="text" name="forName" id="forName" value="<?= htmlspecialchars($appointment['ForName']) ?>" required>
-        </div>
+    <div class="form-container">
+        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+            <?php if (isset($stmt) && $stmt->execute()): ?>
+                <div class="message success">Appointment updated successfully.</div>
+            <?php elseif (isset($conn->error)): ?>
+                <div class="message error">Error: <?php echo $conn->error; ?></div>
+            <?php endif; ?>
+        <?php endif; ?>
 
-        <div>
-            <label for="forAge">For Age:</label><br>
-            <input type="number" name="forAge" id="forAge" value="<?= htmlspecialchars($appointment['ForAge']) ?>" required>
-        </div>
+        <form method="post">
+            <div class="form-group">
+                <label for="forName">For Name:</label>
+                <input type="text" name="forName" id="forName" value="<?= htmlspecialchars($appointment['ForName']) ?>" required>
+            </div>
 
-        <div>
-            <label for="service_id">Service:</label><br>
-            <select name="service_id" id="service_id" required>
-                <?php while ($service = $services->fetch_assoc()) { ?>
-                    <option value="<?= $service['ServicesID'] ?>" <?= ($service['Name'] == $appointment['Type']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($service['Name']) ?> - R<?= $service['Price'] ?> (<?= $service['Time'] ?> min)
-                    </option>
-                <?php } ?>
-            </select>
-        </div>
+            <div class="form-group">
+                <label for="forAge">For Age:</label>
+                <input type="number" name="forAge" id="forAge" value="<?= htmlspecialchars($appointment['ForAge']) ?>" required>
+            </div>
 
-        <div>
-            <label for="barber_id">Barber:</label><br>
-            <select name="barber_id" id="barber_id" required>
-                <?php while ($barber = $barbers->fetch_assoc()) { ?>
-                    <option value="<?= $barber['BarberID'] ?>" <?= ($barber['BarberID'] == $appointment['BarberID']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($barber['Name']) ?>
-                    </option>
-                <?php } ?>
-            </select>
-        </div>
+            <div class="form-group">
+                <label for="service_id">Service:</label>
+                <select name="service_id" id="service_id" required>
+                    <?php while ($service = $services->fetch_assoc()) { ?>
+                        <option value="<?= $service['ServicesID'] ?>" <?= ($service['Name'] == $appointment['Type']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($service['Name']) ?> - R<?= $service['Price'] ?> (<?= $service['Time'] ?> min)
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
 
-        <div>
-            <label for="time">Time:</label><br>
-            <input type="datetime-local" name="time" id="time" value="<?= date('Y-m-d\TH:i', strtotime($appointment['Time'])) ?>" required>
-        </div>
+            <div class="form-group">
+                <label for="barber_id">Barber:</label>
+                <select name="barber_id" id="barber_id" required>
+                    <?php while ($barber = $barbers->fetch_assoc()) { ?>
+                        <option value="<?= $barber['BarberID'] ?>" <?= ($barber['BarberID'] == $appointment['BarberID']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($barber['Name']) ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
 
-        <div>
-            <label for="duration">Duration (minutes):</label><br>
-            <input type="number" name="duration" id="duration" value="<?= htmlspecialchars($appointment['Duration']) ?>" required>
-        </div>
+            <div class="form-group">
+                <label for="time">Time:</label>
+                <input type="datetime-local" name="time" id="time" value="<?= date('Y-m-d\TH:i', strtotime($appointment['Time'])) ?>" required>
+            </div>
 
-        <div>
-            <label for="cost">Cost:</label><br>
-            <input type="number" step="0.01" name="cost" id="cost" value="<?= htmlspecialchars($appointment['Cost']) ?>" required>
-        </div>
+            <div class="form-group">
+                <label for="duration">Duration (minutes):</label>
+                <input type="number" name="duration" id="duration" value="<?= htmlspecialchars($appointment['Duration']) ?>" required>
+            </div>
 
-        <div>
-            <label for="status">Status:</label><br>
-            <select name="status" id="status" required>
-                <option value="Pending"   <?= ($appointment['Status']=="Pending") ? "selected" : "" ?>>Pending</option>
-                <option value="Confirmed" <?= ($appointment['Status']=="Confirmed") ? "selected" : "" ?>>Confirmed</option>
-                <option value="Completed" <?= ($appointment['Status']=="Completed") ? "selected" : "" ?>>Completed</option>
-                <option value="Cancelled" <?= ($appointment['Status']=="Cancelled") ? "selected" : "" ?>>Cancelled</option>
-            </select>
-        </div>
+            <div class="form-group">
+                <label for="cost">Cost:</label>
+                <input type="number" step="0.01" name="cost" id="cost" value="<?= htmlspecialchars($appointment['Cost']) ?>" required>
+            </div>
 
-        <br>
-        <button type="submit">Update Appointment</button>
-    </form>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select name="status" id="status" required>
+                    <option value="Pending"   <?= ($appointment['Status']=="Pending") ? "selected" : "" ?>>Pending</option>
+                    <option value="Confirmed" <?= ($appointment['Status']=="Confirmed") ? "selected" : "" ?>>Confirmed</option>
+                    <option value="Completed" <?= ($appointment['Status']=="Completed") ? "selected" : "" ?>>Completed</option>
+                    <option value="Cancelled" <?= ($appointment['Status']=="Cancelled") ? "selected" : "" ?>>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Update Appointment</button>
+                <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <?php include 'footer.php'; ?>
-
+</body>
+</html>

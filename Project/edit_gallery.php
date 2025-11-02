@@ -111,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="POST" enctype="multipart/form-data">
     <label>Title:</label><br>
+    <link href="addedit.css" rel="stylesheet">
     <input type="text" name="Title" value="<?= htmlspecialchars($title) ?>" required><br><br>
 
     <label>Description:</label><br>
@@ -123,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="file" name="ImgFile" accept="image/*"><br><br>
 
     <button type="submit">Save Changes</button>
-    <a href="admin_dashboard.php?view=gallery">Cancel</a>
+    <a class="btn" href="admin_dashboard.php?view=gallery">Cancel</a>
 </form>
 
 <?php include 'footer.php'; ?>

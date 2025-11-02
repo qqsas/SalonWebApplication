@@ -3,13 +3,37 @@ session_start();
 include 'db.php';
 include 'header.php';
 
-// Fetch all services
+// Fetch all services with new price range support
 $serviceQuery = "SELECT * 
                  FROM Services 
                  WHERE IsDeleted = 0 
                  ORDER BY Name ASC";
 $serviceResult = $conn->query($serviceQuery);
 $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
+
+// Extract all unique categories for the filter
+$allCategories = [];
+foreach ($services as $service) {
+    if (!empty($service['Category'])) {
+        try {
+            $categories = json_decode($service['Category'], true);
+            if (is_array($categories)) {
+                foreach ($categories as $category) {
+                    if (!empty($category) && is_string($category)) {
+                        $cleanCategory = trim(str_replace(['\"', '"', '[', ']', '\\'], '', $category));
+                        if (!empty($cleanCategory) && !in_array($cleanCategory, $allCategories)) {
+                            $allCategories[] = $cleanCategory;
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Skip malformed JSON
+            continue;
+        }
+    }
+}
+sort($allCategories);
 ?>
 
 <!DOCTYPE html>
@@ -20,14 +44,6 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
     <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    @media (min-width:769px) {
-        .menu-toggle { display: none !important; }
-    }
-    .service-card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; }
-    .service-buttons { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    .controls { margin-bottom: 20px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
-    </style>
 </head>
 <body>
 
@@ -44,18 +60,69 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
             <option value="price-desc">Price High → Low</option>
             <option value="time-asc">Duration Short → Long</option>
             <option value="time-desc">Duration Long → Short</option>
+            <option value="category-asc">Category A → Z</option>
+            <option value="category-desc">Category Z → A</option>
         </select>
+        
+        <!-- Category Filter -->
+        <select id="categoryFilter">
+            <option value="">All Categories</option>
+            <?php foreach($allCategories as $category): ?>
+                <option value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></option>
+            <?php endforeach; ?>
+        </select>
+        
+        <!-- Apply button only -->
+        <button id="applyButton" class="filter-button">Apply</button>
     </div>
 
     <?php if(empty($services)): ?>
         <p>No services available at the moment.</p>
     <?php else: ?>
         <div class="services-grid" id="servicesGrid">
-<?php foreach($services as $service): ?>
+<?php foreach($services as $service): 
+    // Parse categories for this service
+    $serviceCategories = [];
+    if (!empty($service['Category'])) {
+        try {
+            $categories = json_decode($service['Category'], true);
+            if (is_array($categories)) {
+                foreach ($categories as $category) {
+                    if (!empty($category) && is_string($category)) {
+                        $cleanCategory = trim(str_replace(['\"', '"', '[', ']', '\\'], '', $category));
+                        if (!empty($cleanCategory)) {
+                            $serviceCategories[] = $cleanCategory;
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Skip malformed JSON
+        }
+    }
+    $primaryCategory = !empty($serviceCategories) ? $serviceCategories[0] : 'Uncategorized';
+    
+    // Calculate display price based on price type
+    $displayPrice = '';
+    $sortPrice = 0;
+    
+    if ($service['PriceType'] === 'range' && $service['MinPrice'] && $service['MaxPrice']) {
+        $displayPrice = 'R' . number_format($service['MinPrice'], 2) . ' - R' . number_format($service['MaxPrice'], 2);
+        $sortPrice = ($service['MinPrice'] + $service['MaxPrice']) / 2; // Use average for sorting
+    } else {
+        $displayPrice = 'R' . number_format($service['Price'], 2);
+        $sortPrice = $service['Price'];
+    }
+?>
     <div class="service-card" 
          data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
-         data-price="<?= $service['Price'] ?>" 
-         data-time="<?= $service['Time'] ?>">
+         data-price="<?= $sortPrice ?>" 
+         data-time="<?= $service['Time'] ?>"
+         data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
+         data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>"
+         data-price-type="<?= htmlspecialchars($service['PriceType']) ?>"
+         data-min-price="<?= $service['MinPrice'] ?? 0 ?>"
+         data-max-price="<?= $service['MaxPrice'] ?? 0 ?>">
         
         <!-- Service Image -->
         <?php if(!empty($service['ImgUrl'])): ?>
@@ -63,8 +130,32 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
         <?php endif; ?>
 
         <h2><?= htmlspecialchars($service['Name']) ?></h2>
+        
+        <!-- Display Categories -->
+        <?php if(!empty($serviceCategories)): ?>
+            <div class="service-categories">
+                <?php foreach($serviceCategories as $category): ?>
+                    <span class="category-tag"><?= htmlspecialchars($category) ?></span>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        
         <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
-        <p><strong>Price:</strong> R<?= number_format($service['Price'],2) ?></p>
+        
+        <!-- Display Price based on type -->
+        <p class="service-price">
+            <strong>Price:</strong> 
+            <?php if ($service['PriceType'] === 'range' && $service['MinPrice'] && $service['MaxPrice']): ?>
+                <span class="price-range">
+                    R<?= number_format($service['MinPrice'], 2) ?> - R<?= number_format($service['MaxPrice'], 2) ?>
+                </span>
+            <?php else: ?>
+                <span class="fixed-price">
+                    R<?= number_format($service['Price'], 2) ?>
+                </span>
+            <?php endif; ?>
+        </p>
+        
         <p><strong>Duration:</strong> <?= htmlspecialchars($service['Time']) ?> mins</p>
 
         <div class="service-buttons">
@@ -102,6 +193,7 @@ $services = $serviceResult ? $serviceResult->fetch_all(MYSQLI_ASSOC) : [];
 // ENHANCED SEARCH AND SORT FUNCTIONALITY
 const searchInput = document.getElementById('serviceSearch');
 const sortSelect = document.getElementById('serviceSort');
+const categoryFilter = document.getElementById('categoryFilter');
 const servicesGrid = document.getElementById('servicesGrid');
 const serviceCards = Array.from(servicesGrid.children);
 
@@ -114,6 +206,7 @@ servicesGrid.parentNode.insertBefore(noResults, servicesGrid.nextSibling);
 // ENHANCED FILTER FUNCTION
 function filterServices() {
     const searchTerm = searchInput.value.toLowerCase().trim();
+    const selectedCategory = categoryFilter.value.toLowerCase();
     let hasMatches = false;
     
     servicesGrid.classList.add('filtering');
@@ -121,7 +214,11 @@ function filterServices() {
     serviceCards.forEach(card => {
         const name = card.dataset.name;
         const description = card.querySelector('p').innerText.toLowerCase();
-        const isMatch = name.includes(searchTerm) || description.includes(searchTerm);
+        const categories = JSON.parse(card.dataset.categories || '[]');
+        const hasCategory = selectedCategory === '' || 
+                           categories.some(cat => cat.toLowerCase() === selectedCategory);
+        
+        const isMatch = hasCategory && (name.includes(searchTerm) || description.includes(searchTerm));
         
         if(isMatch) {
             card.style.display = '';
@@ -134,7 +231,7 @@ function filterServices() {
     });
     
     // Show/hide no results message
-    if (!hasMatches && searchTerm !== '') {
+    if (!hasMatches && (searchTerm !== '' || selectedCategory !== '')) {
         noResults.classList.add('show');
     } else {
         noResults.classList.remove('show');
@@ -143,6 +240,8 @@ function filterServices() {
     setTimeout(() => {
         servicesGrid.classList.remove('filtering');
     }, 300);
+    
+    return hasMatches;
 }
 
 // ENHANCED SORT FUNCTION
@@ -158,6 +257,8 @@ function sortServices() {
             case 'price-desc': return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
             case 'time-asc': return parseInt(a.dataset.time) - parseInt(b.dataset.time);
             case 'time-desc': return parseInt(b.dataset.time) - parseInt(a.dataset.time);
+            case 'category-asc': return a.dataset.category.localeCompare(b.dataset.category);
+            case 'category-desc': return b.dataset.category.localeCompare(a.dataset.category);
             default: return 0;
         }
     });
@@ -182,14 +283,31 @@ searchInput.addEventListener('input', () => {
 });
 
 sortSelect.addEventListener('change', sortServices);
+categoryFilter.addEventListener('change', () => {
+    filterServices();
+    sortServices();
+});
+
+// Apply button: trigger current filters/sort
+const applyButton = document.getElementById('applyButton');
+if (applyButton) {
+    applyButton.addEventListener('click', () => {
+        filterServices();
+        sortServices();
+    });
+}
 
 // Initialize with fade-in
 document.addEventListener('DOMContentLoaded', () => {
     serviceCards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
     });
-});</script>
+    // Initial filter and sort
+    filterServices();
+    sortServices();
+});
+</script>
+
 
 </body>
 </html>
-
