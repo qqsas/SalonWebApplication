@@ -101,7 +101,7 @@ $result->data_seek(0); // Reset result pointer
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <tr data-status="<?= htmlspecialchars($row['Status']) ?>">
                         <td data-label="Appointment ID"><?= htmlspecialchars($row['AppointmentID']); ?></td>
-                        <td data-label="Booked For"><?= htmlspecialchars($row['ForName']) . " (" . htmlspecialchars($row['ForAge']) . ")"; ?></td>
+                        <td data-label="Booked For"><?= htmlspecialchars($row['ForName']); ?></td>
                         <td data-label="Barber"><?= htmlspecialchars($row['BarberName']); ?></td>
                         <td data-label="Service"><?= htmlspecialchars($row['ServiceName'] ?? 'N/A'); ?></td>
                         <td data-label="Type"><?= htmlspecialchars($row['Type']); ?></td>
