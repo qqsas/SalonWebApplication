@@ -5,10 +5,26 @@ include 'header.php';
 $message = '';
 $loginError = '';
 
-// Capture referring page for redirect if not already set
-if (!isset($_SESSION['redirect_after_login']) && isset($_SERVER['HTTP_REFERER'])) {
-    if (strpos($_SERVER['HTTP_REFERER'], 'Login.php') === false) {
-        $_SESSION['redirect_after_login'] = $_SERVER['HTTP_REFERER'];
+// Handle redirect logic
+if ($_SERVER["REQUEST_METHOD"] != "POST") {
+    // Only set redirect on GET requests (when initially loading the login page)
+    if (isset($_GET['redirect'])) {
+        // If redirect parameter is provided (forced login), use that
+        $_SESSION['redirect_after_login'] = $_GET['redirect'];
+    } elseif (!isset($_SESSION['redirect_after_login']) && isset($_SERVER['HTTP_REFERER'])) {
+        // If no redirect set and we have a referer, check if it's not the login page itself
+        $referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
+        $current = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        
+        if (basename($referer) != basename($current) && 
+            strpos($_SERVER['HTTP_REFERER'], 'Login.php') === false) {
+            $_SESSION['redirect_after_login'] = $_SERVER['HTTP_REFERER'];
+        }
+    }
+    
+    // Default fallback if nothing else is set
+    if (!isset($_SESSION['redirect_after_login'])) {
+        $_SESSION['redirect_after_login'] = 'index.php';
     }
 }
 
@@ -62,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['Name']   = $row['Name'];
                     $_SESSION['Role']   = $row['Role'];
 
-                    // Redirect to original page or homepage
+                    // Redirect to stored page or homepage
                     $redirect = $_SESSION['redirect_after_login'] ?? 'index.php';
                     unset($_SESSION['redirect_after_login']);
 
@@ -109,6 +125,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <div class="card">
     <div class="card-body">
       <h2>User Login</h2>
+      
+      <?php if ($loginError): ?>
+        <div class="error"><?php echo $loginError; ?></div>
+      <?php endif; ?>
+      
       <form method="POST" action="">
         <div class="form-group">
           <label>Name / Email / Phone</label>
@@ -130,4 +151,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </body>
 </html>
-

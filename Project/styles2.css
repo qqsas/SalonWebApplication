@@ -2125,7 +2125,6 @@ table thead {
 .custom-list {
 	list-style: none;
 	margin: 1.5rem 0;
-	padding: 0;
 }
 
 .custom-list li {
@@ -2162,15 +2161,7 @@ table thead {
 	background-color: rgba(0,0,0,0.05);
 }
 
-.custom-list li:hover {
-	background-color: rgba(0,0,0,0.02);
-	border-radius: 6px;
-	padding-left: 2.75rem;
-}
 
-.custom-list li:hover::before {
-	transform: scale(1.1);
-}
 
 .custom-list li:last-child {
 	border-bottom: none;
@@ -2180,7 +2171,7 @@ table thead {
 	color: var(--text-dark);
 	font-size: 1.15rem;
 	font-weight: 600;
-	padding-left: 2.75rem;
+    padding: 1rem 0 1rem 2.5rem;
 }
 
 .error {
@@ -6089,13 +6080,11 @@ table thead {
 
 	.custom-list li {
 		font-size: 1rem;
-		padding: 5.75rem 0 0.75rem 2rem;
 	}
 
 	.custom-list li::before {
 		font-size: 0.75rem;
 		height: 1.4rem;
-		padding: 5.75rem 0 0.75rem 2rem;
 		top: 0.75rem;
 		width: 1.4rem;
 	}
@@ -7216,7 +7205,6 @@ table thead {
 
 	.custom-list li {
 		font-size: 1.05rem;
-		padding: 0.875rem 0 0.875rem 2.25rem;
 	}
 
 	.custom-list li::before {

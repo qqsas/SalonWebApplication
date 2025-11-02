@@ -204,7 +204,7 @@ include 'header.php';
         <ul class="custom-list">
             <li><strong></strong>Experienced barbers and stylists with a passion for hair and beauty</li>
             <li><strong></strong>A clean, relaxing, and welcoming salon environment</li>
-            <li><strong></strong>pricing with premium service quality</li>
+            <li><strong></strong>Fair pricing with premium service quality</li>
             <li><strong></strong>Tailored grooming and beauty solutions for every client</li>
             <li><strong></strong>Convenient location with ample parking</li>
             <li><strong></strong>Extended opening hours to suit your schedule</li>

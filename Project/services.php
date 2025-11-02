@@ -52,7 +52,7 @@ sort($allCategories);
 
     <!-- Search and Sort Controls -->
     <div class="controls">
-        <input type="text" id="serviceSearch" placeholder="Search services...">
+        <input type="text" id="serviceSearch" placeholder="Search services by name, description, or category...">
         <select id="serviceSort">
             <option value="name-asc">Name A → Z</option>
             <option value="name-desc">Name Z → A</option>
@@ -64,13 +64,24 @@ sort($allCategories);
             <option value="category-desc">Category Z → A</option>
         </select>
         
-        <!-- Category Filter -->
-        <select id="categoryFilter">
-            <option value="">All Categories</option>
-            <?php foreach($allCategories as $category): ?>
-                <option value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></option>
-            <?php endforeach; ?>
-        </select>
+        <!-- Multi-select Category Filter -->
+        <div class="category-filter-container">
+            <div class="category-multiselect">
+                <div class="category-select" id="categorySelect">
+                    <span id="categoryPlaceholder">Select categories...</span>
+                    <div id="selectedCategories"></div>
+                </div>
+                <div class="category-dropdown" id="categoryDropdown">
+                    <?php foreach($allCategories as $category): ?>
+                        <label class="category-option">
+                            <input type="checkbox" value="<?= htmlspecialchars($category) ?>">
+                            <?= htmlspecialchars($category) ?>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <button class="clear-categories" id="clearCategories">Clear</button>
+        </div>
         
         <!-- Apply button only -->
         <button id="applyButton" class="filter-button">Apply</button>
@@ -116,6 +127,7 @@ sort($allCategories);
 ?>
 <div class="service-card" 
      data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
+     data-description="<?= htmlspecialchars(strtolower($service['Description'])) ?>"
      data-price="<?= $sortPrice ?>" 
      data-time="<?= $service['Time'] ?>"
      data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
@@ -142,7 +154,7 @@ sort($allCategories);
             </div>
         <?php endif; ?>
         
-        <p><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
+        <p class="service-description"><?= nl2br(htmlspecialchars($service['Description'])) ?></p>
         
         <!-- Display Price based on type -->
         <p class="service-price">
@@ -195,9 +207,19 @@ sort($allCategories);
 // ENHANCED SEARCH AND SORT FUNCTIONALITY
 const searchInput = document.getElementById('serviceSearch');
 const sortSelect = document.getElementById('serviceSort');
-const categoryFilter = document.getElementById('categoryFilter');
 const servicesGrid = document.getElementById('servicesGrid');
 const serviceCards = Array.from(servicesGrid.children);
+
+// Multi-select category elements
+const categorySelect = document.getElementById('categorySelect');
+const categoryDropdown = document.getElementById('categoryDropdown');
+const categoryPlaceholder = document.getElementById('categoryPlaceholder');
+const selectedCategoriesContainer = document.getElementById('selectedCategories');
+const clearCategoriesBtn = document.getElementById('clearCategories');
+const categoryCheckboxes = categoryDropdown.querySelectorAll('input[type="checkbox"]');
+
+// Track selected categories
+let selectedCategories = [];
 
 // Create no results message
 const noResults = document.createElement('div');
@@ -205,35 +227,165 @@ noResults.className = 'no-results';
 noResults.innerHTML = '<p>No services found matching your search. Try different keywords.</p>';
 servicesGrid.parentNode.insertBefore(noResults, servicesGrid.nextSibling);
 
+// Multi-select category functionality
+categorySelect.addEventListener('click', (e) => {
+    e.stopPropagation();
+    categoryDropdown.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+    categoryDropdown.classList.remove('show');
+});
+
+// Prevent dropdown close when clicking inside
+categoryDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+// Handle category selection
+categoryCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+        const category = e.target.value;
+        
+        if (e.target.checked) {
+            if (!selectedCategories.includes(category)) {
+                selectedCategories.push(category);
+            }
+        } else {
+            selectedCategories = selectedCategories.filter(cat => cat !== category);
+        }
+        
+        updateSelectedCategoriesDisplay();
+    });
+});
+
+// Clear all categories
+clearCategoriesBtn.addEventListener('click', () => {
+    selectedCategories = [];
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSelectedCategoriesDisplay();
+    filterServices();
+    sortServices();
+});
+
+// Update the display of selected categories
+function updateSelectedCategoriesDisplay() {
+    selectedCategoriesContainer.innerHTML = '';
+    
+    if (selectedCategories.length === 0) {
+        categoryPlaceholder.style.display = 'block';
+        return;
+    }
+    
+    categoryPlaceholder.style.display = 'none';
+    
+    selectedCategories.forEach(category => {
+        const tag = document.createElement('span');
+        tag.className = 'selected-category-tag';
+        tag.innerHTML = `
+            ${category}
+            <span class="remove" onclick="removeCategory('${category}')">×</span>
+        `;
+        selectedCategoriesContainer.appendChild(tag);
+    });
+}
+
+// Remove individual category
+function removeCategory(category) {
+    selectedCategories = selectedCategories.filter(cat => cat !== category);
+    
+    // Uncheck the corresponding checkbox
+    categoryCheckboxes.forEach(checkbox => {
+        if (checkbox.value === category) {
+            checkbox.checked = false;
+        }
+    });
+    
+    updateSelectedCategoriesDisplay();
+    filterServices();
+    sortServices();
+}
+
+// Function to highlight search terms in text
+function highlightText(text, searchTerm) {
+    if (!searchTerm) return text;
+    
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<span class="search-highlight">$1</span>');
+}
+
 // ENHANCED FILTER FUNCTION
 function filterServices() {
     const searchTerm = searchInput.value.toLowerCase().trim();
-    const selectedCategory = categoryFilter.value.toLowerCase();
     let hasMatches = false;
     
     servicesGrid.classList.add('filtering');
     
     serviceCards.forEach(card => {
         const name = card.dataset.name;
-        const description = card.querySelector('p').innerText.toLowerCase();
+        const description = card.dataset.description || '';
         const categories = JSON.parse(card.dataset.categories || '[]');
-        const hasCategory = selectedCategory === '' || 
-                           categories.some(cat => cat.toLowerCase() === selectedCategory);
+        const categoryString = categories.join(' ').toLowerCase();
         
-        const isMatch = hasCategory && (name.includes(searchTerm) || description.includes(searchTerm));
+        // Check category match - if no categories selected, show all
+        const hasCategory = selectedCategories.length === 0 || 
+                           categories.some(cat => selectedCategories.includes(cat));
+        
+        // Check if matches search term in name, description, OR categories
+        const isSearchMatch = searchTerm === '' || 
+                             name.includes(searchTerm) || 
+                             description.includes(searchTerm) || 
+                             categoryString.includes(searchTerm);
+        
+        const isMatch = hasCategory && isSearchMatch;
         
         if(isMatch) {
             card.style.display = '';
             card.classList.add('matched');
             hasMatches = true;
+            
+            // Highlight search terms in the displayed content
+            if (searchTerm) {
+                const nameElement = card.querySelector('h2');
+                const descriptionElement = card.querySelector('.service-description');
+                const categoryElements = card.querySelectorAll('.category-tag');
+                
+                // Highlight in name
+                nameElement.innerHTML = highlightText(nameElement.textContent, searchTerm);
+                
+                // Highlight in description
+                descriptionElement.innerHTML = highlightText(descriptionElement.textContent, searchTerm);
+                
+                // Highlight in categories
+                categoryElements.forEach(tag => {
+                    tag.innerHTML = highlightText(tag.textContent, searchTerm);
+                });
+            }
         } else {
             card.style.display = 'none';
             card.classList.remove('matched');
+            
+            // Remove highlighting when not matched
+            if (searchTerm) {
+                const nameElement = card.querySelector('h2');
+                const descriptionElement = card.querySelector('.service-description');
+                const categoryElements = card.querySelectorAll('.category-tag');
+                
+                // Restore original text without highlights
+                nameElement.innerHTML = nameElement.textContent;
+                descriptionElement.innerHTML = descriptionElement.textContent;
+                categoryElements.forEach(tag => {
+                    tag.innerHTML = tag.textContent;
+                });
+            }
         }
     });
     
     // Show/hide no results message
-    if (!hasMatches && (searchTerm !== '' || selectedCategory !== '')) {
+    if (!hasMatches && (searchTerm !== '' || selectedCategories.length > 0)) {
         noResults.classList.add('show');
     } else {
         noResults.classList.remove('show');
@@ -285,10 +437,6 @@ searchInput.addEventListener('input', () => {
 });
 
 sortSelect.addEventListener('change', sortServices);
-categoryFilter.addEventListener('change', () => {
-    filterServices();
-    sortServices();
-});
 
 // Apply button: trigger current filters/sort
 const applyButton = document.getElementById('applyButton');
@@ -308,8 +456,16 @@ document.addEventListener('DOMContentLoaded', () => {
     filterServices();
     sortServices();
 });
-</script>
 
+// Add keyboard shortcut for search (Ctrl+F or Cmd+F)
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+    }
+});
+</script>
 
 </body>
 </html>
