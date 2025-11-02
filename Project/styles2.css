@@ -944,7 +944,7 @@ table thead {
 
 .btn {
 	align-items: center;
-	background: var(--secondary-color);
+	background: #007fff;
 	border-radius: var(--border-radius-lg);
 	border: none;
 	box-shadow: var(--button-shadow);
