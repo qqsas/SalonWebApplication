@@ -4576,7 +4576,7 @@ table thead {
 	text-align: center;
 }
 
-.service-card {
+.service-card  {
 	animation: cardEntrance 0.6s ease-out;
 	animation: fadeInUp 0.6s ease-out;
 	background: var(--white);
@@ -4695,14 +4695,14 @@ table thead {
 	box-shadow: 0 0 0 3px rgba(84,88,133,0.2);
 }
 
-.service-card:hover {
+.service-card:hover, .service-cardindex {
 	border-color: rgba(84,88,133,0.1);
 	box-shadow: 0 20px 50px rgba(44,62,80,0.15);
 	box-shadow: var(--card-hover-shadow);
 	transform: translateY(-8px);
 }
 
-.service-card:hover .service-image, .staff-card:hover .staff-image {
+.service-card:hover .service-image, .staff-card:hover .staff-image, service-imageindex {
 	transform: scale(1.05);
 }
 
@@ -4858,7 +4858,7 @@ table thead {
 	transition: all 0.4s ease;
 }
 
-.services-grid.filtering .service-card {
+.services-grid.filtering .service-card  {
 	opacity: 0.6;
 	transform: scale(0.98);
 	transition: all 0.3s ease;
@@ -6373,7 +6373,7 @@ table thead {
 		padding: var(--space-sm);
 	}
 
-	.service-card {
+	.service-card, .service-cardindex {
 		padding: 1.5rem;
 		padding: var(--space-md);
 	}
@@ -7892,7 +7892,7 @@ table thead {
 		display: none;
 	}
 
-	.service-card:hover {
+	.service-card:hover, .service-cardindex:hover {
 		box-shadow: none;
 		transform: none;
 	}
@@ -8031,7 +8031,7 @@ table thead {
   justify-content: space-between;
   transition: transform 0.3s ease;
 }
-.service-card:hover {
+.service-card:hover, .service-cardindex:hover {
   transform: scale(1.03);
 }
 
@@ -8129,4 +8129,13 @@ table thead {
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.3s ease;
+}
+
+
+.service-imageindex {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid #eee;
 }

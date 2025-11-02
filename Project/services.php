@@ -114,15 +114,17 @@ sort($allCategories);
         $sortPrice = $service['Price'];
     }
 ?>
-    <div class="service-card" 
-         data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
-         data-price="<?= $sortPrice ?>" 
-         data-time="<?= $service['Time'] ?>"
-         data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
-         data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>"
-         data-price-type="<?= htmlspecialchars($service['PriceType']) ?>"
-         data-min-price="<?= $service['MinPrice'] ?? 0 ?>"
-         data-max-price="<?= $service['MaxPrice'] ?? 0 ?>">
+<div class="service-card" 
+     data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
+     data-price="<?= $sortPrice ?>" 
+     data-time="<?= $service['Time'] ?>"
+     data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
+     data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>"
+     data-price-type="<?= htmlspecialchars($service['PriceType']) ?>"
+     data-min-price="<?= $service['MinPrice'] ?? 0 ?>"
+     data-max-price="<?= $service['MaxPrice'] ?? 0 ?>"
+     onclick="window.location.href='service-detail.php?ServicesID=<?= $service['ServicesID'] ?>'"
+     style="cursor: pointer;">
         
         <!-- Service Image -->
         <?php if(!empty($service['ImgUrl'])): ?>
