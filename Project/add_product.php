@@ -622,10 +622,16 @@ $conn->close();
                 </div>
             </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn-primary" id="submitBtn">Add Product</button>
-                <a href="admin_dashboard.php?view=products" class="btn-cancel">Cancel</a>
-            </div>
+<div class="form-actions">
+    <button type="submit" class="btn-primary">Update Product</button>
+    <a href="<?php
+        if (isset($_SESSION['Role']) && $_SESSION['Role'] === 'barber') {
+            echo 'barber_dashboard.php';
+        } else {
+            echo 'admin_dashboard.php?view=products';
+        }
+    ?>" class="btn-cancel">Cancel</a>
+</div>
         </form>
     </div>
 

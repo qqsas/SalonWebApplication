@@ -11,13 +11,8 @@ if (!isset($_SESSION['UserID'])) {
 // Check if user has permission to edit products
 $features = $_SESSION['Features'] ?? [];
 $isAdmin = $_SESSION['Role'] === 'admin';
-$isBarberWithProducts = $_SESSION['Role'] === 'barber' && !empty($features['allow products']);
+$isBarberWithProducts = $_SESSION['Role'] === 'barber' && $features['allow products']==1;
 
-if (!$isAdmin && !$isBarberWithProducts) {
-    $_SESSION['error'] = "You don't have permission to edit products.";
-    header("Location: dashboard.php");
-    exit();
-}
 
 // --- Validate and sanitize product ID ---
 $product_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -661,10 +656,16 @@ include 'header.php';
             <small class="help-text">Leave empty to keep current image. Max size: 2MB. Allowed formats: JPG, JPEG, PNG, GIF, WebP</small>
         </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Update Product</button>
-            <a href="admin_dashboard.php?view=products" class="btn-cancel">Cancel</a>
-        </div>
+<div class="form-actions">
+    <button type="submit" class="btn-primary">Update Product</button>
+    <a href="<?php
+        if (isset($_SESSION['Role']) && $_SESSION['Role'] === 'barber') {
+            echo 'barber_dashboard.php';
+        } else {
+            echo 'admin_dashboard.php?view=products';
+        }
+    ?>" class="btn-cancel">Cancel</a>
+</div>
     </form>
 </div>
 <?php include 'footer.php'; ?>
