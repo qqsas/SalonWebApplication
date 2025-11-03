@@ -259,16 +259,6 @@ while ($row = $res->fetch_assoc()) {
                 <textarea name="bio" id="bio" rows="3"><?php echo htmlspecialchars($barber['Bio']); ?></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="user_id">Linked User:</label>
-                <select name="user_id" id="user_id" required>
-                    <?php while ($user = $users->fetch_assoc()) { ?>
-                        <option value="<?php echo $user['UserID']; ?>" <?php echo ($user['UserID'] == $barber['UserID']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($user['Name'] . " (" . $user['Email'] . ")"); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
 
             <div class="form-group">
                 <label for="ImgFile">Profile Image:</label>
