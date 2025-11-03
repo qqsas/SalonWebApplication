@@ -443,15 +443,15 @@ while ($row = $result->fetch_assoc()) {
                 foreach ($days as $dayNum => $dayName) {
                     $hour = $workingHours[$dayNum] ?? null;
                     $isWorking = $hour ? 'checked' : '';
-                    $startTime = $hour ? $hour['StartTime'] : '09:00';
-                    $endTime = $hour ? $hour['EndTime'] : '17:00';
+                    $startTime = $hour ? substr($hour['StartTime'], 0, 5) : '09:00'; // Remove seconds
+                    $endTime = $hour ? substr($hour['EndTime'], 0, 5) : '17:00'; // Remove seconds
                     
                     echo "<div class='availability-day'>
                             <div class='day-name'>$dayName</div>
                             <div class='time-inputs'>
-                                <input type='time' name='startTime[$dayNum]' value='$startTime' class='form-control time-input' $isWorking>
+                                <input type='time' name='startTime[$dayNum]' value='$startTime' class='form-control time-input' step='3600' $isWorking>
                                 <span class='time-separator'>to</span>
-                                <input type='time' name='endTime[$dayNum]' value='$endTime' class='form-control time-input' $isWorking>
+                                <input type='time' name='endTime[$dayNum]' value='$endTime' class='form-control time-input' step='3600' $isWorking>
                             </div>
                             <div class='working-toggle'>
                                 <input type='checkbox' name='workingDays[]' value='$dayNum' id='day$dayNum' class='working-checkbox' $isWorking>
@@ -486,7 +486,7 @@ while ($row = $result->fetch_assoc()) {
 
                 echo "<div class='unavailability-section'>";
                 echo "<h3 class='section-title'>Mark Unavailability</h3>";
-                echo "<form method='POST' action='update_unavailability.php' class='unavailability-form'>";
+                echo "<form method='POST' action='update_unavailability.php' class='unavailability-form' id='unavailabilityForm'>";
                 echo "<input type='hidden' name='BarberID' value='$barberID'>";
                 echo "<input type='hidden' name='redirect' value='barber_dashboard.php?view=workinghours'>";
 
@@ -499,12 +499,12 @@ while ($row = $result->fetch_assoc()) {
                 
                 echo "<div class='input-group'>";
                 echo "<label class='input-label'>Start Time (optional)</label>";
-                echo "<input type='time' name='StartTime' class='input-field time-input'>";
+                echo "<input type='time' name='StartTime' class='input-field time-input' step='3600' id='startTimeInput'>";
                 echo "</div>";
                 
                 echo "<div class='input-group'>";
                 echo "<label class='input-label'>End Time (optional)</label>";
-                echo "<input type='time' name='EndTime' class='input-field time-input'>";
+                echo "<input type='time' name='EndTime' class='input-field time-input' step='3600' id='endTimeInput'>";
                 echo "</div>";
                 echo "</div>"; // .input-row
                 
@@ -527,8 +527,8 @@ while ($row = $result->fetch_assoc()) {
                     echo "<thead><tr><th>Date</th><th>Start</th><th>End</th><th>Reason</th><th>Actions</th></tr></thead>";
                     echo "<tbody>";
                     foreach ($unavailability as $u) {
-                        $start = $u['StartTime'] ?? '-';
-                        $end = $u['EndTime'] ?? '-';
+                        $start = $u['StartTime'] ? substr($u['StartTime'], 0, 5) : '-'; // Remove seconds
+                        $end = $u['EndTime'] ? substr($u['EndTime'], 0, 5) : '-'; // Remove seconds
                         $reason = htmlspecialchars($u['Reason']);
                         echo "<tr class='unavailability-item'>
                                 <td class='unavailability-date'>{$u['Date']}</td>
@@ -550,6 +550,99 @@ while ($row = $result->fetch_assoc()) {
                     echo "</div>"; // .existing-unavailability
                 }
                 echo "</div>"; // .unavailability-section
+                
+                // Add JavaScript to handle time input formatting for both forms
+                echo "
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Format time inputs to show only hours and minutes
+                    const timeInputs = document.querySelectorAll('input[type=\"time\"]');
+                    timeInputs.forEach(input => {
+                        // Remove seconds from existing values
+                        if (input.value && input.value.length > 5) {
+                            input.value = input.value.substring(0, 5);
+                        }
+                        
+                        // Ensure step attribute is set to 3600 seconds (1 hour)
+                        if (!input.getAttribute('step')) {
+                            input.setAttribute('step', '3600');
+                        }
+                    });
+                    
+                    // Handle working hours form submission
+                    const workingHoursForm = document.querySelector('.availability-form');
+                    if (workingHoursForm) {
+                        workingHoursForm.addEventListener('submit', function(e) {
+                            const timeInputs = this.querySelectorAll('input[type=\"time\"]');
+                            timeInputs.forEach(input => {
+                                if (input.value) {
+                                    // Ensure time is in HH:MM format
+                                    if (input.value.length === 5 && input.value.includes(':')) {
+                                        // Add :00 seconds if not present
+                                        input.value = input.value + ':00';
+                                    }
+                                }
+                            });
+                        });
+                    }
+                    
+                    // Handle unavailability form submission
+                    const unavailabilityForm = document.getElementById('unavailabilityForm');
+                    if (unavailabilityForm) {
+                        unavailabilityForm.addEventListener('submit', function(e) {
+                            const startTimeInput = document.getElementById('startTimeInput');
+                            const endTimeInput = document.getElementById('endTimeInput');
+                            
+                            // Add seconds to start time if provided
+                            if (startTimeInput && startTimeInput.value) {
+                                if (startTimeInput.value.length === 5 && startTimeInput.value.includes(':')) {
+                                    startTimeInput.value = startTimeInput.value + ':00';
+                                }
+                            }
+                            
+                            // Add seconds to end time if provided
+                            if (endTimeInput && endTimeInput.value) {
+                                if (endTimeInput.value.length === 5 && endTimeInput.value.includes(':')) {
+                                    endTimeInput.value = endTimeInput.value + ':00';
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Real-time validation for unavailability times
+                    const startTimeInput = document.getElementById('startTimeInput');
+                    const endTimeInput = document.getElementById('endTimeInput');
+                    
+                    if (startTimeInput && endTimeInput) {
+                        endTimeInput.addEventListener('change', function() {
+                            if (startTimeInput.value && endTimeInput.value) {
+                                const start = startTimeInput.value;
+                                const end = endTimeInput.value;
+                                
+                                if (start >= end) {
+                                    alert('End time must be after start time');
+                                    endTimeInput.value = '';
+                                    endTimeInput.focus();
+                                }
+                            }
+                        });
+                        
+                        startTimeInput.addEventListener('change', function() {
+                            if (startTimeInput.value && endTimeInput.value) {
+                                const start = startTimeInput.value;
+                                const end = endTimeInput.value;
+                                
+                                if (start >= end) {
+                                    alert('End time must be after start time');
+                                    endTimeInput.value = '';
+                                    endTimeInput.focus();
+                                }
+                            }
+                        });
+                    }
+                });
+                </script>
+                ";
                 break;
 
             case 'profile':
