@@ -109,7 +109,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
         'orders' => [
             'all' => 'All Orders',
             'pending' => 'Pending',
-            'processing' => 'Processing',
+            'confirmed' => 'confirmed',
             'completed' => 'Completed',
             'cancelled' => 'Cancelled',
             'active' => 'Active Only',
@@ -373,128 +373,228 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             displayPagination($totalPages, $page, 'appointments', $searchParam, $displayFilters);
             break;
 
-        case 'products':
-            $where = "LOWER(Name) LIKE ?";
-            $params = [$searchLike];
-            $types = "s";
-            
-            switch($displayFilters['products']) {
-                case 'active':
-                    $where .= " AND IsDeleted = 0";
-                    break;
-                case 'deleted':
-                    $where .= " AND IsDeleted = 1";
-                    break;
-                case 'in_stock':
-                    $where .= " AND Stock > 0 AND IsDeleted = 0";
-                    break;
-                case 'out_of_stock':
-                    $where .= " AND Stock = 0 AND IsDeleted = 0";
-                    break;
-                case 'low_stock':
-                    $where .= " AND Stock > 0 AND Stock < 10 AND IsDeleted = 0";
-                    break;
-            }
-            
-            $totalRecords = getRecordCount($conn, 'Products', $where, $params, $types);
-            $totalPages = ceil($totalRecords / $limit);
-            
-            echo '<a href="add_product.php?view=products&search='.$searchParam.'&products_filter='.$displayFilters['products'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Product </a>';
-            
-            $stmt = $conn->prepare("SELECT * FROM Products WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
-            $params[] = $limit;
-            $params[] = $offset;
-            $types .= "ii";
-            $stmt->bind_param($types, ...$params);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            echo "<h2 class='section-title'>Products (Total: $totalRecords)</h2>";
-            if ($result->num_rows === 0) {
-                echo "<p class='no-results'>No products found.</p>";
-                break;
-            }
-            
-            echo "<div class='table-container'>";
-            echo "<table class='data-table'> 
-                <thead>
-                    <tr> 
-                        <th class='table-header'>ID</th>
-                        <th class='table-header'>Image</th>
-                        <th class='table-header'>Name</th>
-                        <th class='table-header'>Price</th>
-                        <th class='table-header'>Categories</th>
-                        <th class='table-header'>Stock</th>
-                        <th class='table-header'>Status</th>
-                        <th class='table-header'>Actions</th> 
-                    </tr>
-                </thead>
-                <tbody>";
-            
-            while ($row = $result->fetch_assoc()) {
-                $stockClass = $row['Stock'] == 0 ? 'out-of-stock' : ($row['Stock'] < 10 ? 'low-stock' : 'in-stock');
-                $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
-                $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                
-                // Handle product categories
-                $categories = [];
-                if (!empty($row['Category'])) {
-                    // If it's a JSON string, decode it
-                    if (is_string($row['Category']) && $row['Category'][0] === '[') {
-                        $categories = json_decode($row['Category'], true) ?: [];
-                    } 
-                    // If it's already an array, use it directly
-                    elseif (is_array($row['Category'])) {
-                        $categories = $row['Category'];
-                    }
-                    // If it's a single string (legacy data), wrap it in an array
-                    elseif (is_string($row['Category'])) {
-                        $categories = [$row['Category']];
-                    }
-                }
-                
-                // Clean categories for display
-                $categories = array_map(function($cat) {
-                    return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
-                }, $categories);
-                $categories = array_filter($categories);
-                $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
-                
-                // Handle product image
-                $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'default-product.jpg';
-                $imagePath = "Img/" . $productImage;
-                $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/default-product.jpg";
-                
-                echo "<tr class='table-row'> 
-                        <td class='table-cell'>".escape($row['ProductID'])."</td> 
-                        <td class='table-cell'>
-                            <img src='".escape($imageSrc)."' 
-                                 alt='".escape($row['Name'])."' 
-                                 class='product-thumb'
-                                 style='width: 50px; height: 50px; object-fit: cover; border-radius: 4px;'
-                                 onerror=\"this.src='Img/default-product.jpg'\">
-                        </td>
-                        <td class='table-cell'>".escape($row['Name'])."</td> 
-                        <td class='table-cell'>R".number_format($row['Price'], 2)."</td> 
-                        <td class='table-cell categories-cell' title='".$categoriesDisplay."'>".$categoriesDisplay."</td> 
-                        <td class='table-cell $stockClass'>".escape($row['Stock'])."</td> 
-                        <td class='table-cell $statusClass'>$statusText</td> 
-                        <td class='table-cell'> 
-                            <div class='action-buttons'>";
-                if ($row['IsDeleted']) {
-                    echo "<a href='restore.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
-                } else {
-                    echo "<a href='edit_product.php?id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
-                    echo "<a href='soft_delete.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
-                }
-                echo "      </div> 
-                        </td> 
-                      </tr>";
-            }
-            echo "</tbody></table>";
-            echo "</div>";
-            displayPagination($totalPages, $page, 'products', $searchParam, $displayFilters);
+case 'products':
+    $where = "LOWER(Name) LIKE ?";
+    $params = [$searchLike];
+    $types = "s";
+    
+    switch($displayFilters['products']) {
+        case 'active':
+            $where .= " AND IsDeleted = 0";
             break;
+        case 'deleted':
+            $where .= " AND IsDeleted = 1";
+            break;
+        case 'in_stock':
+            $where .= " AND Stock > 0 AND IsDeleted = 0";
+            break;
+        case 'out_of_stock':
+            $where .= " AND Stock = 0 AND IsDeleted = 0";
+            break;
+        case 'low_stock':
+            $where .= " AND Stock > 0 AND Stock < 10 AND IsDeleted = 0";
+            break;
+    }
+    
+    $totalRecords = getRecordCount($conn, 'Products', $where, $params, $types);
+    $totalPages = ceil($totalRecords / $limit);
+    
+    echo '<a href="add_product.php?view=products&search='.$searchParam.'&products_filter='.$displayFilters['products'].'" class="add-btn"> <span class="add-btn-icon">+</span> Add Product </a>';
+    
+    $stmt = $conn->prepare("SELECT * FROM Products WHERE $where ORDER BY CreatedAt DESC LIMIT ? OFFSET ?");
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    echo "<h2 class='section-title'>Products (Total: $totalRecords)</h2>";
+    if ($result->num_rows === 0) {
+        echo "<p class='no-results'>No products found.</p>";
+        break;
+    }
+    
+    // Add quick stock update form handler
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock'])) {
+        $product_id = filter_input(INPUT_POST, 'product_id', FILTER_VALIDATE_INT);
+        $new_stock = filter_input(INPUT_POST, 'stock_quantity', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        
+        if ($product_id && $new_stock !== false && $new_stock >= 0) {
+            $update_stmt = $conn->prepare("UPDATE Products SET Stock = ? WHERE ProductID = ? AND IsDeleted = 0");
+            $update_stmt->bind_param("ii", $new_stock, $product_id);
+            if ($update_stmt->execute()) {
+                $_SESSION['success'] = "Stock updated successfully!";
+                // Refresh the page to show updated stock
+                header("Location: admin_dashboard.php?view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page");
+                exit();
+            } else {
+                $_SESSION['error'] = "Error updating stock: " . $conn->error;
+            }
+            $update_stmt->close();
+        } else {
+            $_SESSION['error'] = "Invalid stock quantity. Please enter a valid number.";
+        }
+    }
+    
+    // Display success/error messages
+    if (isset($_SESSION['success'])) {
+        echo "<div class='alert alert-success'>" . htmlspecialchars($_SESSION['success']) . "</div>";
+        unset($_SESSION['success']);
+    }
+    if (isset($_SESSION['error'])) {
+        echo "<div class='alert alert-error'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+        unset($_SESSION['error']);
+    }
+    
+    echo "<div class='table-container'>";
+    echo "<table class='data-table'> 
+        <thead>
+            <tr> 
+                <th class='table-header'>ID</th>
+                <th class='table-header'>Image</th>
+                <th class='table-header'>Name</th>
+                <th class='table-header'>Price</th>
+                <th class='table-header'>Categories</th>
+                <th class='table-header'>Stock</th>
+                <th class='table-header'>Quick Update</th>
+                <th class='table-header'>Status</th>
+                <th class='table-header'>Actions</th> 
+            </tr>
+        </thead>
+        <tbody>";
+    
+    while ($row = $result->fetch_assoc()) {
+        $stockClass = $row['Stock'] == 0 ? 'out-of-stock' : ($row['Stock'] < 10 ? 'low-stock' : 'in-stock');
+        $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
+        $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+        
+        // Handle product categories
+        $categories = [];
+        if (!empty($row['Category'])) {
+            // If it's a JSON string, decode it
+            if (is_string($row['Category']) && $row['Category'][0] === '[') {
+                $categories = json_decode($row['Category'], true) ?: [];
+            } 
+            // If it's already an array, use it directly
+            elseif (is_array($row['Category'])) {
+                $categories = $row['Category'];
+            }
+            // If it's a single string (legacy data), wrap it in an array
+            elseif (is_string($row['Category'])) {
+                $categories = [$row['Category']];
+            }
+        }
+        
+        // Clean categories for display
+        $categories = array_map(function($cat) {
+            return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
+        }, $categories);
+        $categories = array_filter($categories);
+        $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
+        
+        // Handle product image
+        $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'default-product.jpg';
+        $imagePath = "Img/" . $productImage;
+        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/default-product.jpg";
+        
+        echo "<tr class='table-row'> 
+                <td class='table-cell'>".escape($row['ProductID'])."</td> 
+                <td class='table-cell'>
+                    <img src='".escape($imageSrc)."' 
+                         alt='".escape($row['Name'])."' 
+                         class='product-thumb'
+                         style='width: 50px; height: 50px; object-fit: cover; border-radius: 4px;'
+                         onerror=\"this.src='Img/default-product.jpg'\">
+                </td>
+                <td class='table-cell'>".escape($row['Name'])."</td> 
+                <td class='table-cell'>R".number_format($row['Price'], 2)."</td> 
+                <td class='table-cell categories-cell' title='".$categoriesDisplay."'>".$categoriesDisplay."</td> 
+                <td class='table-cell $stockClass'>
+                    <span class='stock-display'>".escape($row['Stock'])."</span>
+                </td> 
+                <td class='table-cell'>";
+        
+        // Only show stock update for active products
+        if (!$row['IsDeleted']) {
+            echo "<form method='post' class='quick-stock-form' onsubmit='return validateStock(this)'>
+                    <input type='hidden' name='product_id' value='".escape($row['ProductID'])."'>
+                    <div class='stock-update-controls'>
+                        <input type='number' 
+                               name='stock_quantity' 
+                               value='".escape($row['Stock'])."' 
+                               min='0' 
+                               max='99999'
+                               class='stock-input'
+                               required>
+                        <button type='submit' 
+                                name='update_stock' 
+                                class='btn btn-sm stock-update-btn'
+                                title='Update Stock'>
+                            ✓
+                        </button>
+                    </div>
+                  </form>";
+        } else {
+            echo "<span class='text-muted'>N/A</span>";
+        }
+        
+        echo "</td>
+                <td class='table-cell $statusClass'>$statusText</td> 
+                <td class='table-cell'> 
+                    <div class='action-buttons'>";
+        if ($row['IsDeleted']) {
+            echo "<a href='restore.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
+        } else {
+            echo "<a href='edit_product.php?id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
+            echo "<a href='soft_delete.php?table=Products&id=".escape($row['ProductID'])."&view=products&search=$searchParam&products_filter=".$displayFilters['products']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a>";
+        }
+        echo "      </div> 
+                </td> 
+              </tr>";
+    }
+    echo "</tbody></table>";
+    echo "</div>";
+    
+   echo " 
+    <script>
+    function validateStock(form) {
+        const input = form.querySelector('.stock-input');
+        const value = parseInt(input.value);
+        
+        if (isNaN(value) || value < 0) {
+            alert('Please enter a valid stock quantity (0 or greater)');
+            input.focus();
+            return false;
+        }
+        
+        if (value > 99999) {
+            alert('Stock quantity cannot exceed 99,999');
+            input.focus();
+            return false;
+        }
+        
+        return confirm('Are you sure you want to update the stock to ' + value + '?');
+    }
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.target.classList.contains('stock-input') && e.key === 'Enter') {
+            e.preventDefault();
+            e.target.closest('form').dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Auto-select text when focusing on stock inputs
+    document.addEventListener('focusin', function(e) {
+        if (e.target.classList.contains('stock-input')) {
+            e.target.select();
+        }
+    });
+    </script>";
+    
+    displayPagination($totalPages, $page, 'products', $searchParam, $displayFilters);
+    break;
 
 case 'services':
     $where = "LOWER(Name) LIKE ?";
@@ -619,8 +719,8 @@ case 'services':
                 case 'pending':
                     $where .= " AND o.Status = 'Pending' AND o.IsDeleted = 0";
                     break;
-                case 'processing':
-                    $where .= " AND o.Status = 'Processing' AND o.IsDeleted = 0";
+                case 'confirmed':
+                    $where .= " AND o.Status = 'confirmed' AND o.IsDeleted = 0";
                     break;
                 case 'completed':
                     $where .= " AND o.Status = 'Completed' AND o.IsDeleted = 0";
@@ -726,7 +826,7 @@ case 'services':
                             <input type='hidden' name='redirect' value='admin_dashboard.php?view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page'> 
                             <select name='Status' onchange='this.form.submit()' class='status-select'> 
                                 <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option> 
-                                <option value='Processing' ".($row['Status']=='Processing'?'selected':'').">Processing</option> 
+                                <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">confirmed</option> 
                                 <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option> 
                                 <option value='Cancelled' ".($row['Status']=='Cancelled'?'selected':'').">Cancelled</option> 
                             </select> 

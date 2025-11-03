@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $totalPrice = filter_input(INPUT_POST, 'total_price', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0]]);
     
     // --- Validation checks ---
-    $allowed_statuses = ['Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
+    $allowed_statuses = ['Pending', 'confirmed', 'Shipped', 'Completed', 'Cancelled'];
     if (empty($status) || !in_array($status, $allowed_statuses)) {
         $form_errors[] = "Please select a valid status.";
     }
@@ -229,7 +229,7 @@ while ($item = $order_items_result->fetch_assoc()) {
         }
         
         .status-pending { background: #fff3cd; color: #856404; }
-        .status-processing { background: #cce7ff; color: #004085; }
+        .status-confirmed { background: #cce7ff; color: #004085; }
         .status-shipped { background: #d1ecf1; color: #0c5460; }
         .status-completed { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
@@ -433,7 +433,7 @@ while ($item = $order_items_result->fetch_assoc()) {
                 <select name="status" id="status" class="status-select" required>
                     <option value="">Select a status</option>
                     <option value="Pending"   <?= (($_POST['status'] ?? $order['Status']) == "Pending") ? "selected" : "" ?>>Pending</option>
-                    <option value="Processing" <?= (($_POST['status'] ?? $order['Status']) == "Processing") ? "selected" : "" ?>>Processing</option>
+                    <option value="confirmed" <?= (($_POST['status'] ?? $order['Status']) == "confirmed") ? "selected" : "" ?>>confirmed</option>
                     <option value="Completed" <?= (($_POST['status'] ?? $order['Status']) == "Completed") ? "selected" : "" ?>>Completed</option>
                     <option value="Cancelled" <?= (($_POST['status'] ?? $order['Status']) == "Cancelled") ? "selected" : "" ?>>Cancelled</option>
                 </select>
