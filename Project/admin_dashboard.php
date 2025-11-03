@@ -236,7 +236,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Email</th><th class='table-header'>Number</th><th class='table-header'>Role</th><th class='table-header'>CreatedAt</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Email</th><th class='table-header'>Number</th><th class='table-header'>Role</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
@@ -289,7 +289,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Owner</th><th class='table-header'>Email</th><th class='table-header'>Bio</th><th class='table-header'>CreatedAt</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>Name</th><th class='table-header'>Owner</th><th class='table-header'>Email</th><th class='table-header'>Bio</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $bioPreview = strlen($row['Bio']) > 50 ? substr($row['Bio'], 0, 50) . '...' : $row['Bio'];
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
@@ -772,7 +772,7 @@ case 'services':
                         <th class='table-header'>Products</th>
                         <th class='table-header'>TotalPrice</th>
                         <th class='table-header'>Status</th>
-                        <th class='table-header'>CreatedAt</th>
+                        <th class='table-header'>Date Created</th>
                         <th class='table-header'>Actions</th> 
                     </tr>
                 </thead>
@@ -888,7 +888,7 @@ case 'services':
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Product</th><th class='table-header'>Rating</th><th class='table-header'>Comment</th><th class='table-header'>Status</th><th class='table-header'>CreatedAt</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Product</th><th class='table-header'>Rating</th><th class='table-header'>Comment</th><th class='table-header'>Status</th><th class='table-header'>Date Created</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while($row = $result->fetch_assoc()) {
                 $commentPreview = strlen($row['Comment']) > 50 ? substr($row['Comment'], 0, 50) . '...' : $row['Comment'];
                 echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ReviewID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['ProductName'])."</td> <td class='table-cell'>".escape($row['Rating'])."/5</td> <td class='table-cell comment-cell' title='".escape($row['Comment'])."'>".escape($commentPreview)."</td> <td class='table-cell'> <form method='POST' action='update_review_status.php' class='inline-form'> <input type='hidden' name='ReviewID' value='".escape($row['ReviewID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='pending' ".($row['Status']=='pending'?'selected':'').">Pending</option> <option value='approved' ".($row['Status']=='approved'?'selected':'').">Approved</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell'> <div class='action-buttons'> <a href='edit_review.php?id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' class='btn btn-sm btn-primary'>Edit</a> <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a> </div> </td> </tr>";
@@ -930,7 +930,7 @@ case 'contacts':
     }
     
     echo "<div class='table-container'>";
-    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>ContactInfo</th><th class='table-header'>CreatedAt</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>ContactInfo</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
     while ($row = $result->fetch_assoc()) {
         $messagePreview = strlen($row['Message']) > 50 ? substr($row['Message'], 0, 50) . '...' : $row['Message'];
 
