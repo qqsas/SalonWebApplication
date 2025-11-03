@@ -15,31 +15,27 @@ if (!is_array($selectedMetrics)) {
 // Determine SQL date format and grouping
 switch ($timeFrame) {
     case 'weekly':
-        $dateFormat = "%Y-%u"; // Year-week
+        $dateFormat = "%Y-%u";
         $labelTitle = "Weekly Activity Overview";
         $xLabel = "Week";
-        $groupFormat = "WEEK(CreatedAt)";
         break;
     case 'monthly':
-        $dateFormat = "%Y-%m"; // Year-month
+        $dateFormat = "%Y-%m";
         $labelTitle = "Monthly Activity Overview";
         $xLabel = "Month";
-        $groupFormat = "MONTH(CreatedAt)";
         break;
     case 'yearly':
-        $dateFormat = "%Y"; // Year
+        $dateFormat = "%Y";
         $labelTitle = "Yearly Activity Overview";
         $xLabel = "Year";
-        $groupFormat = "YEAR(CreatedAt)";
         break;
     default:
-        $dateFormat = "%Y-%m-%d"; // Daily
+        $dateFormat = "%Y-%m-%d";
         $labelTitle = "Daily Activity Overview";
         $xLabel = "Date";
-        $groupFormat = "DATE(CreatedAt)";
 }
 
-// Available metrics with display names and descriptions
+// Available metrics
 $availableMetrics = [
     'User' => ['label' => 'Users', 'description' => 'User registrations'],
     'Barber' => ['label' => 'Barbers', 'description' => 'Barber registrations'],
@@ -49,90 +45,46 @@ $availableMetrics = [
     'Reviews' => ['label' => 'Reviews', 'description' => 'Customer reviews']
 ];
 
-// Additional metrics for business insights
-$additionalMetrics = [
-    'Revenue' => ['label' => 'Revenue', 'description' => 'Total revenue (R)', 'table' => 'Orders', 'field' => 'TotalPrice'],
-    'AvgOrderValue' => ['label' => 'Avg Order Value', 'description' => 'Average order value (R)', 'table' => 'Orders', 'field' => 'TotalPrice', 'aggregate' => 'AVG'],
-    'CompletedAppointments' => ['label' => 'Completed Apps', 'description' => 'Completed appointments', 'table' => 'Appointment', 'condition' => "Status = 'Completed'"]
-];
-
-// Merge all metrics
-$allMetrics = array_merge($availableMetrics, $additionalMetrics);
-$tables = array_keys($availableMetrics);
-
+$allMetrics = $availableMetrics;
 $overviewData = [];
 $allDates = [];
-$totals = [];
 $metricTotals = [];
 $growthRates = [];
 
-// Collect data from selected tables
+// Collect data
 foreach ($allMetrics as $metric => $config) {
-    if (!in_array($metric, $selectedMetrics)) {
-        continue;
-    }
+    if (!in_array($metric, $selectedMetrics)) continue;
 
-    // Handle different metric types
-    if (isset($config['table'])) {
-        // Custom metric with specific table and conditions
-        $table = $config['table'];
-        $field = $config['field'] ?? '*';
-        $aggregate = $config['aggregate'] ?? 'COUNT';
-        $condition = $config['condition'] ?? '1=1';
-        
-        if ($aggregate === 'COUNT' && $field === '*') {
-            $selectField = 'COUNT(*) AS count';
-        } else if ($aggregate === 'SUM') {
-            $selectField = "SUM($field) AS count";
-        } else if ($aggregate === 'AVG') {
-            $selectField = "AVG($field) AS count";
-        } else {
-            $selectField = "COUNT($field) AS count";
-        }
-
-        $stmt = $conn->prepare("
-            SELECT DATE_FORMAT(CreatedAt, ?) AS date, $selectField
-            FROM $table
-            WHERE $condition
-            GROUP BY DATE_FORMAT(CreatedAt, ?)
-            ORDER BY DATE_FORMAT(CreatedAt, ?) ASC
-        ");
-    } else {
-        // Standard count metric
-        $stmt = $conn->prepare("
-            SELECT DATE_FORMAT(CreatedAt, ?) AS date, COUNT(*) AS count
-            FROM $metric
-            GROUP BY DATE_FORMAT(CreatedAt, ?)
-            ORDER BY DATE_FORMAT(CreatedAt, ?) ASC
-        ");
-    }
+    $stmt = $conn->prepare("
+        SELECT DATE_FORMAT(CreatedAt, ?) AS date, COUNT(*) AS count
+        FROM $metric
+        GROUP BY DATE_FORMAT(CreatedAt, ?)
+        ORDER BY DATE_FORMAT(CreatedAt, ?) ASC
+    ");
     
     $stmt->bind_param('sss', $dateFormat, $dateFormat, $dateFormat);
     $stmt->execute();
     $result = $stmt->get_result();
 
     $counts = [];
-    $totalCount = 0;
     $dates = [];
+    $totalCount = 0;
 
     while ($row = $result->fetch_assoc()) {
         $date = $row['date'];
-        $count = (float)$row['count']; // Use float for monetary values
+        $count = (float)$row['count'];
         $counts[$date] = $count;
         $allDates[$date] = true;
         $dates[] = $date;
         $totalCount += $count;
     }
 
-    // Calculate growth rate if we have multiple data points
     if (count($dates) >= 2) {
         $firstCount = $counts[$dates[0]] ?? 0;
         $lastCount = $counts[$dates[count($dates)-1]] ?? 0;
-        if ($firstCount > 0) {
-            $growthRate = (($lastCount - $firstCount) / $firstCount) * 100;
-        } else {
-            $growthRate = $lastCount > 0 ? 100 : 0;
-        }
+        $growthRate = ($firstCount > 0)
+            ? (($lastCount - $firstCount) / $firstCount) * 100
+            : ($lastCount > 0 ? 100 : 0);
         $growthRates[$metric] = round($growthRate, 1);
     }
 
@@ -141,7 +93,7 @@ foreach ($allMetrics as $metric => $config) {
     $stmt->close();
 }
 
-// Get date range for better filtering
+// Date range
 $dateRangeStmt = $conn->prepare("
     SELECT MIN(CreatedAt) as min_date, MAX(CreatedAt) as max_date 
     FROM (
@@ -161,7 +113,7 @@ $dateRangeStmt->close();
 $allDates = array_keys($allDates);
 sort($allDates);
 
-// Fill missing dates with 0s for each label
+// Fill missing dates
 foreach ($overviewData as $metric => $counts) {
     $filledCounts = [];
     foreach ($allDates as $date) {
@@ -172,13 +124,11 @@ foreach ($overviewData as $metric => $counts) {
 }
 
 $labels = $allDates;
-
-// Calculate overall statistics
 $totalRecords = array_sum($metricTotals);
 $activeMetrics = count($selectedMetrics);
 ?>
 
-<!-- Enhanced Controls Section -->
+<!-- Controls -->
 <div class="dashboard-controls">
     <form id="dashboardForm" method="GET" style="margin-bottom:20px;">
         <div class="control-group">
@@ -214,7 +164,6 @@ $activeMetrics = count($selectedMetrics);
             <div class="quick-actions">
                 <button type="button" onclick="selectAllMetrics()" class="btn-small">Select All</button>
                 <button type="button" onclick="deselectAllMetrics()" class="btn-small">Deselect All</button>
-                <button type="button" onclick="selectBusinessMetrics()" class="btn-small">Business Metrics</button>
                 <button type="submit" class="btn-primary">Apply Filters</button>
             </div>
         </div>
@@ -232,30 +181,7 @@ $activeMetrics = count($selectedMetrics);
     </div>
 </div>
 
-<!-- Metrics Summary Cards -->
-<div class="metrics-summary">
-    <?php foreach ($selectedMetrics as $metric): 
-        $config = $allMetrics[$metric];
-        $total = $metricTotals[$metric] ?? 0;
-        $growth = $growthRates[$metric] ?? 0;
-        $growthClass = $growth >= 0 ? 'positive' : 'negative';
-    ?>
-        <div class="metric-card" data-metric="<?= $metric ?>">
-            <div class="metric-header">
-                <h4><?= $config['label'] ?></h4>
-                <span class="metric-total"><?= is_float($total) ? 'R' . number_format($total, 2) : number_format($total) ?></span>
-            </div>
-            <p class="metric-description"><?= $config['description'] ?></p>
-            <?php if (isset($growthRates[$metric])): ?>
-                <div class="metric-growth <?= $growthClass ?>">
-                    <?= $growth >= 0 ? '↗' : '↘' ?> <?= abs($growth) ?>%
-                </div>
-            <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
-</div>
-
-<!-- Chart Container -->
+<!-- Chart -->
 <div class="chart-container">
     <canvas id="overviewChart" width="1200" height="500"></canvas>
 </div>
@@ -266,15 +192,9 @@ $activeMetrics = count($selectedMetrics);
     <button type="button" onclick="toggleGridLines()" id="toggleGridBtn" class="btn-small">Hide Grid</button>
     <button type="button" onclick="downloadChart()" class="btn-small">Download Chart</button>
     <button type="button" onclick="resetZoom()" class="btn-small">Reset Zoom</button>
-    
-    <label for="yAxisScale"><strong>Y-Axis:</strong></label>
-    <select id="yAxisScale" onchange="updateYAxisScale()">
-        <option value="linear">Linear</option>
-        <option value="logarithmic">Logarithmic</option>
-    </select>
 </div>
 
-<!-- Data Export -->
+<!-- Export -->
 <div class="data-export">
     <h3>Export Data</h3>
     <button type="button" onclick="exportCSV()" class="btn-small">Export as CSV</button>
@@ -283,139 +203,62 @@ $activeMetrics = count($selectedMetrics);
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@1.2.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <script>
-// Global chart reference
 let overviewChart;
-
-// Configuration
 const overviewDataJS = <?php echo json_encode($overviewData); ?>;
 const labels = <?php echo json_encode($labels); ?>;
 const graphType = '<?php echo $graphType; ?>';
 const timeFrame = '<?php echo $timeFrame; ?>';
 const allMetrics = <?php echo json_encode($allMetrics); ?>;
 
-// Enhanced color palette
 const colors = [
-    '#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#0099C6',
-    '#DD4477', '#66AA00', '#B82E2E', '#316395', '#994499', '#22AA99',
-    '#AAAA11', '#6633CC', '#E67300', '#8B0707', '#651067', '#329262'
+    '#3366CC', '#DC3912', '#FF9900', '#109618',
+    '#990099', '#0099C6', '#DD4477', '#66AA00'
 ];
 
-// Create datasets based on selected metrics
-const datasets = Object.keys(overviewDataJS).map((metric, i) => {
-    const config = allMetrics[metric];
-    const isCurrency = config.label.includes('Revenue') || config.label.includes('Value');
-    
-    return {
-        label: config.label,
-        data: overviewDataJS[metric],
-        borderColor: colors[i % colors.length],
-        backgroundColor: colors[i % colors.length] + '40', // Add transparency
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 8,
-        pointBackgroundColor: colors[i % colors.length],
-        fill: graphType === 'area',
-        yAxisID: isCurrency ? 'yCurrency' : 'yCount'
-    };
-});
+const datasets = Object.keys(overviewDataJS).map((metric, i) => ({
+    label: allMetrics[metric].label,
+    data: overviewDataJS[metric],
+    borderColor: colors[i % colors.length],
+    backgroundColor: colors[i % colors.length] + '40',
+    tension: 0.4,
+    pointRadius: 4,
+    pointHoverRadius: 8,
+    fill: graphType === 'area',
+}));
 
-// Initialize chart
 function initializeChart() {
     const ctx = document.getElementById('overviewChart').getContext('2d');
-    
-    if (overviewChart) {
-        overviewChart.destroy();
-    }
-    
+    if (overviewChart) overviewChart.destroy();
+
     overviewChart = new Chart(ctx, {
         type: graphType === 'area' ? 'line' : graphType,
         data: { labels, datasets },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'nearest', axis: 'x', intersect: false },
             plugins: {
-                title: { display: true, text: '<?php echo $labelTitle; ?>', font: { size: 18, weight: 'bold' } },
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: { usePointStyle: true, padding: 20, font: { size: 12 } },
-                    onClick: function(e, legendItem, legend) {
-                        const index = legendItem.datasetIndex;
-                        const ci = this.chart;
-                        const meta = ci.getDatasetMeta(index);
-                        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-                        ci.update();
-                    }
-                },
-                tooltip: {
-                    usePointStyle: true,
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.dataset.label || '';
-                            let value = context.parsed.y || 0;
-                            if (context.dataset.label.includes('Revenue') || context.dataset.label.includes('Value')) {
-                                value = 'R' + value.toFixed(2);
-                            } else {
-                                value = Math.round(value).toLocaleString();
-                            }
-                            return `${label}: ${value}`;
-                        },
-                        afterLabel: function(context) {
-                            const total = context.chart.data.datasets
-                                .map(ds => ds.data[context.dataIndex])
-                                .reduce((a, b) => a + b, 0);
-                            const value = context.parsed.y || 0;
-                            const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
-                            return `Contribution: ${percentage}%`;
-                        }
-                    }
-                },
-                zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, pan: { enabled: true, mode: 'x' } },
-                crosshair: { line: { color: '#666', width: 1, dash: [5,5] }, sync: { enabled: false }, zoom: { enabled: false } }
+                title: { display: true, text: '<?php echo $labelTitle; ?>' },
+                legend: { position: 'top' },
+                zoom: {
+                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
+                    pan: { enabled: true, mode: 'x' }
+                }
             },
             scales: {
                 x: {
-                    title: { display: true, text: '<?php echo $xLabel; ?>', font: { weight: 'bold' } },
-                    ticks: { maxTicksLimit: 20, autoSkip: true, callback: function(value) {
-                        const label = this.getLabelForValue(value);
-                        switch(timeFrame) {
-                            case 'yearly': return label;
-                            case 'monthly': return label.substring(5);
-                            case 'weekly': return 'W' + label.split('-')[1];
-                            default: return label.substring(5);
-                        }
-                    }}
+                    title: { display: true, text: '<?php echo $xLabel; ?>' }
                 },
-                yCount: {
-                    type: 'linear',
+                y: {
                     beginAtZero: true,
-                    position: 'left',
-                    title: { display: true, text: 'Number of Records', font: { weight: 'bold' } },
-                    ticks: { precision: 0, callback: function(value) { return value >= 1000 ? (value/1000).toFixed(1)+'k' : value; } }
-                },
-                yCurrency: {
-                    type: 'linear',
-                    beginAtZero: true,
-                    position: 'right',
-                    title: { display: true, text: 'Amount (R)', font: { weight: 'bold'},
-                    ticks: { callback: function(value) { return 'R' + value.toLocaleString(); } },
-                    grid: { drawOnChartArea: false }
-}
+                    title: { display: true, text: 'Number of Records' }
                 }
             }
         }
     });
 }
-
-// Initialize chart on page load
 initializeChart();
 
-// Toggle data points
 let pointsVisible = true;
 function toggleDataPoints() {
     pointsVisible = !pointsVisible;
@@ -424,18 +267,15 @@ function toggleDataPoints() {
     document.getElementById('togglePointsBtn').innerText = pointsVisible ? 'Hide Data Points' : 'Show Data Points';
 }
 
-// Toggle grid lines
 let gridVisible = true;
 function toggleGridLines() {
     gridVisible = !gridVisible;
     overviewChart.options.scales.x.grid.display = gridVisible;
-    overviewChart.options.scales.yCount.grid.display = gridVisible;
-    overviewChart.options.scales.yCurrency.grid.display = gridVisible;
+    overviewChart.options.scales.y.grid.display = gridVisible;
     overviewChart.update();
     document.getElementById('toggleGridBtn').innerText = gridVisible ? 'Hide Grid' : 'Show Grid';
 }
 
-// Download chart as image
 function downloadChart() {
     const link = document.createElement('a');
     link.href = overviewChart.toBase64Image();
@@ -443,20 +283,10 @@ function downloadChart() {
     link.click();
 }
 
-// Reset zoom
 function resetZoom() {
     if (overviewChart.resetZoom) overviewChart.resetZoom();
 }
 
-// Change Y-axis scale
-function updateYAxisScale() {
-    const scale = document.getElementById('yAxisScale').value;
-    overviewChart.options.scales.yCount.type = scale;
-    overviewChart.options.scales.yCurrency.type = scale;
-    overviewChart.update();
-}
-
-// Export data as CSV
 function exportCSV() {
     let csv = 'Date,' + Object.keys(overviewDataJS).join(',') + '\n';
     labels.forEach((label, idx) => {
@@ -469,7 +299,6 @@ function exportCSV() {
     link.click();
 }
 
-// Export data as JSON
 function exportJSON() {
     const jsonData = {};
     labels.forEach((label, idx) => {
@@ -485,20 +314,12 @@ function exportJSON() {
     link.click();
 }
 
-// Metric selection shortcuts
 function selectAllMetrics() {
     document.querySelectorAll('input[name="metrics[]"]').forEach(cb => cb.checked = true);
 }
 
 function deselectAllMetrics() {
     document.querySelectorAll('input[name="metrics[]"]').forEach(cb => cb.checked = false);
-}
-
-function selectBusinessMetrics() {
-    const businessMetrics = ['Revenue', 'AvgOrderValue', 'CompletedAppointments'];
-    document.querySelectorAll('input[name="metrics[]"]').forEach(cb => {
-        cb.checked = businessMetrics.includes(cb.value);
-    });
 }
 </script>
 
@@ -507,14 +328,12 @@ function selectBusinessMetrics() {
 .control-group { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .metrics-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
 .metric-checkbox { position: relative; display: flex; align-items: center; gap: 4px; }
-.metric-tooltip { visibility: hidden; background: #333; color: #fff; text-align: center; border-radius: 4px; padding: 2px 6px; position: absolute; z-index: 1; bottom: 120%; left: 50%; transform: translateX(-50%); font-size: 0.75rem; white-space: nowrap; }
+.metric-tooltip { visibility: hidden; background: #333; color: #fff; border-radius: 4px; padding: 2px 6px; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); font-size: 0.75rem; }
 .metric-checkbox:hover .metric-tooltip { visibility: visible; }
 .btn-small { padding: 4px 10px; margin-right: 5px; font-size: 0.85rem; cursor: pointer; }
 .btn-primary { background: #3366CC; color: #fff; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; }
-.stats-overview, .metrics-summary { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-.stat-card, .metric-card { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); min-width: 180px; flex: 1; }
-.metric-growth.positive { color: green; font-weight: bold; }
-.metric-growth.negative { color: red; font-weight: bold; }
+.stats-overview { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; }
 .chart-container { width: 100%; height: 500px; margin-bottom: 20px; }
 .chart-controls { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .data-export { margin-top: 20px; }
