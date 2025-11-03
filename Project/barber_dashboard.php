@@ -267,7 +267,11 @@ while ($row = $result->fetch_assoc()) {
                                         $where, $params, $types);
                 $totalPages = ceil($totalRecords / $limit);
                 
+                // Add Appointment button
+                echo "<div class='section-header'>";
                 echo "<h2>My Appointments (Total: $totalRecords)</h2>";
+                echo "<a href='add_appointment.php' class='btn btn-primary add-appointment-btn'>+ Add Appointment</a>";
+                echo "</div>";
                 
                 $orderBy = "a.Time " . ($filter === 'past' ? "DESC" : "ASC");
                 $stmt = $conn->prepare("SELECT a.*, u.Name AS UserName, u.Number AS UserPhone 
@@ -282,7 +286,10 @@ while ($row = $result->fetch_assoc()) {
                 $result = $stmt->get_result();
                 
                 if ($result->num_rows === 0) {
+                    echo "<div class='no-appointments'>";
                     echo "<p>No appointments found.</p>";
+                    echo "<a href='add_appointment.php' class='btn btn-primary'>Add Your First Appointment</a>";
+                    echo "</div>";
                     break;
                 }
                 
@@ -337,6 +344,57 @@ while ($row = $result->fetch_assoc()) {
                 echo "</table>";
                 echo "</div>";
                 displayPagination($totalPages, $page, 'appointments', $searchParam, $filter, $status, $date);
+                
+                // Add CSS for the new button and layout
+                echo "
+                <style>
+                .section-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                }
+                .add-appointment-btn {
+                    background-color: #28a745;
+                    color: white;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    border-radius: 4px;
+                    font-weight: 600;
+                    transition: background-color 0.2s;
+                    white-space: nowrap;
+                }
+                .add-appointment-btn:hover {
+                    background-color: #218838;
+                    color: white;
+                    text-decoration: none;
+                }
+                .no-appointments {
+                    text-align: center;
+                    padding: 40px;
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                }
+                .no-appointments p {
+                    margin-bottom: 15px;
+                    color: #6c757d;
+                    font-size: 1.1em;
+                }
+                @media (max-width: 768px) {
+                    .section-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                    .add-appointment-btn {
+                        align-self: stretch;
+                        text-align: center;
+                    }
+                }
+                </style>
+                ";
                 break;
 
             case 'services':

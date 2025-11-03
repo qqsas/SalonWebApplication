@@ -1,10 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
+if (!isset($_SESSION['UserID']) || ($_SESSION['Role'] !== 'admin' && $_SESSION['Role'] !== 'barber')) {
     header("Location: Login.php");
     exit();
 }
-
 include 'db.php';
 include 'mail.php';
 include 'header.php';
@@ -269,7 +268,6 @@ $services = $conn->query("SELECT ServicesID, Name, Time, Price FROM Services WHE
 </head>
 <body>
 <div class="form-container">
-    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
     <h2>Add New Appointment</h2>
 
     <?php if (!empty($errors)): ?>
@@ -366,10 +364,16 @@ $services = $conn->query("SELECT ServicesID, Name, Time, Price FROM Services WHE
             </select>
         </div>
 
-        <div class="button-group">
-            <button type="submit">Add Appointment</button>
-            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
-        </div>
+<div class="button-group">
+    <button type="submit" class="btn-primary">Update Product</button>
+    <a href="<?php
+        if (isset($_SESSION['Role']) && $_SESSION['Role'] === 'barber') {
+            echo 'barber_dashboard.php';
+        } else {
+            echo 'admin_dashboard.php?view=products';
+        }
+    ?>" class="btn-cancel">Cancel</a>
+</div>
     </form>
 </div>
 
