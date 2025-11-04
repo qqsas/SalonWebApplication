@@ -107,7 +107,7 @@ while ($row = $result->fetch_assoc()) {
 ?>
 
 <div class="barber-dashboard">
-    <link rel="stylesheet" href="barberstyle2.css">
+    
 
     <div class="dashboard-header">
         <div class="barber-welcome">

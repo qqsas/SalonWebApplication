@@ -47,7 +47,7 @@ $result->data_seek(0); // Reset result pointer
 ?>
 
 <div class="Acontainer">
-  <link rel="stylesheet" href="styles2.css">
+  
     <h1>My Appointments</h1>
 
     <?php if ($result->num_rows > 0): ?>

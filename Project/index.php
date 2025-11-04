@@ -6,28 +6,41 @@ include 'db.php';
 include 'header.php';
 
 // Get Services
+$getServices = [];
 $stmt = $conn->prepare("SELECT * FROM Services WHERE IsDeleted = 0");
-$stmt->execute();
-$result = $stmt->get_result();
-$getServices = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+if ($stmt) {
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result) {
+    $getServices = $result->fetch_all(MYSQLI_ASSOC);
+  }
+  $stmt->close();
+} else {
+  error_log("Services query prepare failed: " . $conn->error);
+}
 
 // Get Barbers (staff)
+$getStaff = [];
 $stmt = $conn->prepare("SELECT * FROM Barber");
-$stmt->execute();
-$result = $stmt->get_result();
-$getStaff = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+if ($stmt) {
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result) {
+    $getStaff = $result->fetch_all(MYSQLI_ASSOC);
+  }
+  $stmt->close();
+} else {
+  error_log("Barber query prepare failed: " . $conn->error);
+}
 
 // Fetch the user's role
 $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
 ?>
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Home - My Business</title>
-  <link rel="stylesheet" href="styles2.css">
+  
   <style>
     .error { color: red; margin-bottom: 15px; }
     .success { color: green; margin-bottom: 15px; }
@@ -73,11 +86,18 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
 <!-- Gallery Section -->
   <?php
   // Get Gallery items
+  $getGallery = [];
   $stmt = $conn->prepare("SELECT * FROM Gallery WHERE IsDeleted = 0 ORDER BY CreatedAt DESC");
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $getGallery = $result->fetch_all(MYSQLI_ASSOC);
-  $stmt->close();
+  if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result) {
+      $getGallery = $result->fetch_all(MYSQLI_ASSOC);
+    }
+    $stmt->close();
+  } else {
+    error_log("Gallery query prepare failed: " . $conn->error);
+  }
   ?>
 
   <section class="gallery">
@@ -235,7 +255,6 @@ function scrollServices(direction) {
 }
 </script>
 </body>
-</html>
 
 <?php
 // Handle contact form submission

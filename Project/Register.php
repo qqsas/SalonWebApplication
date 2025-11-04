@@ -1,7 +1,6 @@
 <?php
 include 'db.php';
 include 'mail.php'; // PHPMailer setup (sendEmail function)
-include 'header.php';
 
 $message = '';
 $nameError = '';
@@ -103,23 +102,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $stmt->close();
             $conn->close();
-
-            header("Location: Login.php?msg=Registered");
+            
+            $page = "Login.php";
+            echo '<script type="text/javascript">';
+            echo 'window.location.href="'.$page.'?msg=Registered";';
+            echo '</script>';
+            echo '<meta http-equiv="refresh" content="0; url='.$page.'?msg=Registered">';
             exit;
         } else {
             $message = "Insert failed: " . $stmt->error;
         }
     }
-
+    
     $conn->close();
 }
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html>
 <head>
     <title>Register</title>
-    <link href="styles2.css" rel="stylesheet">
     <style>
         .error { 
             color: hsl(var(--secondary-hue), var(--saturation), 40%); 
@@ -172,10 +173,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="submit" value="Register" class="btn-primary">
       </form>
 
-      <p class="text-center mt-3">Already have an account? <a href="Login.php">Login here</a></p>
+      <p class="text-center mt-3">Already have an account?</p>
+      <a href="Login.php" style="margin-left: 25%;">Login here</a>
     </div>
   </div>
 </div>
 </body>
-</html>
 

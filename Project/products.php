@@ -214,14 +214,6 @@ unset($product); // Break the reference
                          alt="<?= htmlspecialchars($product['Name']) ?>" 
                          class="product-image"
                          onerror="this.src='Img/default-product.jpg'">
-
-                <div class="product-card">
-                    
-                    <div class="product-image">
-                        <?php//  $product_img = !empty($product['ImgUrl']) ? htmlspecialchars($product['ImgUrl']) : 'default.png'; ?>
-                      <!-- <img src="<?php// echo $product_img ?>" alt="<?php// echo htmlspecialchars($product['Name']) ?>" class="product-image">  -->
-                        <i class="fa-solid fa-camera fa-2xl"></i>
-                    </div>
                     <div class="product-details">
                         <h2 class="product-name"><?= htmlspecialchars($product['Name']) ?></h2>
                         <p class="product-price">R<?= number_format($product['Price'], 2) ?></p>

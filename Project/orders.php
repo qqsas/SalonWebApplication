@@ -68,7 +68,7 @@ $stmt->close();
 ?>
 
 <div class="container1">
-  <link rel="stylesheet" href="styles2.css">
+  
     <h2>Your Orders</h2>
 
     <?php if (empty($orders)): ?>

@@ -95,7 +95,7 @@ include 'header.php';
 <head>
   <meta charset="UTF-8">
   <title>Contact - My Business</title>
-  <link rel="stylesheet" href="styles2.css">
+  
   <style>
     .error { color: red; margin-bottom: 15px; }
     .success { color: green; margin-bottom: 15px; }

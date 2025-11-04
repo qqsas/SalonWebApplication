@@ -22,7 +22,7 @@ $stmt->close();
 <?php include 'header.php'; ?>
 
 <div class="container">
-    <link rel="stylesheet" href="styles2.css">
+    
     <h2>My Profile</h2>
 
     <!-- Modern Card Layout -->

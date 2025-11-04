@@ -649,6 +649,8 @@ input[type="submit"]:disabled:hover,
     border-radius: var(--border-radius);
     box-shadow: var(--card-hover-shadow);
     border: 1px solid var(--gray-medium);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .form-row {

@@ -30,8 +30,32 @@ if (isset($_SESSION['UserID'])) {
 }
 ?>
 <head>
-<link rel="stylesheet" href="adminstyle.css">
-<link rel="stylesheet" href="styles.css"> 
+<?php
+    // Determine which stylesheet to use based on required role for the page
+    // Pages can optionally set $pageRoleRequirement = 'admin' | 'barber' before including header
+    $requiredRole = isset($pageRoleRequirement) ? strtolower(trim($pageRoleRequirement)) : null;
+
+    // If not explicitly provided, infer from current script name
+    if (!$requiredRole) {
+        $currentScript = basename($_SERVER['PHP_SELF']);
+        if (stripos($currentScript, 'admin') !== false) {
+            $requiredRole = 'admin';
+        } elseif (stripos($currentScript, 'barber') !== false) {
+            $requiredRole = 'barber';
+        }
+    }
+
+    // Select stylesheet: admin -> adminstyle.css, barber -> barberstyle.css, default -> styles.css
+    if ($requiredRole === 'admin') {
+        echo '<link rel="stylesheet" href="adminstyle.css">';
+    } elseif ($requiredRole === 'barber') {
+        echo '<link rel="stylesheet" href="adminstyle.css">';
+        echo '<link rel="stylesheet" href="barberstyle.css">';
+        
+    } else {
+        echo '<link rel="stylesheet" href="styles.css">';
+    }
+?>
 </head>
 <!-- Header -->
 <nav class="Header-navbar">
