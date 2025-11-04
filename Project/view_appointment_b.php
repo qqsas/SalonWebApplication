@@ -30,13 +30,53 @@ if (!$appointment) {
     header("Location: barber_dashboard.php?view=appointments&message=Appointment not found&success=0");
     exit();
 }
+
+// Check if contact methods are available
+$hasEmail = !empty(trim($appointment['Email'] ?? ''));
+$hasPhone = !empty(trim($appointment['Number'] ?? ''));
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Appointment Details</title>
-    
+    <link rel="stylesheet" href="barberstyle.css">
+    <style>
+        .contact-unavailable {
+            color: #666;
+            font-style: italic;
+            margin: 5px 0;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+    </style>
 </head>
 <body>
     <?php include 'header.php'; ?>
@@ -47,8 +87,28 @@ if (!$appointment) {
         <div class="appointment-details">
             <h2>Client Information</h2>
             <p><strong>Name:</strong> <?php echo htmlspecialchars($appointment['UserName']); ?></p>
-            <p><strong>Email:</strong> <a href="mailto:<?php echo htmlspecialchars($appointment['Email']); ?>"><?php echo htmlspecialchars($appointment['Email']); ?></a></p>
-            <p><strong>Phone:</strong> <a href="tel:<?php echo htmlspecialchars($appointment['Number']); ?>"><?php echo htmlspecialchars($appointment['Number']); ?></a></p>
+            
+            <p>
+                <strong>Email:</strong> 
+                <?php if ($hasEmail): ?>
+                    <a href="mailto:<?php echo htmlspecialchars($appointment['Email']); ?>">
+                        <?php echo htmlspecialchars($appointment['Email']); ?>
+                    </a>
+                <?php else: ?>
+                    <span class="contact-unavailable">No email provided</span>
+                <?php endif; ?>
+            </p>
+            
+            <p>
+                <strong>Phone:</strong> 
+                <?php if ($hasPhone): ?>
+                    <a href="tel:<?php echo htmlspecialchars($appointment['Number']); ?>">
+                        <?php echo htmlspecialchars($appointment['Number']); ?>
+                    </a>
+                <?php else: ?>
+                    <span class="contact-unavailable">No phone number provided</span>
+                <?php endif; ?>
+            </p>
             
             <h2>Appointment Information</h2>
             <p><strong>Service For:</strong> <?php echo htmlspecialchars($appointment['ForName']); ?></p>
@@ -57,14 +117,20 @@ if (!$appointment) {
             <p><strong>Date & Time:</strong> <?php echo date('F j, Y g:i A', strtotime($appointment['Time'])); ?></p>
             <p><strong>Duration:</strong> <?php echo htmlspecialchars($appointment['Duration']); ?> minutes</p>
             <p><strong>Status:</strong> <?php echo htmlspecialchars($appointment['Status']); ?></p>
-            <p><strong>Cost:</strong> $<?php echo htmlspecialchars($appointment['Cost']); ?></p>
+            <p><strong>Cost:</strong> R<?php echo htmlspecialchars($appointment['Cost']); ?></p>
             <p><strong>Created:</strong> <?php echo date('F j, Y g:i A', strtotime($appointment['CreatedAt'])); ?></p>
         </div>
         
         <div class="actions">
             <a href="barber_dashboard.php?view=appointments" class="button">Back to Appointments</a>
-            <a href="tel:<?php echo htmlspecialchars($appointment['Number']); ?>" class="button">Call Client</a>
-            <a href="mailto:<?php echo htmlspecialchars($appointment['Email']); ?>" class="button">Email Client</a>
+            
+            <?php if ($hasPhone): ?>
+                <a href="tel:<?php echo htmlspecialchars($appointment['Number']); ?>" class="button">Call Client</a>
+            <?php endif; ?>
+            
+            <?php if ($hasEmail): ?>
+                <a href="mailto:<?php echo htmlspecialchars($appointment['Email']); ?>" class="button">Email Client</a>
+            <?php endif; ?>
             
             <form method="POST" action="update_appointment_status_b.php" style="display: inline;">
                 <input type="hidden" name="AppointmentID" value="<?php echo $appointmentID; ?>">
@@ -78,6 +144,12 @@ if (!$appointment) {
                 </select>
             </form>
         </div>
+
+        <?php if (!$hasEmail && !$hasPhone): ?>
+            <div class="contact-warning" style="margin-top: 15px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
+                <strong>Note:</strong> This client has no contact information available.
+            </div>
+        <?php endif; ?>
     </div>
     
     <?php include 'footer.php'; ?>

@@ -38,10 +38,14 @@ $stmt->bind_param("i", $UserID);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Get unique statuses for the filter dropdown
+// Get unique data for filters
 $statuses = [];
+$barbers = [];
+$services = [];
 while ($row = $result->fetch_assoc()) {
     $statuses[$row['Status']] = $row['Status'];
+    $barbers[$row['BarberName']] = $row['BarberName'];
+    $services[$row['ServiceName'] ?? $row['Type']] = $row['ServiceName'] ?? $row['Type'];
 }
 $result->data_seek(0); // Reset result pointer
 ?>
@@ -51,7 +55,7 @@ $result->data_seek(0); // Reset result pointer
     <h1>My Appointments</h1>
 
     <?php if ($result->num_rows > 0): ?>
-        <!-- Sort and Filter Controls -->
+        <!-- Enhanced Sort and Filter Controls -->
         <div class="orders-container">
             <div class="orders-controls">
 
@@ -63,20 +67,73 @@ $result->data_seek(0); // Reset result pointer
                     <option value="2">Barber</option>
                     <option value="3">Service</option>
                     <option value="4">Type</option>
-                    <option value="5">Time</option>
-                    <option value="6">Duration</option>
-                    <option value="7">Status</option>
-                    <option value="8">Cost</option>
-                    <option value="9">Created At</option>
+                    <option value="5">Time (Newest First)</option>
+                    <option value="5-asc">Time (Oldest First)</option>
+                    <option value="6">Duration (Longest First)</option>
+                    <option value="6-asc">Duration (Shortest First)</option>
+                    <option value="7">Status A-Z</option>
+                    <option value="7-desc">Status Z-A</option>
+                    <option value="8">Cost (High to Low)</option>
+                    <option value="8-asc">Cost (Low to High)</option>
+                    <option value="9">Created At (Newest First)</option>
+                    <option value="9-asc">Created At (Oldest First)</option>
                 </select>
+
                 <!-- Status Filter -->
-                <label for="statusFilter">Filter by Status:</label>
+                <label for="statusFilter">Status:</label>
                 <select id="statusFilter">
                     <option value="all">All Statuses</option>
                     <?php foreach ($statuses as $status): ?>
                         <option value="<?= htmlspecialchars($status) ?>"><?= htmlspecialchars($status) ?></option>
                     <?php endforeach; ?>
                 </select>
+
+                <!-- Barber Filter -->
+                <label for="barberFilter">Barber:</label>
+                <select id="barberFilter">
+                    <option value="all">All Barbers</option>
+                    <?php foreach ($barbers as $barber): ?>
+                        <option value="<?= htmlspecialchars($barber) ?>"><?= htmlspecialchars($barber) ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <!-- Service Filter -->
+                <label for="serviceFilter">Service:</label>
+                <select id="serviceFilter">
+                    <option value="all">All Services</option>
+                    <?php foreach ($services as $service): ?>
+                        <option value="<?= htmlspecialchars($service) ?>"><?= htmlspecialchars($service) ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <!-- Date Range Filters -->
+                <label for="dateFrom">From Date:</label>
+                <input type="date" id="dateFrom">
+
+                <label for="dateTo">To Date:</label>
+                <input type="date" id="dateTo">
+
+                <!-- Cost Range Filters -->
+                <label for="minCost">Min Cost:</label>
+                <input type="number" id="minCost" placeholder="R 0" min="0" step="0.01" style="width: 80px;">
+
+                <label for="maxCost">Max Cost:</label>
+                <input type="number" id="maxCost" placeholder="R 1000" min="0" step="0.01" style="width: 80px;">
+
+                <!-- Quick Action Buttons -->
+                <button type="button" id="applyFilters" class="btn">Apply Filters</button>
+                <button type="button" id="resetFilters" class="btn">Reset</button>
+            </div>
+
+            <!-- Quick Filter Buttons -->
+            <div class="orders-controls" style="margin-top: 10px;">
+                <strong>Quick Filters:</strong>
+                <button type="button" class="btn quick-filter" data-status="all">Show All</button>
+                <button type="button" class="btn quick-filter" data-status="Confirmed">Confirmed</button>
+                <button type="button" class="btn quick-filter" data-status="Completed">Completed</button>
+                <button type="button" class="btn quick-filter" data-status="Cancelled">Cancelled</button>
+                <button type="button" class="btn quick-filter" data-time="upcoming">Upcoming</button>
+                <button type="button" class="btn quick-filter" data-time="past">Past</button>
             </div>
         </div>
 
@@ -99,9 +156,14 @@ $result->data_seek(0); // Reset result pointer
             </thead>
             <tbody>
                 <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr data-status="<?= htmlspecialchars($row['Status']) ?>">
+                    <tr data-status="<?= htmlspecialchars($row['Status']) ?>" 
+                        data-barber="<?= htmlspecialchars($row['BarberName']) ?>"
+                        data-service="<?= htmlspecialchars($row['ServiceName'] ?? $row['Type']) ?>"
+                        data-time="<?= strtotime($row['Time']) ?>"
+                        data-cost="<?= $row['Cost'] ?>"
+                        data-duration="<?= $row['Duration'] ?>">
                         <td data-label="Appointment ID"><?= htmlspecialchars($row['AppointmentID']); ?></td>
-                        <td data-label="Booked For"><?= htmlspecialchars($row['ForName']) . " (" . htmlspecialchars($row['ForAge']) . ")"; ?></td>
+                        <td data-label="Booked For"><?= htmlspecialchars($row['ForName']); ?></td>
                         <td data-label="Barber"><?= htmlspecialchars($row['BarberName']); ?></td>
                         <td data-label="Service"><?= htmlspecialchars($row['ServiceName'] ?? 'N/A'); ?></td>
                         <td data-label="Type"><?= htmlspecialchars($row['Type']); ?></td>
@@ -152,49 +214,160 @@ $result->data_seek(0); // Reset result pointer
             </tbody>
         </table>
 
-        <!-- JS for Filtering and Sorting -->
+        <!-- Enhanced JS for Filtering and Sorting -->
         <script>
-            // Status Filter Functionality
+            // Get filter elements
             const statusFilter = document.getElementById('statusFilter');
+            const barberFilter = document.getElementById('barberFilter');
+            const serviceFilter = document.getElementById('serviceFilter');
+            const dateFrom = document.getElementById('dateFrom');
+            const dateTo = document.getElementById('dateTo');
+            const minCost = document.getElementById('minCost');
+            const maxCost = document.getElementById('maxCost');
+            const applyFilters = document.getElementById('applyFilters');
+            const resetFilters = document.getElementById('resetFilters');
+            const quickFilters = document.querySelectorAll('.quick-filter');
             const tableRows = document.querySelectorAll('#appointmentsTable tbody tr');
 
-            statusFilter.addEventListener('change', function() {
-                const selectedStatus = this.value;
-                
+            function filterAppointments() {
+                const selectedStatus = statusFilter.value;
+                const selectedBarber = barberFilter.value;
+                const selectedService = serviceFilter.value;
+                const dateFromValue = dateFrom.value ? new Date(dateFrom.value).getTime() : null;
+                const dateToValue = dateTo.value ? new Date(dateTo.value).getTime() + 86400000 : null; // Add 1 day
+                const minCostValue = minCost.value ? parseFloat(minCost.value) : null;
+                const maxCostValue = maxCost.value ? parseFloat(maxCost.value) : null;
+
                 tableRows.forEach(row => {
                     const rowStatus = row.getAttribute('data-status');
+                    const rowBarber = row.getAttribute('data-barber');
+                    const rowService = row.getAttribute('data-service');
+                    const rowTime = parseInt(row.getAttribute('data-time')) * 1000; // Convert to milliseconds
+                    const rowCost = parseFloat(row.getAttribute('data-cost'));
                     
-                    if (selectedStatus === 'all' || rowStatus === selectedStatus) {
-                        row.style.display = '';
+                    let show = true;
+
+                    // Status filter
+                    if (selectedStatus !== 'all' && rowStatus !== selectedStatus) {
+                        show = false;
+                    }
+
+                    // Barber filter
+                    if (selectedBarber !== 'all' && rowBarber !== selectedBarber) {
+                        show = false;
+                    }
+
+                    // Service filter
+                    if (selectedService !== 'all' && rowService !== selectedService) {
+                        show = false;
+                    }
+
+                    // Date range filter
+                    if (dateFromValue && rowTime < dateFromValue) {
+                        show = false;
+                    }
+                    if (dateToValue && rowTime > dateToValue) {
+                        show = false;
+                    }
+
+                    // Cost range filter
+                    if (minCostValue && rowCost < minCostValue) {
+                        show = false;
+                    }
+                    if (maxCostValue && rowCost > maxCostValue) {
+                        show = false;
+                    }
+
+                    row.style.display = show ? '' : 'none';
+                });
+            }
+
+            function resetAllFilters() {
+                statusFilter.value = 'all';
+                barberFilter.value = 'all';
+                serviceFilter.value = 'all';
+                dateFrom.value = '';
+                dateTo.value = '';
+                minCost.value = '';
+                maxCost.value = '';
+                filterAppointments();
+            }
+
+            // Quick filter functionality
+            quickFilters.forEach(button => {
+                button.addEventListener('click', function() {
+                    const status = this.getAttribute('data-status');
+                    const timeFilter = this.getAttribute('data-time');
+                    
+                    if (status) {
+                        statusFilter.value = status;
+                    }
+                    
+                    if (timeFilter === 'upcoming') {
+                        const today = new Date().getTime();
+                        tableRows.forEach(row => {
+                            const rowTime = parseInt(row.getAttribute('data-time')) * 1000;
+                            row.style.display = rowTime > today ? '' : 'none';
+                        });
+                    } else if (timeFilter === 'past') {
+                        const today = new Date().getTime();
+                        tableRows.forEach(row => {
+                            const rowTime = parseInt(row.getAttribute('data-time')) * 1000;
+                            row.style.display = rowTime <= today ? '' : 'none';
+                        });
                     } else {
-                        row.style.display = 'none';
+                        filterAppointments();
                     }
                 });
             });
 
-            // Sorting Functionality
+            // Event listeners
+            applyFilters.addEventListener('click', filterAppointments);
+            resetFilters.addEventListener('click', resetAllFilters);
+
+            // Enhanced Sorting Functionality
             const table = document.getElementById('appointmentsTable');
             const sortSelect = document.getElementById('sortColumn');
-            let asc = true;
 
             sortSelect.addEventListener('change', function() {
                 const tbody = table.tBodies[0];
                 const visibleRows = Array.from(tbody.rows).filter(row => row.style.display !== 'none');
-                const colIndex = parseInt(this.value);
+                const sortValue = this.value;
+                const colIndex = parseInt(sortValue.split('-')[0]);
+                const isAscending = !sortValue.includes('-desc') && !sortValue.includes('-asc') ? false : !sortValue.includes('-desc');
                 const type = table.tHead.rows[0].cells[colIndex].dataset.type;
 
                 visibleRows.sort((a, b) => {
-                    let valA = a.cells[colIndex].innerText.trim();
-                    let valB = b.cells[colIndex].innerText.trim();
+                    let valA, valB;
+
+                    // Use data attributes for specific sorts
+                    if (sortValue === '8' || sortValue === '8-asc') {
+                        valA = parseFloat(a.getAttribute('data-cost'));
+                        valB = parseFloat(b.getAttribute('data-cost'));
+                    } else if (sortValue === '6' || sortValue === '6-asc') {
+                        valA = parseInt(a.getAttribute('data-duration'));
+                        valB = parseInt(b.getAttribute('data-duration'));
+                    } else if (sortValue === '5' || sortValue === '5-asc') {
+                        valA = parseInt(a.getAttribute('data-time'));
+                        valB = parseInt(b.getAttribute('data-time'));
+                    } else if (sortValue === '9' || sortValue === '9-asc') {
+                        valA = new Date(a.cells[colIndex].innerText.trim()).getTime();
+                        valB = new Date(b.cells[colIndex].innerText.trim()).getTime();
+                    } else {
+                        valA = a.cells[colIndex].innerText.trim();
+                        valB = b.cells[colIndex].innerText.trim();
+                    }
 
                     if (type === 'number') {
-                        valA = parseFloat(valA.replace(/[^\d.-]/g,''));
-                        valB = parseFloat(valB.replace(/[^\d.-]/g,''));
-                        return asc ? valA - valB : valB - valA;
+                        valA = typeof valA === 'string' ? parseFloat(valA.replace(/[^\d.-]/g,'')) : valA;
+                        valB = typeof valB === 'string' ? parseFloat(valB.replace(/[^\d.-]/g,'')) : valB;
+                        return isAscending ? valA - valB : valB - valA;
                     } else if (type === 'date') {
-                        return asc ? new Date(valA) - new Date(valB) : new Date(valB) - new Date(valA);
+                        valA = typeof valA === 'string' ? new Date(valA).getTime() : valA;
+                        valB = typeof valB === 'string' ? new Date(valB).getTime() : valB;
+                        return isAscending ? valA - valB : valB - valA;
                     } else {
-                        return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                        return isAscending ? valA.localeCompare(valB) : valB.localeCompare(valA);
                     }
                 });
 
@@ -211,11 +384,15 @@ $result->data_seek(0); // Reset result pointer
                 visibleRows.forEach(row => tbody.appendChild(row));
                 // Append hidden rows at the end
                 hiddenRows.forEach(row => tbody.appendChild(row));
-                
-                asc = !asc;
             });
+
+            // Initialize with current date restrictions
+            const today = new Date().toISOString().split('T')[0];
+            dateFrom.max = today;
+            dateTo.max = today;
         </script>
     <?php else: ?>
         <p>You have no appointments booked yet.</p>
     <?php endif; ?>
 </div>
+

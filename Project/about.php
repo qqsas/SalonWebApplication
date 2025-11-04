@@ -6,81 +6,103 @@ include 'header.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        @media (min-width: 769px) {
-            .menu-toggle {
-                display: none !important;
-            }
+<style>
+    @media (min-width: 769px) {
+        .menu-toggle {
+            display: none !important;
         }
-        
+    }
+
+    .hours-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .location-section, .hours-section {
+        background: #f9f9f9;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* === WORKING HOURS TABLE === */
+    .hours-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* evenly space columns */
+    }
+
+    .hours-table tr {
+        border-bottom: 1px solid #eee;
+    }
+
+    .hours-table td {
+        padding: 12px 10px;
+        text-align: left;
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: #333;
+    }
+
+    .hours-table td:first-child {
+        font-weight: 600;
+        width: 50%; /* let each column share the width evenly */
+        text-align: left;
+    }
+
+    .hours-table td:last-child {
+        text-align: right; /* aligns times to the right */
+        color: black;
+    }
+
+    /* Optional: subtle hover for better readability */
+    .hours-table tr:hover {
+        background: #f1f1f1;
+    }
+
+    .map-link {
+        color: #007bff;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .map-link:hover {
+        text-decoration: underline;
+    }
+
+    .map-container {
+        margin-top: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .map-iframe {
+        width: 100%;
+        height: 250px;
+        border: none;
+    }
+
+    @media (max-width: 768px) {
         .hours-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
+            grid-template-columns: 1fr;
         }
-        
-        .location-section, .hours-section {
-            background: #f9f9f9;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .hours-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .hours-table tr {
-            border-bottom: 1px solid #eee;
-        }
-        
-        .hours-table td {
-            padding: 10px 5px;
-        }
-        
-        .hours-table td:first-child {
-            font-weight: bold;
-            width: 120px;
-        }
-        
-        .map-link {
-            color: #007bff;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        
-        .map-link:hover {
-            text-decoration: underline;
-        }
-        
-        .map-container {
-            margin-top: 15px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
+
         .map-iframe {
-            width: 100%;
-            height: 250px;
-            border: none;
+            height: 200px;
         }
-        
-        @media (max-width: 768px) {
-            .hours-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .map-iframe {
-                height: 200px;
-            }
+
+        .hours-table td {
+            padding: 10px 6px;
+            font-size: 0.9rem;
         }
-    </style>
+    }
+</style>
     <meta charset="UTF-8">
     <title>About Us - E-Commerce Platform</title>
     <link href="styles2.css" rel="stylesheet">
@@ -180,12 +202,12 @@ include 'header.php';
     <div class="section">
         <h3>Why Choose Us?</h3>
         <ul class="custom-list">
-            <li>Experienced barbers and stylists with a passion for hair and beauty</li>
-            <li>A clean, relaxing, and welcoming salon environment</li>
-            <li>Affordable pricing with premium service quality</li>
-            <li>Tailored grooming and beauty solutions for every client</li>
-            <li>Convenient location with ample parking</li>
-            <li>Extended opening hours to suit your schedule</li>
+            <li><strong></strong>Experienced barbers and stylists with a passion for hair and beauty</li>
+            <li><strong></strong>A clean, relaxing, and welcoming salon environment</li>
+            <li><strong></strong>Fair pricing with premium service quality</li>
+            <li><strong></strong>Tailored grooming and beauty solutions for every client</li>
+            <li><strong></strong>Convenient location with ample parking</li>
+            <li><strong></strong>Extended opening hours to suit your schedule</li>
         </ul>
     </div>
 

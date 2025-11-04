@@ -6,7 +6,11 @@ include 'header.php';
 // Handle input
 $searchTerm = $_GET['search'] ?? '';
 $sortOption = $_GET['sort'] ?? 'newest';
-$selectedCategory = $_GET['category'] ?? '';
+$selectedCategories = $_GET['category'] ?? []; // array now
+
+if (!is_array($selectedCategories)) {
+    $selectedCategories = [$selectedCategories];
+}
 
 // Fetch all unique categories from Products table (handling JSON arrays)
 $allCategories = [];
@@ -85,14 +89,19 @@ if (!empty($searchTerm)) {
     $types .= "ss";
 }
 
-// Category filter - modified to handle JSON arrays
-if (!empty($selectedCategory)) {
-    $query .= " AND (Category LIKE ? OR Category LIKE ?)";
-    $jsonPattern = '%"' . $selectedCategory . '"%';
-    $legacyPattern = '%' . $selectedCategory . '%';
-    $params[] = $jsonPattern;
-    $params[] = $legacyPattern;
-    $types .= "ss";
+// Category filter - handle multiple selected categories
+if (!empty($selectedCategories)) {
+    $query .= " AND (";
+    $categoryConditions = [];
+    foreach ($selectedCategories as $cat) {
+        $categoryConditions[] = "(Category LIKE ? OR Category LIKE ?)";
+        $jsonPattern = '%"' . $cat . '"%';
+        $legacyPattern = '%' . $cat . '%';
+        $params[] = $jsonPattern;
+        $params[] = $legacyPattern;
+        $types .= "ss";
+    }
+    $query .= implode(" OR ", $categoryConditions) . ")";
 }
 
 // Sort logic
@@ -129,21 +138,15 @@ $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 foreach ($products as &$product) {
     $categories = [];
     if (!empty($product['Category'])) {
-        // If it's a JSON string, decode it
         if (is_string($product['Category']) && $product['Category'][0] === '[') {
             $categories = json_decode($product['Category'], true) ?: [];
-        } 
-        // If it's already an array, use it directly
-        elseif (is_array($product['Category'])) {
+        } elseif (is_array($product['Category'])) {
             $categories = $product['Category'];
-        }
-        // If it's a single string (legacy data), wrap it in an array
-        elseif (is_string($product['Category'])) {
+        } elseif (is_string($product['Category'])) {
             $categories = [$product['Category']];
         }
     }
     
-    // Clean categories for display
     $categories = array_map(function($cat) {
         return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
     }, $categories);
@@ -152,7 +155,7 @@ foreach ($products as &$product) {
     $product['ParsedCategories'] = $categories;
     $product['CategoriesDisplay'] = !empty($categories) ? implode(', ', $categories) : 'Uncategorized';
 }
-unset($product); // Break the reference
+unset($product); // Break reference
 ?>
 
 <!DOCTYPE html>
@@ -163,6 +166,10 @@ unset($product); // Break the reference
     <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .checkbox-group { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; }
+        .checkbox-group label { display:flex; align-items:center; gap:5px; }
+    </style>
 </head>
 <body>
 
@@ -182,15 +189,16 @@ unset($product); // Break the reference
             <option value="name_desc" <?= $sortOption === 'name_desc' ? 'selected' : '' ?>>Name: Z to A</option>
         </select>
 
-        <select name="category" id="productCategory" class="filter-category">
-            <option value="">All Categories</option>
+        <!-- Checkboxes for multiple categories -->
+        <div class="checkbox-group">
             <?php foreach ($allCategories as $cat): ?>
-                <option value="<?= htmlspecialchars($cat) ?>" 
-                        <?= $selectedCategory == $cat ? 'selected' : '' ?>>
+                <label>
+                    <input type="checkbox" name="category[]" value="<?= htmlspecialchars($cat) ?>"
+                        <?= in_array($cat, $selectedCategories) ? 'checked' : '' ?>>
                     <?= htmlspecialchars($cat) ?>
-                </option>
+                </label>
             <?php endforeach; ?>
-        </select>
+        </div>
 
         <button type="submit" class="filter-button" id="applyButton">Apply</button>
     </form>
@@ -261,15 +269,21 @@ unset($product); // Break the reference
 // ===== CLIENT-SIDE FILTERING AND SORTING =====
 const searchInput = document.getElementById('productSearch');
 const sortSelect = document.getElementById('productSort');
-const categorySelect = document.getElementById('productCategory');
 const productsGrid = document.getElementById('productsGrid');
 const productCards = Array.from(productsGrid ? productsGrid.children : []);
 const noResults = document.querySelector('.no-results');
+const categoryCheckboxes = document.querySelectorAll('.checkbox-group input[type=checkbox]');
+
+function getSelectedCategories() {
+    return Array.from(categoryCheckboxes)
+                .filter(chk => chk.checked)
+                .map(chk => chk.value.toLowerCase());
+}
 
 // FILTER FUNCTION
 function filterProducts() {
     const searchTerm = searchInput.value.toLowerCase();
-    const selectedCategory = categorySelect.value.toLowerCase();
+    const selectedCats = getSelectedCategories();
     let hasMatches = false;
 
     productCards.forEach(card => {
@@ -277,7 +291,7 @@ function filterProducts() {
         const categories = card.dataset.categories;
 
         const matchSearch = name.includes(searchTerm) || categories.includes(searchTerm);
-        const matchCategory = !selectedCategory || categories.includes(selectedCategory);
+        const matchCategory = selectedCats.length === 0 || selectedCats.some(cat => categories.includes(cat));
 
         const match = matchSearch && matchCategory;
         card.style.display = match ? '' : 'none';
@@ -304,7 +318,7 @@ function sortProducts() {
             case 'name_asc': return nameA.localeCompare(nameB);
             case 'name_desc': return nameB.localeCompare(nameA);
             case 'newest':
-            default: return 0; // Already sorted server-side by date
+            default: return 0;
         }
     });
 
@@ -312,26 +326,13 @@ function sortProducts() {
 }
 
 // EVENT LISTENERS
-searchInput.addEventListener('input', () => {
-    filterProducts();
-    sortProducts();
-});
+searchInput.addEventListener('input', () => { filterProducts(); sortProducts(); });
 sortSelect.addEventListener('change', sortProducts);
-categorySelect.addEventListener('change', () => {
-    filterProducts();
-    sortProducts();
-});
+categoryCheckboxes.forEach(chk => chk.addEventListener('change', () => { filterProducts(); sortProducts(); }));
 
-// Apply button refreshes server results but also works instantly on client
 const applyButton = document.getElementById('applyButton');
-applyButton.addEventListener('click', (e) => {
-    // Optional: Uncomment to disable full reload and make it JS-only
-    // e.preventDefault();
-    filterProducts();
-    sortProducts();
-});
+applyButton.addEventListener('click', () => { filterProducts(); sortProducts(); });
 
-// Initialize filtering on page load
 document.addEventListener('DOMContentLoaded', function() {
     filterProducts();
     sortProducts();
@@ -343,3 +344,4 @@ include 'footer.php';
 ?>
 </body>
 </html>
+

@@ -10,6 +10,14 @@ if (!isset($_SESSION['UserID'])) {
 
 $UserID = $_SESSION['UserID'];
 
+// Fetch user's profile name
+$userStmt = $conn->prepare("SELECT Name FROM User WHERE UserID = ?");
+$userStmt->bind_param("i", $UserID);
+$userStmt->execute();
+$userResult = $userStmt->get_result();
+$user = $userResult->fetch_assoc();
+$profileName = $user ? $user['Name'] : '';
+
 if (!isset($_GET['ServicesID']) || !isset($_GET['BarberID'])) {
     echo "Service or barber not selected.";
     exit();
@@ -207,6 +215,16 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
             <input type="hidden" name="UserID" value="<?= $UserID ?>">
             <input type="hidden" name="selected_time" id="selected_time">
 
+            <!-- Appointment Name Field -->
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="appointment_name" class="form-label">Appointment For *</label>
+                <input type="text" name="appointment_name" id="appointment_name" class="form-input" 
+                       placeholder="Enter name for this appointment" 
+                       value="<?= htmlspecialchars($profileName) ?>"
+                       maxlength="100" required>
+                <small class="form-text">Leave blank to use your profile name: <?= htmlspecialchars($profileName) ?></small>
+            </div>
+
             <div class="calendar-container">
                 <table class="calendar">
                     <tr>
@@ -312,6 +330,7 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
                 <div class="appointment-details">
                     <p><strong>Service:</strong> <?= htmlspecialchars($service['Name']) ?></p>
                     <p><strong>Barber:</strong> <?= htmlspecialchars($barber['Name']) ?></p>
+                    <p><strong>For:</strong> <span id="confirmAppointmentName"></span></p>
                     <p><strong>Date & Time:</strong> <span id="confirmDateTime"></span></p>
                     <p><strong>Duration:</strong> <?= $service['Time'] ?> minutes</p>
                     <p><strong>Price:</strong> R<?= number_format($service['Price'], 2) ?></p>
@@ -332,9 +351,12 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
         const bookingForm = document.getElementById('bookingForm');
         const confirmationModal = document.getElementById('confirmationModal');
         const confirmDateTime = document.getElementById('confirmDateTime');
+        const confirmAppointmentName = document.getElementById('confirmAppointmentName');
         const confirmBookingBtn = document.getElementById('confirmBooking');
         const cancelBookingBtn = document.getElementById('cancelBooking');
         const closeModal = document.querySelector('.close');
+        const appointmentNameInput = document.getElementById('appointment_name');
+        const profileName = "<?= addslashes($profileName) ?>";
         
         function selectSlot(elem, datetime) {
             if(elem.classList.contains('unavailable') || elem.classList.contains('booked')) return;
@@ -369,6 +391,13 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
             submitButton.disabled = false;
         }
 
+        // Handle appointment name auto-fill
+        function handleAppointmentName() {
+            if (appointmentNameInput.value.trim() === '') {
+                appointmentNameInput.value = profileName;
+            }
+        }
+
         // Enhanced booking functionality
         document.addEventListener('DOMContentLoaded', function() {
             const selectedTimeDisplay = document.createElement('div');
@@ -376,6 +405,20 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
             // Create selected time display
             selectedTimeDisplay.className = 'selected-time-display';
             document.querySelector('.booking-form').insertBefore(selectedTimeDisplay, document.querySelector('.booking-actions'));
+            
+            // Set up appointment name handling
+            appointmentNameInput.addEventListener('blur', handleAppointmentName);
+            appointmentNameInput.addEventListener('input', function() {
+                // If user clears the field and then types something, don't auto-fill
+                if (this.value.trim() === '' && this.dataset.userCleared !== 'true') {
+                    this.dataset.userCleared = 'true';
+                }
+            });
+            
+            // Auto-fill on page load if empty
+            if (appointmentNameInput.value.trim() === '') {
+                appointmentNameInput.value = profileName;
+            }
             
             // Add click event listeners to all available slots
             document.querySelectorAll('.calendar td.available').forEach(slot => {
@@ -446,10 +489,22 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
                     return false;
                 }
                 
+                // Auto-fill appointment name if empty
+                handleAppointmentName();
+                
+                // Validate appointment name
+                if (!appointmentNameInput.value.trim()) {
+                    alert('Please enter a name for the appointment.');
+                    appointmentNameInput.focus();
+                    return false;
+                }
+                
                 // Show confirmation modal
                 const selectedDate = new Date(selectedTimeInput.value);
                 confirmDateTime.textContent = 
                     `${selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+                
+                confirmAppointmentName.textContent = appointmentNameInput.value;
                 
                 confirmationModal.style.display = 'block';
             });

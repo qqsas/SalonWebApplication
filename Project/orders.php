@@ -75,41 +75,93 @@ $stmt->close();
         <p>No orders found.</p>
         <a href="products.php" class="btn">Browse Products</a>
     <?php else: ?>
-        <!-- Filters -->
+        <!-- Enhanced Filters -->
         <div class="filters" style="margin-bottom:15px;">
+            <!-- Status Filter -->
             <label for="status_filter">Filter by Status:</label>
             <select id="status_filter">
-                <option value="">All</option>
+                <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="Paid">Paid</option>
                 <option value="Cancelled">Cancelled</option>
-                <option value="Reserved">Reserved</option>
+                <option value="Completed">Completed</option>
             </select>
 
+            <!-- Date Range Filters -->
+            <label for="date_from">From:</label>
+            <input type="date" id="date_from" style="padding:5px;">
+
+            <label for="date_to">To:</label>
+            <input type="date" id="date_to" style="padding:5px;">
+
+            <!-- Price Range Filters -->
+            <label for="min_price">Min Price:</label>
+            <input type="number" id="min_price" placeholder="R 0.00" min="0" step="0.01" style="padding:5px; width:100px;">
+
+            <label for="max_price">Max Price:</label>
+            <input type="number" id="max_price" placeholder="R 1000.00" min="0" step="0.01" style="padding:5px; width:100px;">
+
+            <!-- Sort Options -->
             <label for="sort_orders">Sort by:</label>
             <select id="sort_orders">
-                <option value="date_desc">Date Descending</option>
-                <option value="date_asc">Date Ascending</option>
-                <option value="total_desc">Total Descending</option>
-                <option value="total_asc">Total Ascending</option>
-                <option value="status_asc">Status A-Z</option>
-                <option value="status_desc">Status Z-A</option>
+                <option value="date_desc">Date (Newest First)</option>
+                <option value="date_asc">Date (Oldest First)</option>
+                <option value="total_desc">Total (High to Low)</option>
+                <option value="total_asc">Total (Low to High)</option>
+                <option value="status_asc">Status (A-Z)</option>
+                <option value="status_desc">Status (Z-A)</option>
+                <option value="id_desc">Order ID (High to Low)</option>
+                <option value="id_asc">Order ID (Low to High)</option>
+                <option value="items_desc">Items (Most First)</option>
+                <option value="items_asc">Items (Fewest First)</option>
             </select>
+
+            <!-- Quick Action Buttons -->
+            <button type="button" id="apply_filters" class="btn" style="margin-left:10px;">Apply Filters</button>
+            <button type="button" id="reset_filters" class="btn">Reset</button>
+        </div>
+
+        <!-- Quick Status Filters -->
+        <div class="filters" style="margin-bottom:15px;">
+            <strong>Quick Filters:</strong>
+            <button type="button" class="btn quick-filter" data-status="Pending">Pending</button>
+            <button type="button" class="btn quick-filter" data-status="Paid">Paid</button>
+            <button type="button" class="btn quick-filter" data-status="Cancelled">Cancelled</button>
+            <button type="button" class="btn quick-filter" data-status="Reserved">Reserved</button>
+            <button type="button" class="btn quick-filter" data-status="">Show All</button>
         </div>
 
         <div id="orders_container">
         <?php foreach ($orders as $order): 
             $canModify = (time() - strtotime($order['CreatedAt'])) <= 2 * 24 * 60 * 60;
+            
+            // Get order items count for filtering
+            $stmt = $conn->prepare("
+                SELECT COUNT(*) as item_count 
+                FROM OrderItems 
+                WHERE OrderID = ?
+            ");
+            $stmt->bind_param("i", $order['OrderID']);
+            $stmt->execute();
+            $countResult = $stmt->get_result();
+            $itemCount = $countResult->fetch_assoc()['item_count'];
+            $stmt->close();
         ?>
-            <div class="order-card" data-status="<?= htmlspecialchars($order['Status']); ?>" data-date="<?= strtotime($order['CreatedAt']); ?>" data-total="<?= $order['TotalPrice']; ?>">
+            <div class="order-card" 
+                 data-status="<?= htmlspecialchars($order['Status']); ?>" 
+                 data-date="<?= strtotime($order['CreatedAt']); ?>" 
+                 data-total="<?= $order['TotalPrice']; ?>"
+                 data-id="<?= $order['OrderID']; ?>"
+                 data-items="<?= $itemCount; ?>">
                 <h3>Order #<?= $order['OrderID']; ?></h3>
         <div class="textOrder">
                 <?php if ($isAdmin): ?>
                     <p>Customer: <?= htmlspecialchars($order['UserName']); ?></p>
                 <?php endif; ?>
-                <p>Status: <?= htmlspecialchars($order['Status']); ?></p>
+                <p>Status: <span class="status-<?= strtolower($order['Status']); ?>"><?= htmlspecialchars($order['Status']); ?></span></p>
                 <p>Total: R<?= number_format($order['TotalPrice'], 2); ?></p>
-                <p>Date: <?= $order['CreatedAt']; ?></p>
+                <p>Date: <?= date('M j, Y g:i A', strtotime($order['CreatedAt'])); ?></p>
+                <p>Items: <?= $itemCount; ?></p>
         </div>
                 <!-- Fetch order items -->
                 <?php
@@ -173,7 +225,6 @@ $stmt->close();
                     <p><em>Order modification period has expired.</em></p>
                 <?php endif; ?>
             </div>
-            <hr>
         <?php endforeach; ?>
         </div>
     <?php endif; ?>
@@ -183,21 +234,55 @@ $stmt->close();
 const ordersContainer = document.getElementById('orders_container');
 const statusFilter = document.getElementById('status_filter');
 const sortSelect = document.getElementById('sort_orders');
+const dateFrom = document.getElementById('date_from');
+const dateTo = document.getElementById('date_to');
+const minPrice = document.getElementById('min_price');
+const maxPrice = document.getElementById('max_price');
+const applyFilters = document.getElementById('apply_filters');
+const resetFilters = document.getElementById('reset_filters');
+const quickFilters = document.querySelectorAll('.quick-filter');
 
 function filterAndSortOrders() {
     const statusValue = statusFilter.value;
     const sortValue = sortSelect.value;
+    const dateFromValue = dateFrom.value ? new Date(dateFrom.value).getTime() / 1000 : null;
+    const dateToValue = dateTo.value ? new Date(dateTo.value).getTime() / 1000 + 86400 : null; // Add 1 day to include the entire day
+    const minPriceValue = minPrice.value ? parseFloat(minPrice.value) : null;
+    const maxPriceValue = maxPrice.value ? parseFloat(maxPrice.value) : null;
 
     // Get order cards
     const cards = Array.from(ordersContainer.querySelectorAll('.order-card'));
 
     // Filter
     cards.forEach(card => {
-        if (!statusValue || card.dataset.status === statusValue) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
+        let show = true;
+        const cardStatus = card.dataset.status;
+        const cardDate = parseInt(card.dataset.date);
+        const cardTotal = parseFloat(card.dataset.total);
+        const cardItems = parseInt(card.dataset.items);
+
+        // Status filter
+        if (statusValue && cardStatus !== statusValue) {
+            show = false;
         }
+
+        // Date range filter
+        if (dateFromValue && cardDate < dateFromValue) {
+            show = false;
+        }
+        if (dateToValue && cardDate > dateToValue) {
+            show = false;
+        }
+
+        // Price range filter
+        if (minPriceValue && cardTotal < minPriceValue) {
+            show = false;
+        }
+        if (maxPriceValue && cardTotal > maxPriceValue) {
+            show = false;
+        }
+
+        card.style.display = show ? '' : 'none';
     });
 
     // Sort
@@ -210,14 +295,43 @@ function filterAndSortOrders() {
             case 'total_desc': return b.dataset.total - a.dataset.total;
             case 'status_asc': return a.dataset.status.localeCompare(b.dataset.status);
             case 'status_desc': return b.dataset.status.localeCompare(a.dataset.status);
+            case 'id_asc': return a.dataset.id - b.dataset.id;
+            case 'id_desc': return b.dataset.id - a.dataset.id;
+            case 'items_asc': return a.dataset.items - b.dataset.items;
+            case 'items_desc': return b.dataset.items - a.dataset.items;
             default: return 0;
         }
     });
 
+    // Re-append sorted cards
     visibleCards.forEach(card => ordersContainer.appendChild(card));
 }
 
+function resetAllFilters() {
+    statusFilter.value = '';
+    dateFrom.value = '';
+    dateTo.value = '';
+    minPrice.value = '';
+    maxPrice.value = '';
+    sortSelect.value = 'date_desc';
+    filterAndSortOrders();
+}
+
+// Event Listeners
 statusFilter.addEventListener('change', filterAndSortOrders);
 sortSelect.addEventListener('change', filterAndSortOrders);
+applyFilters.addEventListener('click', filterAndSortOrders);
+resetFilters.addEventListener('click', resetAllFilters);
+
+// Quick filter buttons
+quickFilters.forEach(button => {
+    button.addEventListener('click', function() {
+        statusFilter.value = this.dataset.status;
+        filterAndSortOrders();
+    });
+});
+
+// Initialize filters
+filterAndSortOrders();
 </script>
 

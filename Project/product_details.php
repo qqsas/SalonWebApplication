@@ -48,6 +48,35 @@ $productCategories = array_map(function($cat) {
 $productCategories = array_filter($productCategories);
 $categoriesDisplay = !empty($productCategories) ? implode(', ', $productCategories) : 'Uncategorized';
 
+// Fetch approved reviews for this product
+$reviews_stmt = $conn->prepare("
+    SELECT r.*, u.Name as UserName 
+    FROM Reviews r 
+    JOIN User u ON r.UserID = u.UserID 
+    WHERE r.ProductID = ? AND r.Status = 'approved'
+    ORDER BY r.CreatedAt DESC
+");
+$reviews_stmt->bind_param("i", $product_id);
+$reviews_stmt->execute();
+$reviews_result = $reviews_stmt->get_result();
+$approved_reviews = [];
+
+while ($review = $reviews_result->fetch_assoc()) {
+    $approved_reviews[] = $review;
+}
+$reviews_stmt->close();
+
+// Calculate average rating
+$average_rating = 0;
+$total_ratings = count($approved_reviews);
+if ($total_ratings > 0) {
+    $total_score = 0;
+    foreach ($approved_reviews as $review) {
+        $total_score += $review['Rating'];
+    }
+    $average_rating = round($total_score / $total_ratings, 1);
+}
+
 // Fetch related products (products that share at least one category)
 $related_products = [];
 if (!empty($productCategories)) {
@@ -112,6 +141,138 @@ if (empty($related_products)) {
     <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .reviews-section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .average-rating {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star {
+            color: #ddd;
+            font-size: 1.5em;
+        }
+        
+        .star.filled {
+            color: #ffc107;
+        }
+        
+        .total-reviews {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .review-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .reviewer-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .review-date {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .review-rating {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .review-rating .star {
+            font-size: 1.1em;
+        }
+        
+        .review-content {
+            line-height: 1.6;
+            color: #495057;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .review-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .reviews-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .rating-summary {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -129,6 +290,31 @@ if (empty($related_products)) {
         </div>
         <div class="item-detail__content">
             <h2 class="item-detail__title"><?= htmlspecialchars($product['Name']) ?></h2>
+            
+            <!-- Display average rating if available -->
+            <?php if ($total_ratings > 0): ?>
+            <div class="item-detail__rating" style="margin-bottom: 15px;">
+                <div class="rating-stars">
+                    <?php
+                    $full_stars = floor($average_rating);
+                    $has_half_star = ($average_rating - $full_stars) >= 0.5;
+                    
+                    for ($i = 1; $i <= 5; $i++): 
+                        if ($i <= $full_stars): ?>
+                            <span class="star filled">★</span>
+                        <?php elseif ($i == $full_stars + 1 && $has_half_star): ?>
+                            <span class="star filled">★</span>
+                        <?php else: ?>
+                            <span class="star">★</span>
+                        <?php endif;
+                    endfor; 
+                    ?>
+                </div>
+                <span style="margin-left: 8px; color: #6c757d;">
+                    <?= $average_rating ?> (<?= $total_ratings ?> review<?= $total_ratings !== 1 ? 's' : '' ?>)
+                </span>
+            </div>
+            <?php endif; ?>
             
             <div class="item-detail__meta">
                 <strong>Categories:</strong>
@@ -178,6 +364,70 @@ if (empty($related_products)) {
             <?php endif; ?>
         </div>
     </div>
+</div>
+
+<!-- Reviews Section -->
+<div class="reviews-section">
+    <div class="reviews-header">
+        <h3>Customer Reviews</h3>
+        <?php if ($total_ratings > 0): ?>
+        <div class="rating-summary">
+            <div class="average-rating"><?= $average_rating ?></div>
+            <div>
+                <div class="rating-stars">
+                    <?php
+                    $full_stars = floor($average_rating);
+                    $has_half_star = ($average_rating - $full_stars) >= 0.5;
+                    
+                    for ($i = 1; $i <= 5; $i++): 
+                        if ($i <= $full_stars): ?>
+                            <span class="star filled">★</span>
+                        <?php elseif ($i == $full_stars + 1 && $has_half_star): ?>
+                            <span class="star filled">★</span>
+                        <?php else: ?>
+                            <span class="star">★</span>
+                        <?php endif;
+                    endfor; 
+                    ?>
+                </div>
+                <div class="total-reviews">Based on <?= $total_ratings ?> review<?= $total_ratings !== 1 ? 's' : '' ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <?php if (!empty($approved_reviews)): ?>
+        <div class="reviews-list">
+            <?php foreach ($approved_reviews as $review): ?>
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <span class="reviewer-name"><?= htmlspecialchars($review['UserName']) ?></span>
+                            <span class="review-date"><?= date('F j, Y', strtotime($review['CreatedAt'])) ?></span>
+                        </div>
+                        <div class="review-rating">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <span class="star <?= $i <= $review['Rating'] ? 'filled' : '' ?>">★</span>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                    
+                    <?php if (!empty($review['Title'])): ?>
+                        <div class="review-title"><?= htmlspecialchars($review['Title']) ?></div>
+                    <?php endif; ?>
+                    
+                    <div class="review-content">
+                        <?= nl2br(htmlspecialchars($review['Comment'] ?? 'No comment provided')) ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <div class="no-reviews">
+            <p>No reviews yet for this product.</p>
+            <p>Be the first to share your experience!</p>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php if (!empty($related_products)): ?>
