@@ -186,6 +186,13 @@ body {
   background-color: var(--white);
 }
 
+/* Gallery */
+
+.gallery {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
 /* Hero Section */
 .hero {
     background: linear-gradient(135deg, #3e4485 60%,#764ba2 100%);
@@ -335,7 +342,6 @@ body {
 }
 
 .card-content p {
-  color: var(--text-light);
   margin-bottom: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -365,7 +371,6 @@ body {
 .contact p {
   text-align: center;
   margin-bottom: 2rem;
-  color: var(--text-light);
 }
 
 .contact-container {
@@ -1078,7 +1083,6 @@ footer {
 .no-results {
   text-align: center;
   padding: 3rem;
-  color: var(--text-light);
   font-size: 1.1rem;
   grid-column: 1 / -1;
 }
@@ -1235,7 +1239,6 @@ footer {
 }
 
 .product-category {
-  color: var(--text-light);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   padding: 0.25rem 0.75rem;
@@ -1628,7 +1631,6 @@ footer {
 .staff-card p:last-of-type {
   margin-bottom: 1.5rem;
   font-style: italic;
-  color: var(--text-light);
   background: var(--background-light);
   padding: 1rem;
   border-radius: 6px;
@@ -1761,7 +1763,6 @@ footer {
 .no-results {
   text-align: center;
   padding: 3rem;
-  color: var(--text-light);
   font-size: 1.1rem;
   grid-column: 1 / -1;
 }
