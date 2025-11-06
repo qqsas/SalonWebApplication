@@ -292,56 +292,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Create Account</title>
     <link href="styles.css" rel="stylesheet">
-<<<<<<< HEAD
-=======
-    <style>
-        /* Hide error messages by default */
-        .error {
-            color: #d9534f;
-            font-size: 0.9rem;
-            margin-top: 4px;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .error.visible {
-            display: block;
-            opacity: 1;
-        }
-
-        .password-wrapper {
-          position: relative;
-          width: 100%;
-        }
-
-        .password-wrapper input {
-          width: 100%;
-          padding-right: 35px;
-          box-sizing: border-box;
-        }
-
-        .toggle-eye {
-          position: absolute;
-          right: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          font-size: 18px;
-          color: #777;
-        }
-
-        .toggle-eye:hover {
-          color: #000;
-        }
-
-        .password-requirements {
-          font-size: 0.85rem;
-          color: #666;
-          margin-top: 5px;
-        }
-    </style>
->>>>>>> 4b6f4278448f60b19817c73d02221d816ec19c69
 </head>
 <body class="bg-light">
 <div class="container">
@@ -357,7 +307,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         
         <div class="form-group">
-<<<<<<< HEAD
           <label for="name">Full Name <span class="required">*</span></label>
           <input type="text" name="name" id="name" class="form-control <?php echo !empty($errors['name']) ? 'error-field' : ''; ?>" 
                  value="<?php echo htmlspecialchars($form_data['name']); ?>" 
@@ -365,19 +314,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <?php if (!empty($errors['name'])): ?>
             <div class="error"><?php echo htmlspecialchars($errors['name']); ?></div>
           <?php endif; ?>
-=======
-          <label>Full Name</label>
-          <input type="text" name="name" class="form-control" 
-                 value="<?= htmlspecialchars($_POST["name"] ?? '') ?>" required>
-          <span class="error <?= !empty($nameError) ? 'visible' : '' ?>">
-            <?= htmlspecialchars($nameError) ?>
-          </span>
->>>>>>> 4b6f4278448f60b19817c73d02221d816ec19c69
         </div>
 
         <div class="contact-note">Please provide either an email address or a phone number</div>
         <div class="form-group">
-<<<<<<< HEAD
           <label for="contact">Email or Phone Number <span class="required">*</span></label>
           <input type="text" name="contact" id="contact" class="form-control <?php echo !empty($errors['contact']) ? 'error-field' : ''; ?>" 
                  value="<?php echo htmlspecialchars($form_data['contact']); ?>" 
@@ -385,14 +325,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <?php if (!empty($errors['contact'])): ?>
             <div class="error"><?php echo htmlspecialchars($errors['contact']); ?></div>
           <?php endif; ?>
-=======
-          <label>Email or Phone</label>
-          <input type="text" name="contact" class="form-control" 
-                 value="<?= htmlspecialchars($_POST["contact"] ?? '') ?>" required>
-          <span class="error <?= !empty($contactError) ? 'visible' : '' ?>">
-            <?= htmlspecialchars($contactError) ?>
-          </span>
->>>>>>> 4b6f4278448f60b19817c73d02221d816ec19c69
         </div>
 
         <div class="form-group">
@@ -414,7 +346,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <li>At least one special character</li>
               </ul>
           </div>
-<<<<<<< HEAD
         </div>
 
         <div class="form-group">
@@ -426,19 +357,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <?php if (!empty($errors['confirm_password'])): ?>
             <div class="error"><?php echo htmlspecialchars($errors['confirm_password']); ?></div>
           <?php endif; ?>
-=======
-          <span class="error <?= !empty($passwordError) ? 'visible' : '' ?>">
-            <?= $passwordError ?>
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label>Confirm Password</label>
-          <input type="password" name="confirm_password" class="form-control" required>
-          <span class="error <?= !empty($confirmPasswordError) ? 'visible' : '' ?>">
-            <?= htmlspecialchars($confirmPasswordError) ?>
-          </span>
->>>>>>> 4b6f4278448f60b19817c73d02221d816ec19c69
         </div>
 
         <button type="submit" class="btn" id="submitBtn">Create Account</button>
@@ -450,7 +368,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 
 <script>
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('registrationForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -506,46 +423,6 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating Account...';
         });
-=======
-document.addEventListener("DOMContentLoaded", function () {
-  const pass = document.querySelector('input[name="password"]');
-  const confirm = document.querySelector('input[name="confirm_password"]');
-  const contact = document.querySelector('input[name="contact"]');
-  const form = document.querySelector("form");
-  const toggle = document.querySelector(".toggle-eye");
-
-  // Toggle password visibility
-  toggle.addEventListener("click", () => {
-    const isPassword = pass.type === "password";
-    pass.type = confirm.type = isPassword ? "text" : "password";
-    toggle.textContent = isPassword ? "🚫" : "👁";
-  });
-
-  // Match password validation
-  confirm.addEventListener("input", () => {
-    confirm.style.borderColor = confirm.value === pass.value ? "green" : "red";
-  });
-
-  // Detect input type for contact field
-  contact.addEventListener("input", () => {
-    const val = contact.value.trim();
-    if (val.includes("@")) contact.style.borderColor = "green";
-    else if (/^\d+$/.test(val)) contact.style.borderColor = "blue";
-    else contact.style.borderColor = "";
-  });
-
-  // Show red border if PHP error exists
-  document.querySelectorAll('.error.visible').forEach(err => {
-    const input = err.closest('.form-group').querySelector('input');
-    if (input) input.style.borderColor = 'red';
-  });
-
-  // Prevent form submit if passwords don't match
-  form.addEventListener("submit", (e) => {
-    if (pass.value !== confirm.value) {
-      e.preventDefault();
-      alert("Passwords do not match!");
->>>>>>> 4b6f4278448f60b19817c73d02221d816ec19c69
     }
     
     function showError(fieldId, message) {
