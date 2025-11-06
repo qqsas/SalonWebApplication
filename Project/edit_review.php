@@ -60,23 +60,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Review Status - Admin</title>
+    <link href="addedit.css" rel="stylesheet">
+</head>
+<body>
+
 <?php include 'header.php'; ?>
+
 <div class="container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
     <h2>Edit Review Status</h2>
 
-    <form method="post">
-        <div>
-            <label for="status">Status:</label><br>
-            <select name="status" id="status" required>
-                <option value="pending" <?php if ($review['Status'] === 'pending') echo 'selected'; ?>>Pending</option>
-                <option value="approved" <?php if ($review['Status'] === 'approved') echo 'selected'; ?>>Approved</option>
-                <option value="cancelled" <?php if ($review['Status'] === 'cancelled') echo 'selected'; ?>>Cancelled</option>
-            </select>
+    <div class="form-container">
+        <!-- Review Details -->
+        <div class="review-details">
+            <h3>Review Details</h3>
+            <p><strong>Review ID:</strong> <?= htmlspecialchars($review['ReviewID']) ?></p>
+            <p><strong>User ID:</strong> <?= htmlspecialchars($review['UserID']) ?></p>
+            <p><strong>Rating:</strong> <?= htmlspecialchars($review['Rating']) ?>/5</p>
+            <p><strong>Comment:</strong> <?= htmlspecialchars($review['Comment'] ?? 'No comment') ?></p>
+            <p><strong>Current Status:</strong> <span style="color: 
+                <?= $review['Status'] === 'approved' ? 'green' : 
+                   ($review['Status'] === 'pending' ? 'orange' : 'red') ?>">
+                <?= ucfirst(htmlspecialchars($review['Status'])) ?>
+            </span></p>
+            <p><strong>Created:</strong> <?= htmlspecialchars($review['CreatedAt']) ?></p>
         </div>
 
-        <br>
-        <button type="submit">Update Status</button>
-    </form>
-</div>
-<?php include 'footer.php'; ?>
+        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+            <?php if (isset($stmt) && $stmt->execute()): ?>
+                <div class="message success">Review status updated successfully.</div>
+            <?php elseif (isset($conn->error)): ?>
+                <div class="message error">Error updating status: <?php echo $conn->error; ?></div>
+            <?php endif; ?>
+        <?php endif; ?>
 
+        <form method="post">
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select name="status" id="status" required>
+                    <option value="pending" <?php if ($review['Status'] === 'pending') echo 'selected'; ?>>Pending</option>
+                    <option value="approved" <?php if ($review['Status'] === 'approved') echo 'selected'; ?>>Approved</option>
+                    <option value="cancelled" <?php if ($review['Status'] === 'cancelled') echo 'selected'; ?>>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Update Status</button>
+                <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php include 'footer.php'; ?>
+</body>
+</html>

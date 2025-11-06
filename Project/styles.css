@@ -1,12 +1,12 @@
 /* Color Palette Variables */
 :root {
-  --primary-color: #c44536;
-  --secondary-color: #e67e22;
-  --accent-color: #d35400;
+  --primary-color: #545885;
+  --secondary-color: #5A502A;
+  --accent-color: #B2A783;
   --background-light: #fef5e7;
   --background-dark: #2c3e50;
-  --text-dark: #2c3e50;
-  --text-light: #7f8c8d;
+  --text-dark: #050401;
+  --text-light: #dddddd;
   --white: #ffffff;
   --gray-light: #ecf0f1;
   --gray-medium: #bdc3c7;
@@ -34,6 +34,12 @@
     
 }
 
+/*Global*/
+
+h1,h2{
+  font-weight: 200;
+}
+
 .container-fluid {
   width: 100%;
   padding: 0 1rem;
@@ -41,7 +47,6 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -55,12 +60,13 @@
   text-decoration: none;
   color: var(--text-dark);
   font-weight: bold;
-  font-size: 1.25rem;
+  font-size: 1rem;
 }
 
 .navbar-brand img {
   height: 30px;
   margin-right: 10px;
+  filter: invert(1);
 }
 
 /* Mobile menu toggle */
@@ -94,6 +100,7 @@
   font-weight: 500;
   transition: color 0.3s ease;
   padding: 0.5rem 0;
+  font-size: 0.8rem;
 }
 
 .nav-link:hover {
@@ -179,6 +186,13 @@ body {
   background-color: var(--white);
 }
 
+/* Gallery */
+
+.gallery {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
 /* Hero Section */
 .hero {
     background: linear-gradient(135deg, #3e4485 60%,#764ba2 100%);
@@ -191,7 +205,7 @@ body {
 .hero h2 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  font-weight: 700;
+  font-weight: 200;
 }
 
 .hero p {
@@ -295,8 +309,6 @@ body {
 /* Default placeholder images */
 .service-image::before,
 .staff-image::before {
-  content: "📷";
-  font-size: 3rem;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -330,7 +342,6 @@ body {
 }
 
 .card-content p {
-  color: var(--text-light);
   margin-bottom: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -360,7 +371,6 @@ body {
 .contact p {
   text-align: center;
   margin-bottom: 2rem;
-  color: var(--text-light);
 }
 
 .contact-container {
@@ -567,13 +577,13 @@ footer {
   align-items: center;
   justify-content: center;
 }
-
+/* 
 .service-image:not([style*="background-image"])::after,
 .staff-image:not([style*="background-image"])::after {
   content: "Image Coming Soon";
   color: var(--text-light);
   font-style: italic;
-}
+} */
 
 /* About Us Page Styles */
 .containerAbout {
@@ -585,6 +595,7 @@ footer {
 .containerAbout h1 {
   text-align: center;
   font-size: 2.5rem;
+  font-weight: 100;
   color: var(--text-dark);
   margin-bottom: 2rem;
   position: relative;
@@ -1055,17 +1066,7 @@ footer {
   animation: fadeInUp 0.5s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* duplicate fadeInUp removed (consolidated earlier definition) */
 
 /* Filter and sort transition */
 .services-grid {
@@ -1082,7 +1083,6 @@ footer {
 .no-results {
   text-align: center;
   padding: 3rem;
-  color: var(--text-light);
   font-size: 1.1rem;
   grid-column: 1 / -1;
 }
@@ -1221,7 +1221,7 @@ footer {
 }
 
 .product-details {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .product-name {
@@ -1239,7 +1239,6 @@ footer {
 }
 
 .product-category {
-  color: var(--text-light);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   padding: 0.25rem 0.75rem;
@@ -1429,17 +1428,7 @@ footer {
   animation: fadeInUp 0.6s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* duplicate fadeInUp removed (consolidated earlier definition) */
 
 /* Stagger animation for multiple cards */
 .product-card:nth-child(2) {
@@ -1642,7 +1631,6 @@ footer {
 .staff-card p:last-of-type {
   margin-bottom: 1.5rem;
   font-style: italic;
-  color: var(--text-light);
   background: var(--background-light);
   padding: 1rem;
   border-radius: 6px;
@@ -1743,17 +1731,7 @@ footer {
   animation: fadeInUp 0.6s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* duplicate fadeInUp removed (consolidated earlier definition) */
 
 /* Stagger animation for multiple cards */
 .staff-card:nth-child(2) {
@@ -1785,7 +1763,6 @@ footer {
 .no-results {
   text-align: center;
   padding: 3rem;
-  color: var(--text-light);
   font-size: 1.1rem;
   grid-column: 1 / -1;
 }
@@ -1826,7 +1803,6 @@ footer {
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
 }
 
 .container {
@@ -1851,6 +1827,7 @@ footer {
 .card-body {
   padding: 2.5rem;
 }
+
 
 .card h2 {
   text-align: center;
@@ -2294,17 +2271,7 @@ body.bg-light .container {
   animation-delay: 0.5s;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* duplicate fadeInUp removed (consolidated earlier definition) */
 
 /* Optional: Add real-time password validation feedback */
 .password-feedback {
@@ -3730,6 +3697,7 @@ span[style*="color: gray"] {
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    margin: auto;
 }
 
 .container a:hover {
@@ -4122,9 +4090,8 @@ span[style*="color: gray"] {
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
   background: var(--white);
-  border-radius: 12px;
+  /* border-radius: 12px; */
   box-shadow: var(--card-shadow);
-  padding: 2rem;
 }
 
 /* ---------- IMAGE SECTION ---------- */

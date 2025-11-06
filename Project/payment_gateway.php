@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'header.php';
 
 if (!isset($_SESSION['UserID'])) {
     header("Location: Login.php");
@@ -34,69 +35,95 @@ foreach ($cartItems as $item) {
 <head>
     <meta charset="UTF-8">
     <title>Checkout - Kumar Kailey Hair & Beauty</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .container { max-width: 900px; margin: auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f4f4f4; }
-        .btn { padding: 10px 20px; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px; }
-        .btn:hover { opacity: 0.9; }
-        .btn-reserve { background: #28a745; }
-        .btn-cancel { background: #dc3545; }
-        .btn-place { background: #007bff; }
-        .info { background: #fff3cd; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-input, select { width: 100%; padding: 8px; }
-        img.product-img { max-width: 80px; max-height: 80px; object-fit: contain; }
-    </style>
 
     <script>
         function togglePaymentFields() {
             const method = document.getElementById('payment_method').value;
             document.getElementById('eft_section').style.display = (method === 'EFT') ? 'block' : 'none';
             document.getElementById('card_section').style.display = (method === 'Card') ? 'block' : 'none';
-            document.getElementById('paypal_section').style.display = (method === 'PayPal') ? 'block' : 'none';
-            document.getElementById('stripe_section').style.display = (method === 'Stripe') ? 'block' : 'none';
         }
 
         function validateForm(event) {
             const method = document.getElementById('payment_method').value;
 
             if (method === "Card") {
+                const cardHolder = document.getElementById('card_holder').value.trim();
                 const cardNumber = document.getElementById('card_number').value.trim();
                 const expiry = document.getElementById('card_expiry').value.trim();
                 const cvv = document.getElementById('card_cvv').value.trim();
+                
                 const cardPattern = /^\d{16}$/;
                 const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
                 const cvvPattern = /^\d{3}$/;
-                if (!cardPattern.test(cardNumber)) { alert("Enter a valid 16-digit card number."); event.preventDefault(); return false; }
-                if (!expiryPattern.test(expiry)) { alert("Enter expiry in MM/YY."); event.preventDefault(); return false; }
-                if (!cvvPattern.test(cvv)) { alert("Enter 3-digit CVV."); event.preventDefault(); return false; }
+                const namePattern = /^[a-zA-Z\s]{2,50}$/;
+
+                if (!namePattern.test(cardHolder)) { 
+                    alert("Enter valid cardholder name (letters and spaces only, 2-50 characters)."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
+                if (!cardPattern.test(cardNumber)) { 
+                    alert("Enter a valid 16-digit card number."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
+                if (!expiryPattern.test(expiry)) { 
+                    alert("Enter expiry in MM/YY format."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
+                if (!cvvPattern.test(cvv)) { 
+                    alert("Enter 3-digit CVV."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
             }
 
             if (method === "EFT") {
                 const eftRef = document.getElementById('eft_reference').value.trim();
-                if (eftRef === "") { alert("Enter EFT reference number."); event.preventDefault(); return false; }
+                if (eftRef === "") { 
+                    alert("Enter EFT reference number."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
             }
 
-            if (method === "PayPal") {
-                const paypalEmail = document.getElementById('paypal_email').value.trim();
-                if (paypalEmail === "") { alert("Enter your PayPal email."); event.preventDefault(); return false; }
+            // Validate that a payment method is selected
+            if (method === "") {
+                alert("Please select a payment method.");
+                event.preventDefault();
+                return false;
             }
+        }
 
-            if (method === "Stripe") {
-                const stripeToken = document.getElementById('stripe_token').value.trim();
-                if (stripeToken === "") { alert("Enter Stripe token."); event.preventDefault(); return false; }
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.substring(0, 16);
+            value = value.replace(/(\d{4})/g, '$1 ').trim();
+            input.value = value;
+        }
+
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
             }
+            input.value = value;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('payment_method').addEventListener('change', togglePaymentFields);
             document.querySelector('form#online_payment_form').addEventListener('submit', validateForm);
+            
+            const cardNumberInput = document.getElementById('card_number');
+            const cardExpiryInput = document.getElementById('card_expiry');
+            
+            if (cardNumberInput) cardNumberInput.addEventListener('input', function() { formatCardNumber(this); });
+            if (cardExpiryInput) cardExpiryInput.addEventListener('input', function() { formatExpiry(this); });
+            
             togglePaymentFields();
         });
     </script>
@@ -155,57 +182,59 @@ foreach ($cartItems as $item) {
         <!-- Online Payment Form -->
         <form method="POST" action="place_order.php" id="online_payment_form">
             <div class="form-group">
-                <label for="payment_method" class="form-label">Payment Method</label>
+                <label for="payment_method" class="form-label">Payment Method *</label>
                 <select name="payment_method" id="payment_method" class="form-input" required>
-                    <option value="">Select</option>
-                    <option value="EFT">EFT</option>
-                    <option value="Card">Card</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="Stripe">Stripe</option>
+                    <option value="">Select Payment Method</option>
+                    <option value="EFT">EFT/Bank Transfer</option>
+                    <option value="Card">Credit/Debit Card</option>
                 </select>
             </div>
 
             <!-- EFT -->
             <div id="eft_section" style="display:none;">
                 <div class="form-group">
-                    <label for="eft_reference" class="form-label">EFT Reference Number</label>
-                    <input type="text" name="eft_reference" id="eft_reference" class="form-input" pattern="\d+" inputmode="numeric">
+                    <label for="eft_reference" class="form-label">EFT Reference Number *</label>
+                    <input type="text" name="eft_reference" id="eft_reference" class="form-input" 
+                           placeholder="Enter your bank reference number" maxlength="20">
+                    <small class="form-text">Please use this reference when making your bank transfer.</small>
                 </div>
             </div>
 
             <!-- Card -->
             <div id="card_section" style="display:none;">
                 <div class="form-group">
-                    <label for="card_number" class="form-label">Card Number</label>
-                    <input type="text" name="card_number" id="card_number" class="form-input" maxlength="16" pattern="\d{16}" inputmode="numeric">
+                    <label for="card_holder" class="form-label">Cardholder Name *</label>
+                    <input type="text" name="card_holder" id="card_holder" class="form-input" 
+                           placeholder="Name as it appears on card" maxlength="50" 
+                           pattern="[a-zA-Z\s]{2,50}" title="Enter cardholder name (letters and spaces only)">
                 </div>
                 <div class="form-group">
-                    <label for="card_expiry" class="form-label">Expiry (MM/YY)</label>
-                    <input type="text" name="card_expiry" id="card_expiry" class="form-input" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}">
+                    <label for="card_number" class="form-label">Card Number *</label>
+                    <input type="text" name="card_number" id="card_number" class="form-input" 
+                           placeholder="1234 5678 9012 3456" maxlength="19" 
+                           pattern="\d{16}" title="16-digit card number required">
                 </div>
-                <div class="form-group">
-                    <label for="card_cvv" class="form-label">CVV</label>
-                    <input type="text" name="card_cvv" id="card_cvv" class="form-input" maxlength="3" pattern="\d{3}" inputmode="numeric">
+                <div class="form-group-row">
+                    <div class="form-group half-width">
+                        <label for="card_expiry" class="form-label">Expiry Date *</label>
+                        <input type="text" name="card_expiry" id="card_expiry" class="form-input" 
+                               placeholder="MM/YY" maxlength="5" 
+                               pattern="(0[1-9]|1[0-2])\/\d{2}" title="Format: MM/YY">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="card_cvv" class="form-label">CVV *</label>
+                            <input type="text" name="card_cvv" id="card_cvv" class="form-input" 
+                            placeholder="123" maxlength="3" pattern="\d{3}" 
+                            title="3-digit security code"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0,3);">
+                    </div>
                 </div>
             </div>
 
-            <!-- PayPal -->
-            <div id="paypal_section" style="display:none;">
-                <div class="form-group">
-                    <label for="paypal_email" class="form-label">PayPal Email</label>
-                    <input type="email" name="paypal_email" id="paypal_email" class="form-input">
-                </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-place">Place Order & Pay</button>
+                <a href="cart.php" class="btn btn-cancel">Return to Cart</a>
             </div>
-
-            <!-- Stripe -->
-            <div id="stripe_section" style="display:none;">
-                <div class="form-group">
-                    <label for="stripe_token" class="form-label">Stripe Token</label>
-                    <input type="text" name="stripe_token" id="stripe_token" class="form-input">
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-place">Place Order</button>
         </form>
     <?php endif; ?>
 </div>

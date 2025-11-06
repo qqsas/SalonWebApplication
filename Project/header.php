@@ -29,26 +29,58 @@ if (isset($_SESSION['UserID'])) {
     }
 }
 ?>
+<head>
+<?php
+    // Determine which stylesheet to use based on required role for the page
+    // Pages can optionally set $pageRoleRequirement = 'admin' | 'barber' before including header
+    $requiredRole = isset($pageRoleRequirement) ? strtolower(trim($pageRoleRequirement)) : null;
 
+    // If not explicitly provided, infer from current script name
+    if (!$requiredRole) {
+        $currentScript = basename($_SERVER['PHP_SELF']);
+        if (stripos($currentScript, 'admin') !== false) {
+            $requiredRole = 'admin';
+        } elseif (stripos($currentScript, 'barber') !== false) {
+            $requiredRole = 'barber';
+        }
+    }
+
+    // Select stylesheet: admin -> adminstyle.css, barber -> barberstyle.css, default -> styles.css
+    if ($requiredRole === 'admin') {
+        echo '<link rel="stylesheet" href="adminstyle.css">';
+    } elseif ($requiredRole === 'barber') {
+        echo '<link rel="stylesheet" href="adminstyle.css">';
+        echo '<link rel="stylesheet" href="barberstyle.css">';
+        
+    } else {
+        echo '<link rel="stylesheet" href="styles.css">';
+    }
+?>
+</head>
 <!-- Header -->
 <nav class="Header-navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="homepage.php">
-            <img src="Img/Logo.jpeg" alt="Logo" style="height: 30px; margin-right: 10px;">
+        <a class="navbar-brand" href="index.php">
+            <img src="Img/KSLOGO.png" alt="Logo" style="height: 30px; margin-right: 10px;">
             Kumar Kailey Hair & Beauty Salon
         </a>
-        <button class="menu-toggle" onclick="document.querySelector('.Header-navbar').classList.toggle('active')">
-            ☰
+        
+        <!-- Burger Menu Toggle -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
         </button>
         
         <div class="HeaderNavBody" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="support.php">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="services.php">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="staff.php">Staff</a></li>
-                <li class="nav-item"><a class="nav-link" href="homepage.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
+                <li class="nav-item"><a class="nav-link" href="support.php">Contact</a></li>
 
                 <?php if (isset($_SESSION['UserID'])): ?>
                     <?php
@@ -57,8 +89,7 @@ if (isset($_SESSION['UserID'])) {
                             <li class="nav-item"><a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a></li>
                         <?php elseif ($role_lower === 'customer'): ?>
                             <li class="nav-item">
-                                <a class="CartWrapper" href="cart.php">
-                                    <i class="CartBody"></i>
+                                <a class="nav-link CartWrapper" href="cart.php">
                                     <span>🛒 Cart</span>
                                     <?php if ($cartItemCount > 0): ?>
                                         <span class="cart-number"><?= $cartItemCount ?></span>
@@ -82,3 +113,50 @@ if (isset($_SESSION['UserID'])) {
     </div>
 </nav>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navbar = document.querySelector('.Header-navbar');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Toggle menu
+    menuToggle.addEventListener('click', function() {
+        navbar.classList.toggle('active');
+        
+        // Add overlay when menu is open
+        if (navbar.classList.contains('active')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.addEventListener('click', closeMenu);
+            document.body.appendChild(overlay);
+        } else {
+            const overlay = document.querySelector('.overlay');
+            if (overlay) overlay.remove();
+        }
+    });
+    
+    // Close menu when clicking on links (mobile)
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeMenu();
+            }
+        });
+    });
+    
+    // Close menu function
+    function closeMenu() {
+        navbar.classList.remove('active');
+        const overlay = document.querySelector('.overlay');
+        if (overlay) overlay.remove();
+    }
+    
+    // Close menu on window resize (if resizing to desktop)
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            closeMenu();
+        }
+    });
+});
+</script>

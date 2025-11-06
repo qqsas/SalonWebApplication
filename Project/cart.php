@@ -63,7 +63,7 @@ $feat_stmt->close();
     }
     </style>
     <title>Your Cart - Kumar Kailey Hair & Beauty</title>
-    <link href="styles.css" rel="stylesheet">
+    <link href="styles2.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -72,7 +72,7 @@ $feat_stmt->close();
         <h1>Shopping Cart</h1>
     </div>
 
-    <a href="homepage.php" class="button secondary">Back to homepage</a>
+    <a href="index.php" class="button secondary">Back to homepage</a>
 
     <?php if (!empty($cart_items)): ?>
         <table class="cart-table">

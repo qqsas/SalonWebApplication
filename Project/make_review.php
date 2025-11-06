@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="container">
+    <link href="styles2.css" rel="stylesheet">
     <h1>Write a Review</h1>
     
     <?php if ($success): ?>
