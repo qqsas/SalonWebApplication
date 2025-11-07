@@ -252,15 +252,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     $stmt->close();
                     $conn->close();
-            
+
                     // Clear form data
                     $form_data = ['name' => '', 'contact' => ''];
                     
-                    $page = "Login.php";
-            echo '<script type="text/javascript">';
-            echo 'window.location.href="'.$page.'?msg=Registered";';
-            echo '</script>';
-            echo '<meta http-equiv="refresh" content="0; url='.$page.'?msg=Registered&success=1">';
+                    header("Location: Login.php?msg=Registered&success=1");
                     exit;
                 } else {
                     // Check for duplicate entry error
@@ -282,7 +278,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Regenerate CSRF token on form submission (for security)
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     
-    if ($conn) {    
+    if ($conn) {
         $conn->close();
     }
 }
@@ -342,6 +338,8 @@ include 'header.php';
           <label for="password">Password <span class="required">*</span></label>
           <input type="password" name="password" id="password" class="form-control <?php echo !empty($errors['password']) ? 'error-field' : ''; ?>" 
                  required minlength="8" maxlength="255">
+                 <input type="checkbox" id="togglePassword"> Show Password
+
           <?php if (!empty($errors['password'])): ?>
             <div class="error"><?php echo htmlspecialchars($errors['password']); ?></div>
           <?php endif; ?>
@@ -361,6 +359,8 @@ include 'header.php';
           <label for="confirm_password">Confirm Password <span class="required">*</span></label>
           <input type="password" name="confirm_password" id="confirm_password" class="form-control <?php echo !empty($errors['confirm_password']) ? 'error-field' : ''; ?>" 
                  required>
+               <input type="checkbox" id="toggleConfirmPassword"> Show Password
+  
           <?php if (!empty($errors['confirm_password'])): ?>
             <div class="error"><?php echo htmlspecialchars($errors['confirm_password']); ?></div>
           <?php endif; ?>
@@ -369,8 +369,7 @@ include 'header.php';
         <button type="submit" class="btn" id="submitBtn">Create Account</button>
       </form>
 
-      <p class="text-center mt-3">Already have an account?</p>
-      <a href="Login.php" style="margin-left: 25%;">Login here</a>
+      <p class="text-center mt-3">Already have an account? <a href="Login.php">Sign in here</a></p>
     </div>
   </div>
 </div>
@@ -465,5 +464,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-</body>
+<script>
+document.getElementById('togglePassword').addEventListener('change', function() {
+    const passwordField = document.getElementById('password');
+    passwordField.type = this.checked ? 'text' : 'password';
+});
 
+document.getElementById('toggleConfirmPassword').addEventListener('change', function() {
+    const confirmField = document.getElementById('confirm_password');
+    confirmField.type = this.checked ? 'text' : 'password';
+});
+</script>
+
+</body>
+</html>

@@ -174,19 +174,20 @@ include 'header.php';
       </form>
     </div>
 
-    <!-- External Links -->
-    <div class="contact-links">
-      <h3>Other Ways to Reach Us</h3>
-      <div class="link-grid">
-        <a href="https://wa.me/1234567890" target="_blank">
-          <img src="Img/Whatsapp.png" alt="WhatsApp Logo"> WhatsApp
-        </a>
-        <a href="https://www.facebook.com/YourPage" target="_blank">
-          <img src="Img/FaceBook.png" alt="Facebook Logo"> Facebook
-        </a>
-        <a href="https://www.instagram.com/YourPage" target="_blank">
-          <img src="Img/Instagram.png" alt="Instagram Logo"> Instagram
-        </a>
+      <!-- External Contact Links -->
+      <div class="contact-links">
+        <h3>Other Ways to Reach Us</h3>
+        <div class="link-grid">
+          <a href="https://wa.me/+27843276420" target="_blank">
+            <img src="Img/Whatsapp.png" alt="WhatsApp Logo"> WhatsApp
+          </a>
+          <a href="https://www.facebook.com/YourPage" target="_blank">
+            <img src="Img/FaceBook.png" alt="Facebook Logo"> Facebook
+          </a>
+          <a href="https://www.instagram.com/YourPage" target="_blank">
+            <img src="Img/Instagram.png" alt="Instagram Logo"> Instagram
+          </a>
+        </div>
       </div>
     </div>
   </div>
