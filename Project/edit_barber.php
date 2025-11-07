@@ -134,60 +134,167 @@ while ($row = $res->fetch_assoc()) {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Barber - Admin</title>
+    <link href="addedit.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+        }
+        
+        .form-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .services-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .service-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f9f9f9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            flex: 1 1 45%;
+        }
+        
+        .current-image {
+            max-width: 120px;
+            border-radius: 8px;
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
 <?php include 'header.php'; ?>
-<div class="container" style="max-width:700px; margin:auto; padding:20px;">
+
+<div class="container">
+    <!-- Return Button -->
+    <a href="admin_dashboard.php" class="btn">← Back to Admin Dashboard</a>
+    
     <h2>Edit Barber</h2>
 
-    <link href="addedit.css" rel="stylesheet">
-    <form method="post" enctype="multipart/form-data" style="background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
-        <div style="margin-bottom:15px;">
-            <label for="name"><strong>Name:</strong></label><br>
-            <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($barber['Name']); ?>" required style="width:100%; padding:8px;">
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="bio"><strong>Bio:</strong></label><br>
-            <textarea name="bio" id="bio" rows="3" style="width:100%; padding:8px;"><?php echo htmlspecialchars($barber['Bio']); ?></textarea>
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="user_id"><strong>Linked User:</strong></label><br>
-            <select name="user_id" id="user_id" required style="width:100%; padding:8px;">
-                <?php while ($user = $users->fetch_assoc()) { ?>
-                    <option value="<?php echo $user['UserID']; ?>" <?php echo ($user['UserID'] == $barber['UserID']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($user['Name'] . " (" . $user['Email'] . ")"); ?>
-                    </option>
-                <?php } ?>
-            </select>
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="ImgFile"><strong>Profile Image:</strong></label><br>
-            <?php if (!empty($barber['ImgUrl'])): ?>
-                <img src="<?php echo htmlspecialchars($barber['ImgUrl']); ?>" alt="Current Image" style="max-width:120px; border-radius:8px; display:block; margin-bottom:8px;">
-            <?php endif; ?>
-            <input type="file" name="ImgFile" id="ImgFile" accept=".jpg,.jpeg,.png,.gif">
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <h3 style="margin-bottom:8px;">Assigned Services</h3>
-            <p style="color:#666; margin-bottom:10px;">Select or deselect services below to assign or remove them for this barber.</p>
-
-            <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                <?php while ($s = $services_list->fetch_assoc()) { ?>
-                    <label style="display:flex; align-items:center; gap:6px; background:#f9f9f9; padding:6px 10px; border-radius:6px; border:1px solid #ddd; flex:1 1 45%;">
-                        <input type="checkbox" name="services[]" value="<?php echo $s['ServicesID']; ?>"
-                            <?php echo in_array($s['ServicesID'], $current_services) ? 'checked' : ''; ?>>
-                        <?php echo htmlspecialchars($s['Name']); ?>
-                        <span style="font-size:0.85em; color:#888;">(R<?php echo number_format($s['Price'], 2); ?> / <?php echo htmlspecialchars($s['Time']); ?> mins)</span>
-                    </label>
-                <?php } ?>
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($barber['Name']); ?>" required>
             </div>
-        </div>
 
-        <button type="submit" style="background:#007bff; color:#fff; border:none; padding:10px 18px; border-radius:6px; cursor:pointer;">
-            Update Barber
-        </button>
-    </form>
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea name="bio" id="bio" rows="3"><?php echo htmlspecialchars($barber['Bio']); ?></textarea>
+            </div>
+
+
+            <div class="form-group">
+                <label for="ImgFile">Profile Image:</label>
+                <?php if (!empty($barber['ImgUrl'])): ?>
+                    <img src="<?php echo htmlspecialchars($barber['ImgUrl']); ?>" alt="Current Image" class="current-image">
+                <?php endif; ?>
+                <input type="file" name="ImgFile" id="ImgFile" accept=".jpg,.jpeg,.png,.gif">
+            </div>
+
+            <div class="form-group">
+                <h3 style="margin-bottom:8px;">Assigned Services</h3>
+                <p style="color:#666; margin-bottom:10px;">Select or deselect services below to assign or remove them for this barber.</p>
+
+                <div class="services-grid">
+                    <?php 
+                    // Reset the pointer for services_list
+                    $services_list->data_seek(0);
+                    while ($s = $services_list->fetch_assoc()) { ?>
+                        <label class="service-checkbox">
+                            <input type="checkbox" name="services[]" value="<?php echo $s['ServicesID']; ?>"
+                                <?php echo in_array($s['ServicesID'], $current_services) ? 'checked' : ''; ?>>
+                            <?php echo htmlspecialchars($s['Name']); ?>
+                            <span style="font-size:0.85em; color:#888;">(R<?php echo number_format($s['Price'], 2); ?> / <?php echo htmlspecialchars($s['Time']); ?> mins)</span>
+                        </label>
+                    <?php } ?>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Update Barber</button>
+                <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
+
 <?php include 'footer.php'; ?>
+</body>
+</html>

@@ -9,7 +9,6 @@ header("Referrer-Policy: strict-origin-when-cross-origin");
 
 include 'db.php';
 include 'mail.php'; // PHPMailer setup (sendEmail function)
-include 'header.php';
 
 // CSRF Protection
 if (empty($_SESSION['csrf_token'])) {
@@ -283,15 +282,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conn->close();
     }
 }
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Create Account</title>
-    <link href="styles.css" rel="stylesheet">
+    <title>Register</title>
+    <style>
+        .error { 
+            color: hsl(var(--secondary-hue), var(--saturation), 40%); 
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+            background: hsl(var(--secondary-hue), var(--saturation), 95%);
+            padding: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--secondary-color);
+        }
+    </style>
 </head>
 <body class="bg-light">
 <div class="container">

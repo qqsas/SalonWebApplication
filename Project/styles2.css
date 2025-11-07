@@ -162,7 +162,6 @@ input[type="submit"]:hover::before {
 
 select {
 	appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23545885' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
 	background-position: right var(--space-md) center;
 	background-repeat: no-repeat;
 	background-size: 16px;
@@ -214,21 +213,7 @@ table tbody tr:hover {
 	background: var(--background-light);
 }
 
-table tbody tr:last-child {
-	background: var(--primary-color);
-	border-bottom: none;
-	color: var(--white);
-}
 
-table tbody tr:last-child td {
-	color: var(--white);
-	font-size: 1.2rem;
-	font-weight: 700;
-}
-
-table tbody tr:last-child:hover {
-	background: var(--primary-color);
-}
 
 table tbody tr:nth-child(1) {
 	animation-delay: 0.1s;
@@ -564,12 +549,12 @@ table thead {
 
 #serviceSearch {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	flex: 1;
 	font-size: 1.1rem;
-	max-width: 400px;
 	min-width: 300px;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
@@ -587,15 +572,13 @@ table thead {
 	transform: translateY(-2px);
 }
 
-#serviceSort {
+#serviceSort, #categoryFilter {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
-	color: var(--text-dark);
-	cursor: pointer;
 	font-size: 1.1rem;
-	min-width: 250px;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
 }
@@ -607,32 +590,40 @@ table thead {
 }
 
 #sortColumn {
-	background: var(--white);
-	border-radius: var(--border-radius);
-	border: 2px solid var(--gray-light);
-	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-	cursor: pointer;
-	font-size: 0.9rem;
-	margin-bottom: var(--space-md);
-	max-width: 200px;
-	padding: var(--space-sm) var(--space-md);
-	transition: all var(--transition-normal);
+    background: var(--white);
+    border: 2px solid var(--gray-light);
+    border-radius: 50px;
+    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.05);
+    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    max-width: 230px;
+    line-height: 1.4;
+    box-sizing: border-box;
+    appearance: none;
 }
 
 #sortColumn:focus {
-	border-color: var(--primary-color);
-	box-shadow: 0 0 0 3px rgba(84,88,133,0.15);
-	outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(84, 88, 133, 0.15);
+    outline: none;
+    transform: translateY(-2px);
 }
 
+#sortColumn:not([value=""]) {
+    background: rgba(84, 88, 133, 0.02);
+    border-color: var(--accent-color);
+}
 #staffSearch {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
 	flex: 1;
 	font-size: 1.1rem;
-	max-width: 400px;
 	min-width: 300px;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
@@ -658,13 +649,11 @@ table thead {
 
 #staffSort {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
-	color: var(--text-dark);
-	cursor: pointer;
 	font-size: 1.1rem;
-	min-width: 250px;
 	padding: 1rem 1.5rem;
 	transition: all 0.3s ease;
 }
@@ -955,7 +944,7 @@ table thead {
 
 .btn {
 	align-items: center;
-	background: var(--secondary-color);
+	background: #007fff;
 	border-radius: var(--border-radius-lg);
 	border: none;
 	box-shadow: var(--button-shadow);
@@ -1347,7 +1336,6 @@ table thead {
 
 .card-content p {
 	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 4;
 	color: var(--text-dark);
 	display: -webkit-box;
 	flex-grow: 1;
@@ -1493,7 +1481,6 @@ table thead {
 
 .cart-table tbody tr {
 	animation: slideInUp 0.5s ease-out;
-	border-bottom: 1px solid var(--gray-light);
 	transition: background-color var(--transition-fast);
 }
 
@@ -1501,9 +1488,6 @@ table thead {
 	background: var(--background-light);
 }
 
-.cart-table tbody tr:last-child {
-	border-bottom: none;
-}
 
 .cart-table tbody tr:nth-child(1) {
 	animation-delay: 0.1s;
@@ -1825,7 +1809,7 @@ table thead {
 .contact {
 	background-color: var(--background-light);
 	margin: 0 auto;
-	padding: var(--space-xxl) var(--space-md);
+	padding: 50px;
 	width: 100%;
 }
 
@@ -1846,9 +1830,9 @@ table thead {
 	font-size: clamp(2.25rem,4.5vw,3.25rem);
 	font-weight: 800;
 	letter-spacing: -0.02em;
-	margin-bottom: var(--space-xl);
 	position: relative;
 	text-align: center;
+    padding: 20px;
 }
 
 .contact h2::after, .services h2::after, .staff h2::after {
@@ -1937,7 +1921,7 @@ table thead {
 	border-radius: var(--border-radius-lg);
 	border: 1px solid rgba(0,0,0,0.06);
 	box-shadow: var(--card-shadow);
-	height: fit-content;
+	height: 640px;
 	padding: var(--space-lg);
 }
 
@@ -2126,31 +2110,30 @@ table thead {
 }
 
 .controls {
-	align-items: center;
-	background: var(--background-light);
-	border-radius: 12px;
+	align-items: end;
+	background: var(--white);
+	border-radius: 16px;
 	border: 1px solid rgba(44,62,80,0.06);
-	box-shadow: 0 4px 20px rgba(44,62,80,0.08);
-	display: flex;
-	flex-wrap: wrap;
-	gap: 2rem;
-	justify-content: center;
-	margin-bottom: 3rem;
-	padding: 2rem;
+	box-shadow: 0 8px 30px rgba(44,62,80,0.08);
+	display: grid;
+	gap: 1.5rem;
+	grid-template-columns: 2fr 1fr 1fr auto;
+	padding: 2.5rem;
+	transition: all 0.3s ease;
 }
 
 .custom-list {
 	list-style: none;
 	margin: 1.5rem 0;
-	padding: 0;
 }
 
 .custom-list li {
+	align-items: center;
 	border-bottom: 1px solid var(--gray-light);
 	color: #444;
 	font-size: 1.1rem;
 	line-height: 1.7;
-	padding-left: 2.5rem;
+	padding-left: 5.5rem;
 	padding: 1rem 0;
 	position: relative;
 	transition: background-color 0.2s ease;
@@ -2178,15 +2161,7 @@ table thead {
 	background-color: rgba(0,0,0,0.05);
 }
 
-.custom-list li:hover {
-	background-color: rgba(0,0,0,0.02);
-	border-radius: 6px;
-	padding-left: 2.75rem;
-}
 
-.custom-list li:hover::before {
-	transform: scale(1.1);
-}
 
 .custom-list li:last-child {
 	border-bottom: none;
@@ -2196,6 +2171,7 @@ table thead {
 	color: var(--text-dark);
 	font-size: 1.15rem;
 	font-weight: 600;
+    padding: 1rem 0 1rem 2.5rem;
 }
 
 .error {
@@ -2254,6 +2230,7 @@ table thead {
 
 .filter-category, .filter-search, .filter-sort {
 	background: var(--white);
+	border-color: var(--accent-color);
 	border-radius: 50px;
 	border: 2px solid var(--gray-light);
 	box-shadow: 0 2px 10px rgba(44,62,80,0.05);
@@ -2312,15 +2289,16 @@ table thead {
 }
 
 .filters {
+	align-items: end;
 	background: var(--white);
-	border-radius: var(--border-radius-lg);
-	border: 1px solid rgba(0,0,0,0.06);
-	box-shadow: var(--card-shadow);
+	border-radius: 16px;
+	border: 1px solid rgba(44,62,80,0.06);
+	box-shadow: 0 8px 30px rgba(44,62,80,0.08);
 	display: grid;
-	gap: var(--space-md);
-	grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-	margin-bottom: var(--space-lg);
-	padding: var(--space-lg);
+	gap: 1.5rem;
+	grid-template-columns: 2fr 1fr 1fr auto;
+	padding: 2.5rem;
+	transition: all 0.3s ease;
 }
 
 .filters label {
@@ -2332,26 +2310,47 @@ table thead {
 }
 
 .filters select {
-	background: var(--white);
-	border-radius: var(--border-radius);
-	border: 2px solid var(--text-dark);
-	cursor: pointer;
-	font-size: 1rem;
-	padding: var(--space-md);
-	transition: all var(--transition-normal);
+	display: inline-block;
 	width: 100%;
+	max-width: 280px;
+	background-color: var(--white);
+	color: var(--text-color);
+	font-size: 1rem;
+	font-family: inherit;
+	border: 2px solid var(--gray-light);
+	border-radius: 50px;
+	padding: 0.9rem 1.2rem;
+	box-shadow: 0 2px 8px rgba(44, 62, 80, 0.05);
+	transition: all 0.3s ease;
+	cursor: pointer;
+	appearance: none;
+	background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
+					  linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
+	background-position: calc(100% - 1.2rem) center, calc(100% - 0.8rem) center;
+	background-size: 8px 8px, 8px 8px;
+	background-repeat: no-repeat;
 }
 
 .filters select:focus {
 	border-color: var(--primary-color);
-	box-shadow: 0 0 0 4px rgba(84,88,133,0.15);
+	box-shadow: 0 0 0 4px rgba(84, 88, 133, 0.15);
 	outline: none;
 	transform: translateY(-2px);
+	background-color: var(--white);
 }
 
 .filters select:not([value=""]) {
-	background: rgba(84,88,133,0.02);
+	background-color: rgba(84, 88, 133, 0.03);
 	border-color: var(--accent-color);
+}
+
+/* Optional: smoother alignment inside flex or grid filter bars */
+.filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: center;
+	justify-content: center;
 }
 
 .form-actions {
@@ -2601,7 +2600,7 @@ table thead {
 .gallery {
 	background-color: var(--white);
 	margin: 0 auto;
-	padding: var(--space-xxl) var(--space-md);
+	padding: 50px;
 	text-align: center;
 	width: 100%;
 }
@@ -2611,7 +2610,6 @@ table thead {
 	font-size: clamp(2.25rem,4.5vw,3.25rem);
 	font-weight: 800;
 	letter-spacing: -0.02em;
-	margin-bottom: var(--space-xl);
 	position: relative;
 	text-align: center;
 }
@@ -2696,7 +2694,6 @@ table thead {
 
 .gallery-card p {
 	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 4;
 	color: var(--text-dark);
 	display: -webkit-box;
 	font-size: 1.05rem;
@@ -2763,9 +2760,6 @@ table thead {
 	transform: scale(1.05);
 }
 
-.gallery-card:hover img::after {
-	animation: shimmer 1.8s infinite;
-}
 
 .gallery-card:hover::before {
 	transform: scaleX(1);
@@ -3326,7 +3320,7 @@ table thead {
 .link-grid {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-md);
+	gap: 50px;
 }
 
 .link-grid a {
@@ -3526,7 +3520,9 @@ table thead {
 .navbar-brand img {
 	height: clamp(28px,4vw,35px);
 	margin-right: 0.75rem;
+    filter: brightness(0) invert(1);
 }
+
 
 .navbar-nav {
 	align-items: center;
@@ -3636,6 +3632,7 @@ table thead {
 	font-size: 1.1rem;
 	line-height: 1.6;
 	margin-bottom: var(--space-sm);
+    max-width: 300px;
 }
 
 .order-card > p strong {
@@ -4493,8 +4490,7 @@ table thead {
 
 .service-buttons {
 	border-top: 2px solid var(--gray-light);
-	display: flex;
-	flex-direction: column;
+	display: inline-flex;
 	gap: 1rem;
 	margin-top: 2rem;
 	margin-top: auto;
@@ -4528,7 +4524,6 @@ table thead {
 }
 
 .service-buttons .btn::before {
-	background: rgba(255,255,255,0.2);
 	background: rgba(255,255,255,0.2);
 	content: '';
 	height: 100%;
@@ -4572,7 +4567,7 @@ table thead {
 	text-align: center;
 }
 
-.service-card {
+.service-card  {
 	animation: cardEntrance 0.6s ease-out;
 	animation: fadeInUp 0.6s ease-out;
 	background: var(--white);
@@ -4584,7 +4579,7 @@ table thead {
 	box-shadow: var(--card-shadow);
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	height: fit-content;
 	overflow: hidden;
 	padding: 2.5rem;
 	padding: var(--space-lg);
@@ -4600,7 +4595,6 @@ table thead {
 	font-weight: 600;
 	letter-spacing: -0.01em;
 	line-height: 1.3;
-	margin-bottom: 1.25rem;
 }
 
 .service-card h3 {
@@ -4652,7 +4646,7 @@ table thead {
 	cursor: pointer;
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	height: fit-content;
 	overflow: hidden;
 	position: relative;
 	transition: all var(--transition-normal);
@@ -4692,20 +4686,17 @@ table thead {
 	box-shadow: 0 0 0 3px rgba(84,88,133,0.2);
 }
 
-.service-card:hover {
+.service-card:hover, .service-cardindex {
 	border-color: rgba(84,88,133,0.1);
 	box-shadow: 0 20px 50px rgba(44,62,80,0.15);
 	box-shadow: var(--card-hover-shadow);
 	transform: translateY(-8px);
 }
 
-.service-card:hover .service-image, .staff-card:hover .staff-image {
+.service-card:hover .service-image, .staff-card:hover .staff-image, service-imageindex {
 	transform: scale(1.05);
 }
 
-.service-card:hover .service-image::after, .staff-card:hover .staff-image::after {
-	animation: shimmer 1.8s infinite;
-}
 
 .service-card:hover, .staff-card:hover {
 	box-shadow: var(--card-hover-shadow);
@@ -4797,7 +4788,6 @@ table thead {
 	display: grid;
 	gap: var(--space-lg);
 	grid-template-columns: repeat(auto-fit, minmax(340px,1fr));
-	margin-top: var(--space-xl);
 }
 
 .services {
@@ -4807,7 +4797,7 @@ table thead {
 
 .services, .staff {
 	margin: 0 auto;
-	padding: var(--space-xxl) var(--space-md);
+	padding: 5px ;
 	width: 100%;
 }
 
@@ -4859,7 +4849,7 @@ table thead {
 	transition: all 0.4s ease;
 }
 
-.services-grid.filtering .service-card {
+.services-grid.filtering .service-card  {
 	opacity: 0.6;
 	transform: scale(0.98);
 	transition: all 0.3s ease;
@@ -5706,12 +5696,6 @@ table thead {
 	}
 }
 
-@keyframes shimmer {
-	100% {
-		transform: translateX(100%);
-	}
-}
-
 @keyframes slideDown {
 	from {
 		max-height: 0;
@@ -6096,7 +6080,6 @@ table thead {
 
 	.custom-list li {
 		font-size: 1rem;
-		padding: 0.75rem 0 0.75rem 2rem;
 	}
 
 	.custom-list li::before {
@@ -6379,7 +6362,7 @@ table thead {
 		padding: var(--space-sm);
 	}
 
-	.service-card {
+	.service-card, .service-cardindex {
 		padding: 1.5rem;
 		padding: var(--space-md);
 	}
@@ -7222,7 +7205,6 @@ table thead {
 
 	.custom-list li {
 		font-size: 1.05rem;
-		padding: 0.875rem 0 0.875rem 2.25rem;
 	}
 
 	.custom-list li::before {
@@ -7496,8 +7478,6 @@ table thead {
 		padding: 10px 8px;
 	}
 
-	.container {
-	}
 }
 
 @media (min-width: 769px) {
@@ -7651,11 +7631,21 @@ table thead {
 		scroll-behavior: auto;
 	}
 
+	input[type="submit"], .card, .card-body a, .error, .form-control {
+		animation: none;
+		transition: none;
+	}
+
+	input[type="submit"], .card, .card-body a, .error, .form-control, .contact-note, .password-requirements {
+		animation: none;
+		transition: none;
+	}
+
 	input[type="submit"]::before {
 		display: none;
 	}
 
-	#profileForm, .form-group input, .form-actions a, .form-actions button {
+	#profileForm, .form-actions a, .form-actions button, .form-group input {
 		animation: none;
 		transition: none;
 	}
@@ -7664,19 +7654,13 @@ table thead {
 		transform: none;
 	}
 
-	.calendar td, .week-nav a, .booking-actions button {
+	.booking-actions button, .calendar td, .week-nav a {
 		animation: none;
 		transition: none;
 	}
 
-	.card, .form-control, input[type="submit"], .card-body a, .error {
+	.confirmation-actions, .confirmation-container h1, .confirmation-container h1::after, .confirmation-details, .confirmation-message {
 		animation: none;
-		transition: none;
-	}
-
-	.card, .form-control, input[type="submit"], .card-body a, .error, .contact-note, .password-requirements {
-		animation: none;
-		transition: none;
 	}
 
 	.confirmation-btn::before {
@@ -7685,10 +7669,6 @@ table thead {
 
 	.confirmation-btn:hover {
 		transform: none;
-	}
-
-	.confirmation-container h1, .confirmation-details, .confirmation-message, .confirmation-actions, .confirmation-container h1::after {
-		animation: none;
 	}
 
 	.form-actions a:hover, .form-actions button:hover {
@@ -7708,17 +7688,17 @@ table thead {
 		transform: none;
 	}
 
+	.info-item, .profile-card, .profile-table {
+		animation: none;
+		transition: none;
+	}
+
 	.info-item:hover {
 		transform: none;
 	}
 
 	.profile-actions .btn:hover {
 		transform: none;
-	}
-
-	.profile-card, .profile-table, .info-item {
-		animation: none;
-		transition: none;
 	}
 }
 
@@ -7746,19 +7726,23 @@ table thead {
 		font-size: 10pt;
 	}
 
+	#appointmentsTable .btn, #appointmentsTable td:last-child, #appointmentsTable th:last-child, #sortColumn {
+		display: none;
+	}
+
 	#appointmentsTable th {
 		background: #fff;
 		border-bottom: 1px solid #000;
 		color: #000;
 	}
 
+	#online_payment_form, .btn-cancel, .btn-reserve {
+		display: none;
+	}
+
 	#profileForm {
 		border: 1px solid #ddd;
 		box-shadow: none;
-	}
-
-	#sortColumn, #appointmentsTable .btn, #appointmentsTable td:last-child, #appointmentsTable th:last-child {
-		display: none;
 	}
 
 	.available {
@@ -7769,17 +7753,17 @@ table thead {
 		background: #f5e8e8 !important;
 	}
 
-	.btn, .nav-link, .menu-toggle {
+	.booking-actions, .week-nav {
+		display: none;
+	}
+
+	.btn, .menu-toggle, .nav-link {
 		background: none !important;
 		border: 1px solid #000 !important;
 		color: #000 !important;
 	}
 
-	.btn-reserve, .btn-cancel, #online_payment_form {
-		display: none;
-	}
-
-	.button.secondary, .button.danger, .cart-table form {
+	.button.danger, .button.secondary, .cart-table form {
 		display: none;
 	}
 
@@ -7826,7 +7810,7 @@ table thead {
 		display: none;
 	}
 
-	.filters, .order-card form, .order-card .btn:not(.btn-restore):not(.btn-cancel) {
+	.filters, .order-card .btn:not(.btn-restore):not(.btn-cancel), .order-card form {
 		display: none;
 	}
 
@@ -7896,7 +7880,7 @@ table thead {
 		display: none;
 	}
 
-	.service-card:hover {
+	.service-card:hover, .service-cardindex:hover {
 		box-shadow: none;
 		transform: none;
 	}
@@ -7928,8 +7912,218 @@ table thead {
 	.unavailable {
 		background: #f0f0f0 !important;
 	}
+}
 
-	.week-nav, .booking-actions {
-		display: none;
-	}
+.textOrder {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem; /* optional, adds a little space between items */
+    width: 100%; /* ensures it spans full container width */
+}
+
+
+.container1 {
+	margin: 0 auto;
+	margin: 3rem auto;
+	margin: var(--space-xl) auto;
+	width: 100%;
+    padding: 10px;
+}
+
+.orderB {
+    display: grid;
+    justify-items: center;
+}
+
+.orders-container{
+	margin: 3rem auto;
+	max-width: 1000px;
+	padding: 0 2rem;
+}
+
+.orders-controls {
+	align-items: end;
+	background: var(--white);
+	border-radius: 16px;
+	border: 1px solid rgba(44,62,80,0.06);
+	box-shadow: 0 8px 30px rgba(44,62,80,0.08);
+	padding: 2.5rem;
+	transition: all 0.3s ease;
+    text-align: center;
+}
+
+
+#statusFilter {
+    background: var(--white);
+    border: 2px solid var(--gray-light);
+    border-radius: 50px;
+    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.05);
+    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    max-width: 230px;
+    line-height: 1.4;
+    box-sizing: border-box;
+    appearance: none;
+}
+
+#statusFilter:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(84, 88, 133, 0.15);
+    outline: none;
+    transform: translateY(-2px);
+}
+
+#statusFilter:not([value=""]) {
+    background: rgba(84, 88, 133, 0.02);
+    border-color: var(--accent-color);
+}
+
+
+.services {
+  position: relative;
+  text-align: center;
+  padding: 0px;
+}
+
+.scroll-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-list {
+  display: flex;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  gap: 1.5rem;
+  padding: 1rem;
+  scroll-snap-type: x mandatory;
+}
+
+.service-card {
+  flex: 0 0 300px; /* uniform width */
+  height: 100%; /* uniform height */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease;
+}
+.service-card:hover, .service-cardindex:hover {
+  transform: scale(1.03);
+}
+
+.service-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid #eee;
+}
+
+.card-content {
+  padding: 1rem;
+  text-align: left;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-content h3 {
+  margin-bottom: 0.5rem;
+}
+
+.card-content p {
+  flex-grow: 1;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.read-more {
+  color: #007BFF;
+  text-decoration: none;
+  font-weight: bold;
+  align-self: flex-start;
+}
+
+.scroll-btn {
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  z-index: 2;
+  transition: 0.3s ease;
+}
+
+.scroll-btn:hover {
+  background: rgba(0,0,0,0.8);
+}
+
+.scroll-btn.left {
+  left: 5px;
+}
+
+.scroll-btn.right {
+  right: 5px;
+}
+
+.service-cardindex {
+	animation: cardEntrance 0.6s ease-out;
+	animation: fadeInUp 0.6s ease-out;
+	background: var(--white);
+	border-radius: 16px;
+	border-radius: var(--border-radius-lg);
+	border: 1px solid rgba(0,0,0,0.06);
+	border: 1px solid rgba(44,62,80,0.06);
+	box-shadow: 0 8px 30px rgba(44,62,80,0.08);
+	box-shadow: var(--card-shadow);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding: 2.5rem;
+	padding: var(--space-lg);
+	position: relative;
+	transition: all 0.3s ease;
+	transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.1);
+	transition: all var(--transition-normal);
+}
+
+.service-cardindex {
+  flex: 0 0 300px; /* uniform width */
+  height: 510px; /* uniform height */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease;
+}
+
+
+.service-imageindex {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid #eee;
 }
