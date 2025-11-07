@@ -17,7 +17,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery - Previous Works</title>
-    <link rel="stylesheet" href="styles2.css">
+    
     <style>
         body {
             background-color: #f9f9f9;

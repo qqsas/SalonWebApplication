@@ -6,28 +6,41 @@ include 'db.php';
 include 'header.php';
 
 // Get Services
+$getServices = [];
 $stmt = $conn->prepare("SELECT * FROM Services WHERE IsDeleted = 0");
-$stmt->execute();
-$result = $stmt->get_result();
-$getServices = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+if ($stmt) {
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result) {
+    $getServices = $result->fetch_all(MYSQLI_ASSOC);
+  }
+  $stmt->close();
+} else {
+  error_log("Services query prepare failed: " . $conn->error);
+}
 
 // Get Barbers (staff)
+$getStaff = [];
 $stmt = $conn->prepare("SELECT * FROM Barber");
-$stmt->execute();
-$result = $stmt->get_result();
-$getStaff = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+if ($stmt) {
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result) {
+    $getStaff = $result->fetch_all(MYSQLI_ASSOC);
+  }
+  $stmt->close();
+} else {
+  error_log("Barber query prepare failed: " . $conn->error);
+}
 
 // Fetch the user's role
 $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
 ?>
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Home - My Business</title>
-  <link rel="stylesheet" href="styles2.css">
+  
   <style>
     .error { color: red; margin-bottom: 15px; }
     .success { color: green; margin-bottom: 15px; }
@@ -42,13 +55,17 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     <a href="services.php" class="btn">Explore Services</a>
   </section>
 
-  <!-- Services Section -->
-  <section class="services">
-    <h2>Our Services</h2>
-    <div class="service-list">
+<!-- Services Section -->
+<section class="services">
+  <h2>Our Services</h2>
+
+  <div class="scroll-container">
+    <button class="scroll-btn left" onclick="scrollServices(-1)">&#10094;</button>
+
+    <div class="service-list" id="serviceList">
       <?php foreach ($getServices as $service): ?>
-        <div class="service-card" onclick="window.location.href='service-detail.php?ServicesID=<?php echo urlencode($service['ServicesID']); ?>'">
-          <div class="service-image" style="background-image: url('<?php echo ($service['ImgUrl']) ? htmlspecialchars($service['ImgUrl']) : 'default-image.jpg'; ?>')"></div>
+        <div class="service-cardindex" onclick="window.location.href='service-detail.php?ServicesID=<?php echo urlencode($service['ServicesID']); ?>'">
+          <div class="service-imageindex" style="background-image: url('<?php echo ($service['ImgUrl']) ? htmlspecialchars($service['ImgUrl']) : 'Img/default-image.jpg'; ?>')"></div>
           <div class="card-content">
             <h3><?php echo htmlspecialchars($service['Name']); ?></h3>
             <p><?php echo htmlspecialchars($service['Description']); ?></p>
@@ -57,16 +74,26 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
         </div>
       <?php endforeach; ?>
     </div>
-  </section>
+
+    <button class="scroll-btn right" onclick="scrollServices(1)">&#10095;</button>
+  </div>
+</section>
   
 <!-- Gallery Section -->
   <?php
   // Get Gallery items
+  $getGallery = [];
   $stmt = $conn->prepare("SELECT * FROM Gallery WHERE IsDeleted = 0 ORDER BY CreatedAt DESC");
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $getGallery = $result->fetch_all(MYSQLI_ASSOC);
-  $stmt->close();
+  if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result) {
+      $getGallery = $result->fetch_all(MYSQLI_ASSOC);
+    }
+    $stmt->close();
+  } else {
+    error_log("Gallery query prepare failed: " . $conn->error);
+  }
   ?>
 
   <section class="gallery">
@@ -149,10 +176,9 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; <?php echo date("Y"); ?> My Business. All Rights Reserved.</p>
-  </footer>
+<?php
+include 'footer.php';
+?>
 
 <script>
 document.getElementById('contactForm').addEventListener('submit', function(e) {
@@ -192,8 +218,39 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
 });
 </script>
 
+<script>
+const serviceList = document.getElementById('serviceList');
+const cards = Array.from(serviceList.children);
+const cardWidth = 320; // 300px width + ~20px gap
+
+// Clone cards to simulate infinite loop
+cards.forEach(card => {
+  const clone = card.cloneNode(true);
+  serviceList.appendChild(clone);
+});
+
+let scrollPosition = 0;
+
+function scrollServices(direction) {
+  const totalCards = cards.length;
+  const totalWidth = cardWidth * totalCards;
+
+  scrollPosition += direction * cardWidth * 2; // scroll 2 cards per click
+
+  // Loop logic
+  if (scrollPosition < 0) {
+    scrollPosition = totalWidth - (cardWidth * 3);
+  } else if (scrollPosition >= totalWidth * 2 - (cardWidth * 2)) {
+    scrollPosition = totalWidth - (cardWidth);
+  }
+
+  serviceList.scrollTo({
+    left: scrollPosition,
+    behavior: 'smooth'
+  });
+}
+</script>
 </body>
-</html>
 
 <?php
 // Handle contact form submission

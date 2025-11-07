@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Validate required fields
-$required_fields = ['ServicesID', 'BarberID', 'selected_time'];
+// Validate required fields - ADDED 'appointment_name'
+$required_fields = ['ServicesID', 'BarberID', 'selected_time', 'appointment_name'];
 foreach ($required_fields as $field) {
     if (empty($_POST[$field])) die("Missing required field: $field");
 }
@@ -25,6 +25,7 @@ foreach ($required_fields as $field) {
 $ServicesID = (int)$_POST['ServicesID'];
 $BarberID = (int)$_POST['BarberID'];
 $selected_time = $_POST['selected_time'];
+$appointment_name = trim($_POST['appointment_name']); // ADDED: Get appointment name
 
 if (!strtotime($selected_time)) die("Invalid time format.");
 
@@ -51,8 +52,8 @@ $barberData = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 if (!$barberData) die("Barber not found.");
 
-// Fetch user info
-$stmt = $conn->prepare("SELECT Name, Email FROM User WHERE UserID = ?");
+// Fetch user info - CHANGED: Now we only need email for sending confirmation
+$stmt = $conn->prepare("SELECT Email FROM User WHERE UserID = ?");
 $stmt->bind_param("i", $UserID);
 $stmt->execute();
 $userData = $stmt->get_result()->fetch_assoc();
@@ -66,14 +67,15 @@ $stmt->execute();
 if ($stmt->get_result()->num_rows > 0) die("Sorry, the selected time slot is no longer available.");
 $stmt->close();
 
-// Insert appointment
+// Insert appointment - UPDATED: Using appointment_name instead of user's name
 $insertStmt = $conn->prepare("
     INSERT INTO Appointment (UserID, BarberID, ForName, ForAge, Type, Time, Duration, Status, Cost)
     VALUES (?, ?, ?, ?, ?, ?, ?, 'Confirmed', ?)
 ");
 
-$for_name = $userData['Name'];
-$for_age = 30; // Placeholder
+// UPDATED: Use the appointment_name from form instead of user's name
+$for_name = $appointment_name;
+$for_age = 30; // Placeholder - you might want to remove this field if not used
 $type = $service['Name'];
 $duration = (int)$service['Time'];
 $cost = (float)$service['Price'];
@@ -87,16 +89,16 @@ if ($insertStmt->execute()) {
     $mail = getMailer(); // Get PHPMailer object from mail.php
 
     try {
-        $mail->addAddress($userData['Email'], $userData['Name']);
+        $mail->addAddress($userData['Email']);
         $mail->isHTML(true);
         $mail->Subject = 'Appointment Confirmation';
         $mail->Body    = "
             <h2>Appointment Confirmed!</h2>
-            <p>Dear {$userData['Name']},</p>
+            <p>Dear {$appointment_name},</p>
             <p>Your appointment has been successfully booked with <strong>{$barberData['Name']}</strong> for the service <strong>{$type}</strong>.</p>
             <p><strong>Date & Time:</strong> " . date('F j, Y \a\t g:i A', strtotime($selected_time)) . "</p>
             <p><strong>Duration:</strong> {$duration} minutes</p>
-            <p><strong>Cost:</strong> $" . number_format($cost, 2) . "</p>
+            <p><strong>Cost:</strong> R" . number_format($cost, 2) . "</p>
             <p>Thank you for choosing Kumar Kailey Hair & Beauty!</p>
         ";
         $mail->AltBody = "Appointment Confirmed! Your appointment with {$barberData['Name']} for {$type} is on " . date('F j, Y \a\t g:i A', strtotime($selected_time)) . ".";
@@ -123,6 +125,10 @@ if ($insertStmt->execute()) {
         <p>
             <strong>Barber:</strong>
             <span><?= htmlspecialchars($barberData['Name']) ?></span>
+        </p>
+        <p>
+            <strong>For:</strong>
+            <span><?= htmlspecialchars($appointment_name) ?></span> <!-- ADDED: Show appointment name -->
         </p>
         <p>
             <strong>Date & Time:</strong>
@@ -170,4 +176,3 @@ if ($insertStmt->execute()) {
 $insertStmt->close();
 $conn->close();
 ?>
-
