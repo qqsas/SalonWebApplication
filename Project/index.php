@@ -55,6 +55,7 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     <a href="services.php" class="btn">Explore Services</a>
   </section>
 
+
 <!-- Services Section -->
 <section class="services">
   <h2>Our Services</h2>
@@ -78,7 +79,7 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
     <button class="scroll-btn right" onclick="scrollServices(1)">&#10095;</button>
   </div>
 </section>
-  
+
 <!-- Gallery Section -->
   <?php
   // Get Gallery items
@@ -96,7 +97,7 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
   }
   ?>
 
-  <section class="gallery">
+<section class="gallery">
     <h2>Our Gallery</h2>
     <div class="gallery-list">
       <?php if (empty($getGallery)): ?>
@@ -251,6 +252,7 @@ function scrollServices(direction) {
 }
 </script>
 </body>
+</html>
 
 <?php
 // Handle contact form submission
@@ -295,4 +297,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 ?>
-
