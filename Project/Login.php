@@ -154,6 +154,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <label>Password</label>
           <input type="password" name="password" class="form-control" 
                  placeholder="Enter your password" required>
+                 <input type="checkbox" id="toggleLoginPassword"> Show Password
+
         </div>
 
         <input type="submit" value="Login" class="btn-primary">
@@ -164,5 +166,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </div>
 </div>
-</body>
+<script>
+document.getElementById('toggleLoginPassword').addEventListener('change', function() {
+    const passwordField = document.querySelector('input[name="password"]');
+    passwordField.type = this.checked ? 'text' : 'password';
+});
+</script>
 
+</body>
