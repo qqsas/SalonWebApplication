@@ -24,36 +24,50 @@ $reviewTarget = "";
 // Fetch appointment details
 if ($AppointmentID) {
     $stmt = $conn->prepare("SELECT AppointmentID, UserID, Status, ReviewID, BarberID, Date FROM Appointment WHERE AppointmentID = ? AND UserID = ?");
-    $stmt->bind_param("ii", $AppointmentID, $UserID);
-    $stmt->execute();
-    $appt = $stmt->get_result()->fetch_assoc();
-    
-    if (!$appt) {
-        $error = "Appointment not found or not yours.";
-    } elseif (strtolower($appt['Status']) !== 'completed') {
-        $error = "You can only review completed appointments.";
-    } elseif (!empty($appt['ReviewID'])) {
-        $error = "Review already exists for this appointment.";
+    if ($stmt === false) {
+        $error = "Unable to prepare appointment lookup.";
     } else {
-        $barberID = $appt['BarberID'];
-        $barberQuery = $conn->prepare("SELECT Name FROM User WHERE UserID = ?");
-        $barberQuery->bind_param("i", $barberID);
-        $barberQuery->execute();
-        $barber = $barberQuery->get_result()->fetch_assoc();
-        $reviewTarget = "Appointment with " . htmlspecialchars($barber['Name']) . " on " . htmlspecialchars($appt['Date']);
+        $stmt->bind_param("ii", $AppointmentID, $UserID);
+        $stmt->execute();
+        $appt = $stmt->get_result()->fetch_assoc();
+    
+        if (!$appt) {
+            $error = "Appointment not found or not yours.";
+        } elseif (strtolower($appt['Status']) !== 'completed') {
+            $error = "You can only review completed appointments.";
+        } elseif (!empty($appt['ReviewID'])) {
+            $error = "Review already exists for this appointment.";
+        } else {
+            $barberID = $appt['BarberID'];
+            $barberQuery = $conn->prepare("SELECT Name FROM User WHERE UserID = ?");
+            if ($barberQuery === false) {
+                $error = "Unable to load barber details.";
+            } else {
+                $barberQuery->bind_param("i", $barberID);
+                $barberQuery->execute();
+                $barber = $barberQuery->get_result()->fetch_assoc();
+                if ($barber) {
+                    $reviewTarget = "Appointment with " . htmlspecialchars($barber['Name']) . " on " . htmlspecialchars($appt['Date']);
+                }
+            }
+        }
     }
 }
 
 // Fetch product details
 if ($ProductID) {
-    $stmt = $conn->prepare("SELECT ProductName, Image FROM Products WHERE ProductID = ?");
-    $stmt->bind_param("i", $ProductID);
-    $stmt->execute();
-    $product = $stmt->get_result()->fetch_assoc();
-    if (!$product) {
-        $error = "Product not found.";
+    $stmt = $conn->prepare("SELECT Name, ImgUrl FROM Products WHERE ProductID = ?");
+    if ($stmt === false) {
+        $error = "Unable to prepare product lookup.";
     } else {
-        $reviewTarget = "Product: " . htmlspecialchars($product['ProductName']);
+        $stmt->bind_param("i", $ProductID);
+        $stmt->execute();
+        $product = $stmt->get_result()->fetch_assoc();
+        if (!$product) {
+            $error = "Product not found.";
+        } else {
+            $reviewTarget = "Product: " . htmlspecialchars($product['Name']);
+        }
     }
 }
 
@@ -68,24 +82,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Comment too long. Max 500 characters.";
     } elseif (empty($error)) {
         if ($AppointmentID) {
-            $stmt = $conn->prepare("INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status, created_at) VALUES (?, NULL, ?, ?, ?, 'pending', NOW())");
-            $stmt->bind_param("iiis", $UserID, $AppointmentID, $rating, $comment);
+            $stmt = $conn->prepare("INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status, CreatedAt) VALUES (?, NULL, ?, ?, ?, 'pending', NOW())");
+            if ($stmt === false) {
+                $error = "Unable to prepare appointment review insert.";
+            } else {
+                $stmt->bind_param("iiis", $UserID, $AppointmentID, $rating, $comment);
+            }
         } else {
-            $stmt = $conn->prepare("INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status, created_at) VALUES (?, ?, NULL, ?, ?, 'pending', NOW())");
-            $stmt->bind_param("iiis", $UserID, $ProductID, $rating, $comment);
+            $stmt = $conn->prepare("INSERT INTO Reviews (UserID, ProductID, AppointmentID, Rating, Comment, Status, CreatedAt) VALUES (?, ?, NULL, ?, ?, 'pending', NOW())");
+            if ($stmt === false) {
+                $error = "Unable to prepare product review insert.";
+            } else {
+                $stmt->bind_param("iiis", $UserID, $ProductID, $rating, $comment);
+            }
         }
 
-        if ($stmt->execute()) {
+        if (empty($error) && $stmt && $stmt->execute()) {
             $newReviewID = $stmt->insert_id;
             if ($AppointmentID) {
                 $update = $conn->prepare("UPDATE Appointment SET ReviewID = ? WHERE AppointmentID = ?");
-                $update->bind_param("ii", $newReviewID, $AppointmentID);
-                $update->execute();
+                if ($update) {
+                    $update->bind_param("ii", $newReviewID, $AppointmentID);
+                    $update->execute();
+                }
             }
 
-            $_SESSION['flash_success'] = "Review submitted successfully. Awaiting approval.";
-            header("Location: reviewsuccess.php");
-            exit();
+            $success = "Review submitted successfully and awaiting admin approval.";
+            $error = "";
         } else {
             $error = "Error submitting review.";
         }
@@ -106,6 +129,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="<?= $AppointmentID ? 'appointments.php' : 'products.php' ?>" class="btn btn-secondary">Back</a>
+                <a href="index.php" class="btn btn-primary">Home</a>
+            </div>
+        <?php else: ?>
         <form method="post" action="">
             <div class="mb-3">
                 <label for="rating" class="form-label">Rating</label>
@@ -128,6 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary">Submit Review</button>
             </div>
         </form>
+        <?php endif; ?>
     </div>
 </div>
 
