@@ -1,0 +1,14 @@
+Check every place an email/number is requiered that it supports the use of only 1
+Test and improve user-friendliness
+Ensure every word displayed is proffesional and every email sent is proffesional
+Test Email Services when deployed
+
+-Unify config for db. (SalonDB has had more use overall, so should just stick to that)
+
+-NB!!: Verify functionality for password hashing and input validation
+
+-2FA Implementation (Can be addressed once input validation is confirmed 100% working)
+
+-Existing email validation (therefore, unified DB schema should be implemented, currently DB schema is not up to date and produces errors on first run)
+
+-Verify and check page routing (particularly, prepare to change homepage.php to index.php to prepare for hosting env)
