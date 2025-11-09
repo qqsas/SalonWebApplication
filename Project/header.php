@@ -61,7 +61,7 @@ if (isset($_SESSION['UserID'])) {
 <nav class="Header-navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="index.php" aria-label="Kumar Kailey Hair & Beauty Salon">
-    <img src="Img/Logo.jpeg" alt="">
+    <img src="Img/KSLOGO.png" alt="">
         </a>
         
         <!-- Burger Menu Toggle -->
@@ -88,8 +88,8 @@ if (isset($_SESSION['UserID'])) {
                             <li class="nav-item"><a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a></li>
                         <?php elseif ($role_lower === 'customer'): ?>
                             <li class="nav-item">
-                                <a class="nav-link CartWrapper" href="cart.php">
-                                    <span>🛒 Cart</span>
+                                <a class="nav-link" href="cart.php">
+                                    <span class="cart-label">Cart</span>
                                     <?php if ($cartItemCount > 0): ?>
                                         <span class="cart-number"><?= $cartItemCount ?></span>
                                     <?php endif; ?>
