@@ -437,16 +437,16 @@
 .hero h2 {
     font-size: 3rem;
     margin-bottom: 1rem;
-    font-weight: 800;
+    font-weight: 900;
     text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-    background: linear-gradient(90deg, #fff, #b2a783);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    
+    color: var(--white);
+    
     animation: slideIn 1s ease-out forwards;
 }
 
 .hero p {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
     margin-bottom: 2rem;
     opacity: 0.95;
     animation: fadeInUp 2.5s ease-out forwards;
@@ -465,7 +465,7 @@
     height: 0;
     left: -10%;
     bottom: 0;
-    background: rgba(255,255,255,0.2);
+    background: rgba(209, 201, 201, 0.2);
     transition: all 0.4s ease;
 }
 
@@ -491,10 +491,9 @@
 
     /* Background image */
     background: linear-gradient(
-                    rgba(62,68,133,0.6), 
-                    rgba(118,75,162,0.6)
-                ),
-                url('Img/barbershop.jpeg') center/cover no-repeat; 
+                      rgba(8, 17, 122, 0.82),
+                    rgba(124, 162, 236, 0.78) ), url('Img/barbershop.jpeg') center/cover no-repeat;
+      
 
     /* Optional: wavy bottom */
     clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
