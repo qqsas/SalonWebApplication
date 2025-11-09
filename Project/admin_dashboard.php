@@ -91,6 +91,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             'completed' => 'Completed',
             'cancelled' => 'Cancelled',
             'active' => 'Active Only',
+            'pending'=> 'Pending',
             'deleted' => 'Deleted Only'
         ],
         'products' => [
@@ -320,6 +321,9 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                 case 'confirmed':
                     $where .= " AND a.Status = 'confirmed' AND a.IsDeleted = 0";
                     break;
+                case 'pending':
+                    $where .= " And a.Status = 'pending' AND a.IsDeleted = 0";
+                    break;
                 case 'completed':
                     $where .= " AND a.Status = 'completed' AND a.IsDeleted = 0";
                     break;
@@ -358,8 +362,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             while ($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['AppointmentID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['BarberName'])."</td> <td class='table-cell'>".escape($row['ForName'])."</td> <td class='table-cell'>".escape($row['ForAge'])."</td> <td class='table-cell'>".escape($row['Type'])."</td> <td class='table-cell'>".escape($row['Time'])."</td> <td class='table-cell'>".escape($row['Duration'])." minutes</td> <td class='table-cell'> <form method='POST' action='update_appointment_status.php' class='inline-form'> <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page'> <select name='Status' onchange='confirmStatusChange(this, \"appointment\")' class='status-select'> <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option> <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option> <option value='completed' ".($row['Status']=='completed'?'selected':'').">Completed</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>R".escape($row['Cost'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
-                if ($row['IsDeleted']) {
+              echo "<tr class='table-row'> <td class='table-cell'>".escape($row['AppointmentID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['BarberName'])."</td> <td class='table-cell'>".escape($row['ForName'])."</td> <td class='table-cell'>".escape($row['ForAge'])."</td> <td class='table-cell'>".escape($row['Type'])."</td> <td class='table-cell'>".escape($row['Time'])."</td> <td class='table-cell'>".escape($row['Duration'])." minutes</td> <td class='table-cell'> <form method='POST' action='update_appointment_status.php' class='inline-form'> <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page'> <select name='Status' onchange='confirmStatusChange(this, \"appointment\")' class='status-select'> <option value='pending' ".($row['Status']=='pending'?'selected':'').">Pending</option> <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option> <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option> <option value='completed' ".($row['Status']=='completed'?'selected':'').">Completed</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>R".escape($row['Cost'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";  if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Appointment&id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
                     echo "<a href='edit_appointment.php?id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page' class='btn btn-sm btn-primary'>Edit</a>";
