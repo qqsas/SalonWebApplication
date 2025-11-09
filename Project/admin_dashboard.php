@@ -239,7 +239,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             while($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['UserID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell'>".escape($row['Email'])."</td> <td class='table-cell'>".escape($row['Number'])."</td> <td class='table-cell'> <form method='POST' action='update_user_role.php' class='inline-form'> <input type='hidden' name='UserID' value='".escape($row['UserID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=users&search=$searchParam&users_filter=".$displayFilters['users']."&page=$page'> <select name='Role' onchange='this.form.submit()' class='role-select'> <option value='client' ".($row['Role']=='client'?'selected':'').">Client</option> <option value='admin' ".($row['Role']=='admin'?'selected':'').">Admin</option> <option value='barber' ".($row['Role']=='barber'?'selected':'').">Barber</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['UserID'])."</td> <td class='table-cell'>".escape($row['Name'])."</td> <td class='table-cell'>".escape($row['Email'])."</td> <td class='table-cell'>".escape($row['Number'])."</td> <td class='table-cell'> <form method='POST' action='update_user_role.php' class='inline-form'> <input type='hidden' name='UserID' value='".escape($row['UserID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=users&search=$searchParam&users_filter=".$displayFilters['users']."&page=$page'> <select name='Role' onchange='confirmRoleChange(this)' class='role-select'> <option value='client' ".($row['Role']=='client'?'selected':'').">Client</option> <option value='admin' ".($row['Role']=='admin'?'selected':'').">Admin</option> <option value='barber' ".($row['Role']=='barber'?'selected':'').">Barber</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=User&id=".escape($row['UserID'])."&view=users&search=$searchParam&users_filter=".$displayFilters['users']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -358,7 +358,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             while ($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['AppointmentID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['BarberName'])."</td> <td class='table-cell'>".escape($row['ForName'])."</td> <td class='table-cell'>".escape($row['ForAge'])."</td> <td class='table-cell'>".escape($row['Type'])."</td> <td class='table-cell'>".escape($row['Time'])."</td> <td class='table-cell'>".escape($row['Duration'])." minutes</td> <td class='table-cell'> <form method='POST' action='update_appointment_status.php' class='inline-form'> <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option> <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option> <option value='completed' ".($row['Status']=='completed'?'selected':'').">Completed</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>R".escape($row['Cost'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['AppointmentID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['BarberName'])."</td> <td class='table-cell'>".escape($row['ForName'])."</td> <td class='table-cell'>".escape($row['ForAge'])."</td> <td class='table-cell'>".escape($row['Type'])."</td> <td class='table-cell'>".escape($row['Time'])."</td> <td class='table-cell'>".escape($row['Duration'])." minutes</td> <td class='table-cell'> <form method='POST' action='update_appointment_status.php' class='inline-form'> <input type='hidden' name='AppointmentID' value='".escape($row['AppointmentID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page'> <select name='Status' onchange='confirmStatusChange(this, \"appointment\")' class='status-select'> <option value='scheduled' ".($row['Status']=='scheduled'?'selected':'').">Scheduled</option> <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">Confirmed</option> <option value='completed' ".($row['Status']=='completed'?'selected':'').">Completed</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>R".escape($row['Cost'])."</td> <td class='table-cell $statusClass'>$statusText</td> <td class='table-cell'> <div class='action-buttons'>";
                 if ($row['IsDeleted']) {
                     echo "<a href='restore.php?table=Appointment&id=".escape($row['AppointmentID'])."&view=appointments&search=$searchParam&appointments_filter=".$displayFilters['appointments']."&page=$page' class='btn btn-sm restore-btn'>Restore</a>";
                 } else {
@@ -823,7 +823,7 @@ case 'services':
                         <form method='POST' action='update_order_status.php' class='inline-form'> 
                             <input type='hidden' name='OrderID' value='".escape($row['OrderID'])."'> 
                             <input type='hidden' name='redirect' value='admin_dashboard.php?view=orders&search=$searchParam&orders_filter=".$displayFilters['orders']."&page=$page'> 
-                            <select name='Status' onchange='this.form.submit()' class='status-select'> 
+                            <select name='Status' onchange='confirmStatusChange(this, \"order\")' class='status-select'> 
                                 <option value='Pending' ".($row['Status']=='Pending'?'selected':'').">Pending</option> 
                                 <option value='confirmed' ".($row['Status']=='confirmed'?'selected':'').">confirmed</option> 
                                 <option value='Completed' ".($row['Status']=='Completed'?'selected':'').">Completed</option> 
@@ -890,7 +890,7 @@ case 'services':
             echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Product</th><th class='table-header'>Rating</th><th class='table-header'>Comment</th><th class='table-header'>Status</th><th class='table-header'>Date Created</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while($row = $result->fetch_assoc()) {
                 $commentPreview = strlen($row['Comment']) > 50 ? substr($row['Comment'], 0, 50) . '...' : $row['Comment'];
-                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ReviewID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['ProductName'])."</td> <td class='table-cell'>".escape($row['Rating'])."/5</td> <td class='table-cell comment-cell' title='".escape($row['Comment'])."'>".escape($commentPreview)."</td> <td class='table-cell'> <form method='POST' action='update_review_status.php' class='inline-form'> <input type='hidden' name='ReviewID' value='".escape($row['ReviewID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page'> <select name='Status' onchange='this.form.submit()' class='status-select'> <option value='pending' ".($row['Status']=='pending'?'selected':'').">Pending</option> <option value='approved' ".($row['Status']=='approved'?'selected':'').">Approved</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell'> <div class='action-buttons'> <a href='edit_review.php?id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' class='btn btn-sm btn-primary'>Edit</a> <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a> </div> </td> </tr>";
+                echo "<tr class='table-row'> <td class='table-cell'>".escape($row['ReviewID'])."</td> <td class='table-cell'>".escape($row['UserName'])."</td> <td class='table-cell'>".escape($row['ProductName'])."</td> <td class='table-cell'>".escape($row['Rating'])."/5</td> <td class='table-cell comment-cell' title='".escape($row['Comment'])."'>".escape($commentPreview)."</td> <td class='table-cell'> <form method='POST' action='update_review_status.php' class='inline-form'> <input type='hidden' name='ReviewID' value='".escape($row['ReviewID'])."'> <input type='hidden' name='redirect' value='admin_dashboard.php?view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page'> <select name='Status' onchange='confirmStatusChange(this, \"review\")' class='status-select'> <option value='pending' ".($row['Status']=='pending'?'selected':'').">Pending</option> <option value='approved' ".($row['Status']=='approved'?'selected':'').">Approved</option> <option value='cancelled' ".($row['Status']=='cancelled'?'selected':'').">Cancelled</option> </select> </form> </td> <td class='table-cell'>".escape($row['CreatedAt'])."</td> <td class='table-cell'> <div class='action-buttons'> <a href='edit_review.php?id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' class='btn btn-sm btn-primary'>Edit</a> <a href='soft_delete.php?table=Reviews&id=".escape($row['ReviewID'])."&view=reviews&search=$searchParam&reviews_filter=".$displayFilters['reviews']."&page=$page' onclick='return confirm(\"Are you sure?\")' class='btn btn-sm btn-danger'>Delete</a> </div> </td> </tr>";
             }
             echo "</tbody></table>";
             echo "</div>";
@@ -1086,6 +1086,49 @@ case 'contacts':
     function confirmAction(message) {
         return confirm(message || 'Are you sure?');
     }
+    
+    function confirmRoleChange(selectElement) {
+        const newRole = selectElement.value;
+        const currentRole = selectElement.querySelector('option[selected]') ? selectElement.querySelector('option[selected]').value : '';
+        const userName = selectElement.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
+        
+        if (confirm('Are you sure you want to change ' + userName + ' from ' + currentRole + ' to ' + newRole + '?')) {
+            selectElement.closest('form').submit();
+        } else {
+            // Reset to original value
+            selectElement.value = currentRole;
+        }
+    }
+    
+    function confirmStatusChange(selectElement, type) {
+        const newStatus = selectElement.value;
+        const currentStatus = selectElement.querySelector('option[selected]') ? selectElement.querySelector('option[selected]').value : '';
+        let itemIdentifier = '';
+        
+        // Try to get item identifier based on type
+        const row = selectElement.closest('tr');
+        switch(type) {
+            case 'appointment':
+                itemIdentifier = row.querySelector('td:nth-child(2)').textContent.trim() + ' - ' + row.querySelector('td:nth-child(3)').textContent.trim();
+                break;
+            case 'order':
+                itemIdentifier = 'Order #' + row.querySelector('td:nth-child(1)').textContent.trim();
+                break;
+            case 'review':
+                itemIdentifier = 'Review by ' + row.querySelector('td:nth-child(2)').textContent.trim();
+                break;
+            default:
+                itemIdentifier = 'this item';
+        }
+        
+        if (confirm('Are you sure you want to change ' + itemIdentifier + ' status from ' + currentStatus + ' to ' + newStatus + '?')) {
+            selectElement.closest('form').submit();
+        } else {
+            // Reset to original value
+            selectElement.value = currentStatus;
+        }
+    }
+    
     setTimeout(() => {
         const messages = document.querySelectorAll('.message');
         messages.forEach(msg => msg.style.display = 'none');
