@@ -60,9 +60,8 @@ if (isset($_SESSION['UserID'])) {
 <!-- Header -->
 <nav class="Header-navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">
-            <img src="Img/KSLOGO.png" alt="Logo" style="height: 30px; margin-right: 10px;">
-            Kumar Kailey Hair & Beauty Salon
+        <a class="navbar-brand" href="index.php" aria-label="Kumar Kailey Hair & Beauty Salon">
+    <img src="Img/Logo.jpeg" alt="">
         </a>
         
         <!-- Burger Menu Toggle -->
