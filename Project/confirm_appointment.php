@@ -12,7 +12,7 @@ $UserID = $_SESSION['UserID'];
 
 // Ensure form was submitted via POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: book_appointment.php");
+    header("Location: make_appointment.php");
     exit();
 }
 
@@ -70,7 +70,7 @@ $stmt->close();
 // Insert appointment - UPDATED: Using appointment_name instead of user's name
 $insertStmt = $conn->prepare("
     INSERT INTO Appointment (UserID, BarberID, ForName, ForAge, Type, Time, Duration, Status, Cost)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'Confirmed', ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', ?)
 ");
 
 // UPDATED: Use the appointment_name from form instead of user's name
