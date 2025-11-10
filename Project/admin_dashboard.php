@@ -160,6 +160,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'services' ? 'active' : ''; ?>" href="?view=services">Services</a></li>
             <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'reviews' ? 'active' : ''; ?>" href="?view=reviews">Reviews</a></li>
             <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'contacts' ? 'active' : ''; ?>" href="?view=contacts">Contacts</a></li>
+            <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'working_hours' ? 'active' : ''; ?>" href="?view=working_hours">Working Hours</a></li>
             <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'features' ? 'active' : ''; ?>" href="?view=features">Features</a></li>
 <li class="dashboard-nav-item"><a class="dashboard-nav-link <?php echo $view === 'gallery' ? 'active' : ''; ?>" href="?view=gallery">Gallery</a></li>
         </ul>
@@ -993,7 +994,98 @@ case 'contacts':
             echo "</div>";
             break;
 
-
+        case 'working_hours':
+            // Build WHERE clause based on filter
+            $where = "LOWER(b.Name) LIKE ?";
+            $params = [$searchLike];
+            $types = "s";
+            
+            $totalRecords = getRecordCount($conn, 'Barber b', $where, $params, $types);
+            $totalPages = ceil($totalRecords / $limit);
+            
+            $stmt = $conn->prepare("
+                SELECT b.*, u.Name AS OwnerName 
+                FROM Barber b 
+                LEFT JOIN User u ON b.UserID = u.UserID 
+                WHERE $where 
+                ORDER BY b.Name ASC 
+                LIMIT ? OFFSET ?
+            ");
+            $params[] = $limit;
+            $params[] = $offset;
+            $types .= "ii";
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            echo "<h2 class='section-title'>Working Hours - Barbers (Total: $totalRecords)</h2>";
+            if ($result->num_rows === 0) {
+                echo "<p class='no-results'>No barbers found.</p>";
+                break;
+            }
+            
+            echo "<div class='table-container'>";
+            echo "<table class='data-table'> 
+                <thead>
+                    <tr> 
+                        <th class='table-header'>ID</th>
+                        <th class='table-header'>Barber Name</th>
+                        <th class='table-header'>Owner</th>
+                        <th class='table-header'>Current Working Hours</th>
+                        <th class='table-header'>Status</th>
+                        <th class='table-header'>Actions</th> 
+                    </tr>
+                </thead>
+                <tbody>";
+            
+            while ($row = $result->fetch_assoc()) {
+                // Fetch current working hours for this barber
+                $hoursStmt = $conn->prepare("
+                    SELECT DayOfWeek, StartTime, EndTime 
+                    FROM BarberWorkingHours 
+                    WHERE BarberID = ? 
+                    ORDER BY DayOfWeek ASC
+                ");
+                $hoursStmt->bind_param("i", $row['BarberID']);
+                $hoursStmt->execute();
+                $hoursResult = $hoursStmt->get_result();
+                
+                $workingHours = [];
+                $daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                
+                while ($hourRow = $hoursResult->fetch_assoc()) {
+                    $dayName = $daysOfWeek[$hourRow['DayOfWeek']] ?? 'Unknown';
+                    $workingHours[] = $dayName . ': ' . substr($hourRow['StartTime'], 0, 5) . ' - ' . substr($hourRow['EndTime'], 0, 5);
+                }
+                $hoursStmt->close();
+                
+                $hoursDisplay = !empty($workingHours) ? implode('<br>', $workingHours) : 'No working hours set';
+                $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
+                $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+                
+                echo "<tr class='table-row'> 
+                        <td class='table-cell'>".escape($row['BarberID'])."</td> 
+                        <td class='table-cell'>".escape($row['Name'])."</td> 
+                        <td class='table-cell'>".escape($row['OwnerName'])."</td> 
+                        <td class='table-cell working-hours-cell'>".$hoursDisplay."</td> 
+                        <td class='table-cell $statusClass'>$statusText</td> 
+                        <td class='table-cell'> 
+                            <div class='action-buttons'>";
+                
+                if (!$row['IsDeleted']) {
+                    echo "<a href='edit_hours.php?barber_id=".escape($row['BarberID'])."&view=working_hours&search=$searchParam&page=$page' class='btn btn-sm btn-primary'>Edit Hours</a>";
+                } else {
+                    echo "<span class='text-muted'>N/A (Barber Deleted)</span>";
+                }
+                
+                echo "      </div> 
+                        </td> 
+                      </tr>";
+            }
+            echo "</tbody></table>";
+            echo "</div>";
+            displayPagination($totalPages, $page, 'working_hours', $searchParam, $displayFilters);
+            break;
 
         case 'gallery':
             // WHERE clause for searching (by title or description)
