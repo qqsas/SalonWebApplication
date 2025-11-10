@@ -50,7 +50,7 @@ $user_role = isset($_SESSION['UserID']) ? $_SESSION['Role'] : null;
 
   <!-- Hero Section -->
   <section class="hero">
-    <h2>Your trusted partner in quality services</h2>
+    <h2>KUMAR KAILEY HAIR & BEAUTY SALON</h2>
     <p>We offer professional solutions tailored to your needs.</p>
     <a href="services.php" class="btn">Explore Services</a>
   </section>

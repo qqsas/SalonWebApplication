@@ -3,6 +3,7 @@ session_start();
 include 'db.php';
 include 'header.php';
 
+
 // Fetch all services with new price range support
 $serviceQuery = "SELECT * 
                  FROM Services 
@@ -51,23 +52,25 @@ sort($allCategories);
 
     <!-- Search and Sort Controls -->
     <div class="controls">
-        <input type="text" id="serviceSearch" placeholder="Search services by name, description, or category...">
-        <select id="serviceSort">
-            <option value="name-asc">Name A → Z</option>
-            <option value="name-desc">Name Z → A</option>
-            <option value="price-asc">Price Low → High</option>
-            <option value="price-desc">Price High → Low</option>
-            <option value="time-asc">Duration Short → Long</option>
-            <option value="time-desc">Duration Long → Short</option>
-            <option value="category-asc">Category A → Z</option>
-            <option value="category-desc">Category Z → A</option>
-        </select>
+        <input type="text" id="serviceSearch" placeholder="Search Services">
+        <div class="select-wrapper">
+            <select id="serviceSort">
+                <option value="name-asc">Name (A → Z)</option>
+                <option value="name-desc">Name (Z → A)</option>
+                <option value="price-asc">Price (Low → High)</option>
+                <option value="price-desc">Price (High → Low)</option>
+                <option value="time-asc">Duration (Short → Long)</option>
+                <option value="time-desc">Duration (Long → Short)</option>
+                <option value="category-asc">Category (A → Z)</option>
+                <option value="category-desc">Category (Z → A)</option>
+            </select>
+        </div>
         
         <!-- Multi-select Category Filter -->
         <div class="category-filter-container">
             <div class="category-multiselect">
                 <div class="category-select" id="categorySelect">
-                    <span id="categoryPlaceholder">Select categories...</span>
+                    <span id="categoryPlaceholder">Select Categories</span>
                     <div id="selectedCategories"></div>
                 </div>
                 <div class="category-dropdown" id="categoryDropdown">
@@ -79,11 +82,11 @@ sort($allCategories);
                     <?php endforeach; ?>
                 </div>
             </div>
-            <button class="clear-categories" id="clearCategories">Clear</button>
+            <button class="clear-categories" id="clearCategories">Clear All</button>
         </div>
         
         <!-- Apply button only -->
-        <button id="applyButton" class="filter-button">Apply</button>
+        <button id="applyButton" class="filter-button">Apply Filters</button>
     </div>
 
     <?php if(empty($services)): ?>
@@ -124,18 +127,18 @@ sort($allCategories);
         $sortPrice = $service['Price'];
     }
 ?>
-<div class="service-card" 
-     data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
-     data-description="<?= htmlspecialchars(strtolower($service['Description'])) ?>"
-     data-price="<?= $sortPrice ?>" 
-     data-time="<?= $service['Time'] ?>"
-     data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
-     data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>"
-     data-price-type="<?= htmlspecialchars($service['PriceType']) ?>"
-     data-min-price="<?= $service['MinPrice'] ?? 0 ?>"
-     data-max-price="<?= $service['MaxPrice'] ?? 0 ?>"
-     onclick="window.location.href='service-detail.php?ServicesID=<?= $service['ServicesID'] ?>'"
-     style="cursor: pointer;">
+<div class="service-card"
+    data-name="<?= htmlspecialchars(strtolower($service['Name'])) ?>" 
+    data-description="<?= htmlspecialchars(strtolower($service['Description'])) ?>"
+    data-price="<?= $sortPrice ?>" 
+    data-time="<?= $service['Time'] ?>"
+    data-category="<?= htmlspecialchars(strtolower($primaryCategory)) ?>"
+    data-categories="<?= htmlspecialchars(json_encode($serviceCategories)) ?>"
+    data-price-type="<?= htmlspecialchars($service['PriceType']) ?>"
+    data-min-price="<?= $service['MinPrice'] ?? 0 ?>"
+    data-max-price="<?= $service['MaxPrice'] ?? 0 ?>"
+    onclick="window.location.href='service-detail.php?ServicesID=<?= $service['ServicesID'] ?>'"
+style="cursor: pointer;">
         
         <!-- Service Image -->
         <?php if(!empty($service['ImgUrl'])): ?>
@@ -216,6 +219,7 @@ const categoryPlaceholder = document.getElementById('categoryPlaceholder');
 const selectedCategoriesContainer = document.getElementById('selectedCategories');
 const clearCategoriesBtn = document.getElementById('clearCategories');
 const categoryCheckboxes = categoryDropdown.querySelectorAll('input[type="checkbox"]');
+const categoryMultiselect = document.querySelector('.category-multiselect');
 
 // Track selected categories
 let selectedCategories = [];
@@ -229,12 +233,18 @@ servicesGrid.parentNode.insertBefore(noResults, servicesGrid.nextSibling);
 // Multi-select category functionality
 categorySelect.addEventListener('click', (e) => {
     e.stopPropagation();
-    categoryDropdown.classList.toggle('show');
+    const isOpen = categoryDropdown.classList.toggle('show');
+    if (categoryMultiselect) {
+        categoryMultiselect.classList.toggle('open', isOpen);
+    }
 });
 
 // Close dropdown when clicking outside
 document.addEventListener('click', () => {
     categoryDropdown.classList.remove('show');
+    if (categoryMultiselect) {
+        categoryMultiselect.classList.remove('open');
+    }
 });
 
 // Prevent dropdown close when clicking inside
@@ -465,6 +475,10 @@ document.addEventListener('keydown', (e) => {
     }
 });
 </script>
+
+<?php
+include 'footer.php';
+?>
 
 </body>
 </html>
