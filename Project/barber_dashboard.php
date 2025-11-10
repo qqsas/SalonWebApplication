@@ -98,7 +98,7 @@ function displayPagination($totalPages, $page, $view, $searchParam, $filter = ''
 }
 
 $features = [];
-$stmt = $conn->prepare("SELECT FeatureName, IsEnabled FROM Features WHERE FeatureName IN ('allow services','allow products')");
+$stmt = $conn->prepare("SELECT FeatureName, IsEnabled FROM Features WHERE FeatureName IN ('allow services','allow products','Allow Working')");
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
@@ -133,7 +133,9 @@ while ($row = $result->fetch_assoc()) {
                 <li><a class="dashboard-nav-link <?php echo $view === 'overview' ? 'active' : ''; ?>" href="?view=overview">Overview</a></li>
                 <li><a class="dashboard-nav-link <?php echo $view === 'appointments' ? 'active' : ''; ?>" href="?view=appointments">My Appointments</a></li>
                 <li><a class="dashboard-nav-link <?php echo $view === 'services' ? 'active' : ''; ?>" href="?view=services">My Services</a></li>
-                <li><a class="dashboard-nav-link <?php echo $view === 'workinghours' ? 'active' : ''; ?>" href="?view=workinghours">Working Hours</a></li>
+                <?php if ($features['Allow Working'] ?? false): ?>
+                    <li><a class="dashboard-nav-link <?php echo $view === 'workinghours' ? 'active' : ''; ?>" href="?view=workinghours">Working Hours</a></li>
+                <?php endif; ?>
                 <li><a class="dashboard-nav-link <?php echo $view === 'profile' ? 'active' : ''; ?>" href="?view=profile">My Profile</a></li>
                 <li><a class="dashboard-nav-link <?php echo $view === 'reviews' ? 'active' : ''; ?>" href="?view=reviews">My Reviews</a></li>
                 <?php if ($features['allow products'] ?? false): ?>
@@ -469,6 +471,12 @@ while ($row = $result->fetch_assoc()) {
                 break;
 
             case 'workinghours':
+                // Check if working hours feature is enabled
+                if (!($features['Allow Working'] ?? false)) {
+                    echo "<div class='message warning'>Working hours management is currently disabled.</div>";
+                    break;
+                }
+                
                 echo "<div class='availability-settings'>";
                 echo "<h2>My Working Hours</h2>";
                 
