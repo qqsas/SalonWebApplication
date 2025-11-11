@@ -128,6 +128,24 @@ $totalRecords = array_sum($metricTotals);
 $activeMetrics = count($selectedMetrics);
 ?>
 
+
+
+<!-- Statistics Overview -->
+<div class="stats-overview">
+    <div class="stat-card">
+        <h3>Overview Summary</h3>
+        <p><strong>Time Frame:</strong> <?= ucfirst($timeFrame) ?></p>
+        <p><strong>Metrics Displayed:</strong> <?= $activeMetrics ?></p>
+        <p><strong>Total Records:</strong> <?= number_format($totalRecords) ?></p>
+        <p><strong>Date Range:</strong> <?= date('M j, Y', strtotime($dateRange['min_date'])) ?> - <?= date('M j, Y', strtotime($dateRange['max_date'])) ?></p>
+    </div>
+</div>
+
+<!-- Chart -->
+<div class="chart-container">
+    <canvas id="overviewChart"></canvas>
+</div>
+
 <!-- Controls -->
 <div class="dashboard-controls">
     <form id="dashboardForm" method="GET" style="margin-bottom:20px;">
@@ -168,22 +186,6 @@ $activeMetrics = count($selectedMetrics);
             </div>
         </div>
     </form>
-</div>
-
-<!-- Statistics Overview -->
-<div class="stats-overview">
-    <div class="stat-card">
-        <h3>Overview Summary</h3>
-        <p><strong>Time Frame:</strong> <?= ucfirst($timeFrame) ?></p>
-        <p><strong>Metrics Displayed:</strong> <?= $activeMetrics ?></p>
-        <p><strong>Total Records:</strong> <?= number_format($totalRecords) ?></p>
-        <p><strong>Date Range:</strong> <?= date('M j, Y', strtotime($dateRange['min_date'])) ?> - <?= date('M j, Y', strtotime($dateRange['max_date'])) ?></p>
-    </div>
-</div>
-
-<!-- Chart -->
-<div class="chart-container">
-    <canvas id="overviewChart" width="1200" height="500"></canvas>
 </div>
 
 <!-- Chart Controls -->
@@ -228,6 +230,47 @@ const datasets = Object.keys(overviewDataJS).map((metric, i) => ({
     fill: graphType === 'area',
 }));
 
+function updateLegendButtonStates() {
+    if (!overviewChart) return;
+    
+    // Find the legend - Chart.js renders it near the canvas
+    const chartContainer = document.querySelector('.chart-container');
+    if (!chartContainer) return;
+    
+    // Look for the legend ul element (Chart.js creates it as a sibling or child)
+    let legendList = chartContainer.querySelector('ul');
+    if (!legendList) {
+        // If not found, try finding it by looking for elements with that may be a legend
+        const allLists = document.querySelectorAll('.chart-container ul, #overviewChart + ul, canvas + ul');
+        for (let list of allLists) {
+            if (list.querySelectorAll('li').length === overviewChart.data.datasets.length) {
+                legendList = list;
+                break;
+            }
+        }
+    }
+    
+    if (!legendList) return;
+    
+    const legendItems = legendList.querySelectorAll('li');
+    legendItems.forEach((item, index) => {
+        if (index >= overviewChart.data.datasets.length) return;
+        
+        const meta = overviewChart.getDatasetMeta(index);
+        const isHidden = meta.hidden;
+        
+        // Remove existing state classes
+        item.classList.remove('active', 'hidden');
+        
+        // Add appropriate state class
+        if (isHidden) {
+            item.classList.add('hidden');
+        } else {
+            item.classList.add('active');
+        }
+    });
+}
+
 function initializeChart() {
     const ctx = document.getElementById('overviewChart').getContext('2d');
     if (overviewChart) overviewChart.destroy();
@@ -237,9 +280,34 @@ function initializeChart() {
         data: { labels, datasets },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 title: { display: true, text: '<?php echo $labelTitle; ?>' },
-                legend: { position: 'top' },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 13,
+                            weight: '500'
+                        },
+                        boxWidth: 16,
+                        boxHeight: 16
+                    },
+                    onClick: function(e, legendItem) {
+                        const index = legendItem.datasetIndex;
+                        const chart = this.chart;
+                        const meta = chart.getDatasetMeta(index);
+                        
+                        // Toggle visibility
+                        meta.hidden = !meta.hidden;
+                        chart.update();
+                        
+                        // Update button states after chart update
+                        setTimeout(updateLegendButtonStates, 100);
+                    }
+                },
                 zoom: {
                     zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
                     pan: { enabled: true, mode: 'x' }
@@ -256,8 +324,29 @@ function initializeChart() {
             }
         }
     });
+    
+    // Update legend button states after initial render
+    setTimeout(updateLegendButtonStates, 100);
 }
 initializeChart();
+
+// Let CSS container control height via clamp(); Chart.js will resize responsively
+window.addEventListener('resize', function() {
+    if (overviewChart) overviewChart.resize();
+});
+
+// Ensure width re-expands with container using ResizeObserver
+(function attachResizeObserver() {
+    const container = document.querySelector('.chart-container');
+    const canvas = document.getElementById('overviewChart');
+    if (!container || !canvas || !window.ResizeObserver) return;
+    const ro = new ResizeObserver(() => {
+        // Reset canvas CSS width to fluid, then ask Chart.js to recompute
+        canvas.style.width = '100%';
+        if (overviewChart) overviewChart.resize();
+    });
+    ro.observe(container);
+})();
 
 let pointsVisible = true;
 function toggleDataPoints() {
@@ -324,19 +413,88 @@ function deselectAllMetrics() {
 </script>
 
 <style>
-.dashboard-controls { margin-bottom: 20px; }
-.control-group { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.metrics-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
-.metric-checkbox { position: relative; display: flex; align-items: center; gap: 4px; }
-.metric-tooltip { visibility: hidden; background: #333; color: #fff; border-radius: 4px; padding: 2px 6px; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); font-size: 0.75rem; }
-.metric-checkbox:hover .metric-tooltip { visibility: visible; }
-.btn-small { padding: 4px 10px; margin-right: 5px; font-size: 0.85rem; cursor: pointer; }
-.btn-primary { background: #3366CC; color: #fff; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; }
-.stats-overview { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-.stat-card { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; }
-.chart-container { width: 100%; height: 500px; margin-bottom: 20px; }
-.chart-controls { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.data-export { margin-top: 20px; }
+/* Chart.js Legend Button Styling */
+.chart-container {
+    position: relative;
+}
+
+.chart-container canvas {
+    margin-bottom: 20px;
+}
+
+/* Style the legend container - Represented as a ul element by chartjs*/
+.chart-container ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto 20px auto;
+    padding: 10px 0;
+    list-style: none;
+}
+
+/* Style each legend item as a button */
+.chart-container ul li {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 0;
+    background-color: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    list-style: none;
+}
+
+/* Hover effect */
+.chart-container ul li:hover {
+    background-color: #f5f5f5;
+    border-color: #3366CC;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Active/selected state - visible datasets */
+.chart-container ul li.active {
+    background-color: #3366CC;
+    border-color: #3366CC;
+    color: #fff;
+}
+
+.chart-container ul li.active:hover {
+    background-color: #2952a3;
+    border-color: #2952a3;
+}
+
+/* Disabled/hidden state - hidden datasets */
+.chart-container ul li.hidden {
+    opacity: 0.5;
+    text-decoration: line-through;
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.chart-container ul li.hidden:hover {
+    opacity: 0.7;
+    background-color: #e5e5e5;
+}
+
+/* Style the legend box (color indicator) - Represented as a span element by chartjs */
+.chart-container ul li span {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Ensure proper spacing for legend text */
+.chart-container ul li {
+    white-space: nowrap;
+}
 </style>
 
 
