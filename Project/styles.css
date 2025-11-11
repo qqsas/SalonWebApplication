@@ -1,6 +1,6 @@
 /* Color Palette Variables */
 :root {
-  --primary-color: #545885;
+  --primary-color: #1c236e;
   --secondary-color: #5A502A;
   --accent-color: #B2A783;
   --background-light: #fef5e7;
@@ -15,6 +15,7 @@
   --error-color: #e74c3c;
   --card-shadow: 0 4px 6px rgba(44, 62, 80, 0.1);
   --card-hover-shadow: 0 8px 15px rgba(44, 62, 80, 0.2);
+  --lightblue: #c5cde9;
 }
 
 /* Reset and base styles */
@@ -521,8 +522,6 @@
 
 
 /* Section Headers */
-
-/* Section Headers */
 .services h2,
 .staff h2,
 .contact h2 {
@@ -553,7 +552,7 @@
 }
 
 .services {
-  background-color: var(--background-light);
+  background-color: var(--gray-light);
 }
 
 .staff {
@@ -564,8 +563,8 @@
 .staff-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .service-card,
@@ -653,7 +652,7 @@
 /* Contact Section */
 .contact {
   padding: 4rem 1rem;
-  background-color: var(--background-light);
+  background-color: var(--gray-light);
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -1099,11 +1098,14 @@ footer {
 }
 
 
+
+
 /* Services Page Styles */
 .services-container {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1.5rem;
+
 }
 
 
@@ -1113,6 +1115,7 @@ footer {
   color: var(--text-dark);
   margin-bottom: 2rem;
   position: relative;
+  
 }
 
 .services-container h1::after {
@@ -1123,6 +1126,7 @@ footer {
   background: var(--primary-color);
   margin: 0.5rem auto;
   border-radius: 999px;
+  box-shadow: 0 20px 35px rgba(12, 17, 52, 0.28);
 }
 
 
@@ -1135,16 +1139,16 @@ footer {
   align-items: center;
   justify-content: center;
   padding: 1.75rem 1.5rem;
-  background: rgba(84, 88, 133, 0.95);
+  background: var(--primary-color);
   border-radius: 16px;
-  border: 1px solid rgba(12, 17, 52, 0.22);
-  box-shadow: 0 20px 35px rgba(12, 17, 52, 0.28);
-  color: var(--white);
+  
+  box-shadow: 0 4px 6px rgba(20, 43, 66, 0.253);
+  color: var(--gray-medium);
 }
 
 .controls input,
 .controls select {
-  color: var(--text-dark);
+  color: var(--black);
   font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
 
@@ -1163,11 +1167,11 @@ footer {
 #serviceSearch,
 #serviceSort {
   padding: 0.75rem 1rem;
-  border: 1px solid var(--gray-medium);
+  border-color: var(--gray-medium);
   border-radius: 10px;
   font-size: 0.95rem;
   min-width: 240px;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  
   background: var(--white);
   color: var(--text-dark);
   font-weight: 500;
@@ -1556,7 +1560,7 @@ footer {
   padding: 3rem;
   background: var(--background-light);
   border-radius: 12px;
-  border: 1px dashed rgba(84, 88, 133, 0.2);
+  border: 1px dashed rgba(139, 146, 219, 0.767);
   margin: 2rem 0;
 }
 
@@ -1699,6 +1703,9 @@ footer {
 
 
 
+
+
+
 /* Products Page Styles */
 .filter-container {
   max-width: 1200px;
@@ -1711,10 +1718,10 @@ footer {
   grid-template-columns: 2fr 1fr 1fr auto;
   gap: 1rem;
   padding: 1.5rem;
-  background: var(--background-light);
+  background: var(--gray-light);
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(44, 62, 80, 0.05);
-  align-items: end;
+  box-shadow: 0 4px 6px rgba(20, 43, 66, 0.253);
+  align-items: center;
 }
 
 .filter-search {
@@ -1723,13 +1730,17 @@ footer {
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: var(--white);
+  background-color: var(--white);
+
 }
 
 .filter-search:focus {
-  outline: none;
-  border-color: var(--primary-color);
+  outline: solid;
+  border-color: var(--gray-medium);
   box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.1);
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .filter-sort,
@@ -1740,14 +1751,14 @@ footer {
   font-size: 1rem;
   background: var(--white);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .filter-sort:focus,
 .filter-category:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.1);
+  border-color: var(--gray-medium);
+  box-shadow: 0 0 0 3px rgb(241, 241, 241);
 }
 
 .filter-button {
@@ -1769,6 +1780,21 @@ footer {
   background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
 }
 
+/* Removes the blue focus ring and keeps the same background */
+.dropdown-toggle:hover,
+.dropdown-toggle:focus,
+.dropdown-toggle:focus-visible {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,249,251,0.98));
+  border-color: rgba(84, 88, 133, 0.45);   /* keep your border tweak */
+  box-shadow: none;                         /* or use your custom shadow */
+  outline: none;
+}
+
+
+
+
+
+
 /* Product Section */
 .product-section {
   max-width: 1200px;
@@ -1789,7 +1815,7 @@ footer {
   display: block;
   width: 120px;
   height: 4px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background: var(--primary-color);
   margin: 0.5rem auto;
   border-radius: 2px;
 }
@@ -1837,7 +1863,7 @@ footer {
 
 /* Neater, smaller product titles in cards (does not affect detail page) */
 .product-card .product-name {
-    font-size:1.05rem;
+    font-size:1.5rem;
   font-weight: 600;
   line-height: 1.3;
   margin-bottom: 0.5rem;
@@ -1855,26 +1881,26 @@ footer {
 }
 
 .product-price {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
 }
 
 .product-category {
-  font-size: 0.9rem;
+  font-size: 1.3rem;
   margin-bottom: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  background: var(--background-light);
-  border-radius: 20px;
-  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: var(--gray-light);
+  border-radius: 200px;
+  display: center;
 }
 
 .product-stock {
   color: var(--success-color);
   font-weight: 600;
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 1.3rem;
 }
 
 .product-stock:before {
@@ -1905,14 +1931,14 @@ footer {
 }
 
 .product-buttons .btn:first-child {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background: var(--primary-color);
   color: var(--white);
 }
 
 .product-buttons .btn:first-child:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background: var(--accent-color);
 }
 
 .product-buttons button.btn {
@@ -2096,6 +2122,11 @@ footer {
   opacity: 0.8;
 }
 
+
+
+
+
+
 /* Staff Page Styles */
 .staff-container {
   max-width: 1200px;
@@ -2130,9 +2161,9 @@ footer {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: var(--background-light);
+  background: var(--gray-light);
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(44, 62, 80, 0.08);
+  box-shadow: 0 4px 6px rgba(20, 43, 66, 0.253);
 }
 
 #staffSearch {
@@ -3781,6 +3812,9 @@ input[type="number"]:focus {
     0% { background-color: rgba(196, 69, 54, 0.1); }
     100% { background-color: transparent; }
 }
+
+
+
 /* Appointments Page Styles */
 .container {
     max-width: 1400px;
@@ -4214,6 +4248,14 @@ span[style*="color: gray"] {
     content: ' ↓';
     opacity: 1;
 }
+
+
+
+
+
+
+
+
 /* Profile Page Styles */
 .container {
     max-width: 800px;
