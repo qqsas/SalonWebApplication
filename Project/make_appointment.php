@@ -69,7 +69,7 @@ foreach ($dates as $date) {
     $stmt = $conn->prepare("
         SELECT Time AS StartTime, Duration 
         FROM Appointment 
-        WHERE BarberID = ? AND DATE(Time) = ? AND Status NOT IN ('Cancelled')
+        WHERE BarberID = ? AND DATE(Time) = ? AND Status NOT IN ('Cancelled') AND Status NOT IN ('Pending')
     ");
     $stmt->bind_param("is", $BarberID, $date);
     $stmt->execute();

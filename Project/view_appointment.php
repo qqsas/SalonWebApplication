@@ -131,6 +131,7 @@ $result->data_seek(0); // Reset result pointer
                 <button type="button" class="btn quick-filter" data-status="all">Show All</button>
                 <button type="button" class="btn quick-filter" data-status="Confirmed">Confirmed</button>
                 <button type="button" class="btn quick-filter" data-status="Completed">Completed</button>
+                <button type="button" class="btn quick-filter" data-status="Pending">Pending</button>
                 <button type="button" class="btn quick-filter" data-status="Cancelled">Cancelled</button>
                 <button type="button" class="btn quick-filter" data-time="upcoming">Upcoming</button>
                 <button type="button" class="btn quick-filter" data-time="past">Past</button>
