@@ -898,7 +898,7 @@ footer {
   display: block;
   width: 80px;
   height: 4px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background: var(--primary-color);
   margin: 0.5rem auto;
   border-radius: 2px;
 }
@@ -910,7 +910,7 @@ footer {
   margin-bottom: 2.5rem;
   text-align: center;
   padding: 1.5rem;
-  background: var(--background-light);
+  background: var(--gray-light);
   border-radius: 10px;
   border-left: 4px solid var(--primary-color);
 }
@@ -1101,7 +1101,104 @@ footer {
 }
 
 
+/* === CAROUSEL STYLES === */
+#aboutCarousel {
+    margin: 40px 0;
+    max-width: 100%;
+}
 
+#aboutCarousel .carousel-inner {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#aboutCarousel .carousel-item {
+    display: none;
+    padding: 40px 20px;
+}
+
+#aboutCarousel .carousel-item.active {
+    display: block;
+}
+
+#aboutCarousel .carousel-item h3 {
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+#aboutCarousel .carousel-item p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#aboutCarousel .carousel-item ul {
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#aboutCarousel .carousel-item li {
+    padding: 8px 0;
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+#aboutCarousel .carousel-control-prev,
+#aboutCarousel .carousel-control-next {
+    width: 50px;
+    height: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 31, 63, 0.1);
+    border-radius: 50%;
+}
+
+#aboutCarousel .carousel-control-prev {
+    left: 20px;
+}
+
+#aboutCarousel .carousel-control-next {
+    right: 20px;
+}
+
+#aboutCarousel .carousel-control-prev-icon,
+#aboutCarousel .carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 768px) {
+    #aboutCarousel .carousel-item {
+        padding: 30px 15px;
+    }
+
+    #aboutCarousel .carousel-item h3 {
+        font-size: 1.5rem;
+    }
+
+    #aboutCarousel .carousel-item p,
+    #aboutCarousel .carousel-item li {
+        font-size: 1rem;
+    }
+
+    #aboutCarousel .carousel-control-prev,
+    #aboutCarousel .carousel-control-next {
+        width: 40px;
+        height: 40px;
+    }
+
+    #aboutCarousel .carousel-control-prev {
+        left: 10px;
+    }
+
+    #aboutCarousel .carousel-control-next {
+        right: 10px;
+    }
+}
 
 
 
