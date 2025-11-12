@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="container">
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <h2>Edit Profile</h2>
 
     <?php if ($message): ?>
@@ -223,15 +223,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 .error { color: red; font-weight: bold; }
 .info { color: blue; font-weight: bold; }
 input[type="text"], input[type="email"], input[type="password"] {
-    width: 100%;
+    width: 300%;
     max-width: 400px;
-    padding: 8px;
+    padding: 20px;
     margin: 5px 0;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
 small { color: #666; font-size: 0.9em; }
 hr { margin: 20px 0; }
+
+
+/* Uniform Flat Buttons */
+.form-actions {
+    display: flex !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+}
+
+.form-actions button,
+.form-actions a {
+    display: inline-flex !important;
+    align-items: center !important ;
+    justify-content: center !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 10px 18px !important;
+    font-size: 15px !important;
+    font-weight: 650 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease, transform 0.1s ease !important;
+    box-shadow:  #1f1abaff   !important;
+}
+
+/* Update Profile button */
+.form-actions button {
+    background-color: #4b6bccff !important; /* Flat blue */
+    color: #fff;
+}
+
+.form-actions button:hover {
+    background-color: #1f1abaff !important; /* Darker blue on hover */
+    transform: scale(1.02);
+}
+
+/* Cancel button */
+.form-actions a {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.form-actions a:hover {
+    background-color: #1f1abaff !important; /* Slightly darker gray on hover */
+    transform: scale(1.02);
+}
+
+
+
 </style>
 
 <script>
