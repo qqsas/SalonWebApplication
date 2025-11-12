@@ -874,6 +874,9 @@ footer {
   font-style: italic;
 } */
 
+
+
+
 /* About Us Page Styles */
 .containerAbout {
   max-width: 800px;
@@ -1096,6 +1099,8 @@ footer {
 .section:nth-child(5) {
   animation-delay: 0.4s;
 }
+
+
 
 
 
@@ -3816,68 +3821,289 @@ input[type="number"]:focus {
 
 
 
+/* Recent update  For Appointments */
+
+
 /* Appointments Page Styles */
 .container {
     max-width: 1400px;
     margin: 2rem auto;
     padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: var(--white); /* or any color/variable you prefer */
+    color: var(--text-dark);  /* optional, overrides inherited text color */
 }
 
-.container h1 {
+.orders-controls,
+.sort-controls {
+    background: var(--gray-light) !important;
+}
+
+
+.Acontainer h1 {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
     text-align: center;
-    font-size: 2.5rem;
+    max-width: 900px; /* reduced width */
+    margin: 1rem 1rem; /* more space from top */
+    padding: 1.5rem 0.5rem;
+    
+
+    font-size: 1rem; /* smaller */
+    font-weight: 700;
     color: var(--text-dark);
-    margin-bottom: 2rem;
+
+    margin: 2rem auto 2rem;
     position: relative;
 }
 
-.container h1::after {
+
+
+/* Short underline */
+.Acontainer h1::after {
     content: '';
     display: block;
-    width: 120px;
-    height: 4px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-    margin: 0.5rem auto;
-    border-radius: 2px;
+    width: 150px; /* short underline length */
+    height: 5px;
+    background: var(--primary-color);
+    border-radius: 3px;
+    margin-top: 0.25rem;
 }
 
 /* Sort Controls */
-label[for="sortColumn"] {
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-right: 0.5rem;
+
+
+/* Container */
+.sort-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 1rem;
+    margin: 0 auto 1.5rem;
+    background-color: var(--white);
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    width: fit-content;
 }
 
+/* Label */
+label[for="sortColumn"] {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--black);
+    margin-right: 0.25rem;
+    
+    
+}
+
+/* Select */
 #sortColumn {
-    padding: 0.5rem 1rem;
-    border: 2px solid var(--gray-medium);
-    border-radius: 6px;
-    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    padding-right: 2rem;
+    min-width: 210px;
+
     background: var(--white);
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 1.5rem;
+
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+
+   
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+
+    
+}
+
+#sortColumn,
+.orders-controls select {
+    padding-right: 2.6rem; /* was ~2.0–2.2rem */
+}
+
+
+#sortColumn:hover {
+    border-color: var(--primary-color);
 }
 
 #sortColumn:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.1);
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.18);
 }
+
+
+
+
+/* Enhanced Dropdown Styling */
+.orders-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0.25 rem 0; 
+    background-color: var(--error-color);  /* THIS is the spacing to adjust */
+}
+
+.orders-controls select {
+    padding: 0.6rem 1rem;
+    padding-right: 2.2rem;
+    min-width: 210px;
+
+    background: var(--white);
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    font-size: 1rem;
+    color: var(--text-dark);
+
+    cursor: pointer;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+
+    /*background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23545885' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>");*/
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 1rem;
+}
+
+/* Hover State */
+.orders-controls select:hover {
+    border-color: var(--primary-color);
+}
+
+/* Focus State */
+.orders-controls select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.18);
+}
+
+/* Date + Time Inputs (Match Dropdown Style) */
+.orders-controls input[type="date"],
+.orders-controls input[type="time"] {
+    padding: 0.6rem 1rem;
+    min-width: 190px;
+
+    background: var(--white);
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+
+    cursor: pointer;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Hover State */
+.orders-controls input[type="date"]:hover,
+.orders-controls input[type="time"]:hover {
+    border-color: var(--primary-color);
+}
+
+/* Focus State */
+.orders-controls input[type="date"]:focus,
+.orders-controls input[type="time"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.18);
+}
+
+/* Optional: Make the calendar/time icons match your styling */
+.orders-controls input[type="date"]::-webkit-calendar-picker-indicator,
+.orders-controls input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(35%) sepia(12%) saturate(350%) hue-rotate(190deg) brightness(92%) contrast(85%);
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.orders-controls input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.orders-controls input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Min & Max Cost Inputs (Match Theme) */
+.orders-controls input[type="number"] {
+    padding: 0.6rem 1rem;
+    min-width: 140px;
+
+    background: var(--white);
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Remove spinners for cleaner UI (optional but recommended) */
+.orders-controls input[type="number"]::-webkit-inner-spin-button,
+.orders-controls input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.orders-controls input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Hover */
+.orders-controls input[type="number"]:hover {
+    border-color: var(--primary-color);
+}
+
+/* Focus */
+.orders-controls input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.18);
+}
+
+
 
 /* Appointments Table */
+
 #appointmentsTable {
-    width: 100%;
-    border-collapse: collapse;
+    width: min(100%, 1500px);
+    border-collapse: separate;
+    border-spacing: 0;
     background: var(--white);
-    border-radius: 12px;
+    border-radius: 18px;
     overflow: hidden;
+    border: 1px solid rgba(5, 4, 1, 0.08);
     box-shadow: var(--card-shadow);
-    margin-bottom: 2rem;
+    margin: 0 auto 2.5rem;
+    table-layout: fixed;
 }
 
+#appointmentsTable caption {
+    caption-side: top;
+    padding: 1rem 1.5rem 0;
+    font-size: 0.94rem;
+    color: var(--text-light);
+    text-align: right;
+}
+
+
 #appointmentsTable thead {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background: var(--primary-color);
 }
 
 #appointmentsTable th {
@@ -3885,10 +4111,12 @@ label[for="sortColumn"] {
     padding: 1.25rem;
     text-align: left;
     font-weight: 600;
-    font-size: 0.9rem;
-    border-bottom: 2px solid var(--accent-color);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
     position: relative;
 }
 
@@ -3910,8 +4138,18 @@ label[for="sortColumn"] {
     vertical-align: top;
 }
 
-#appointmentsTable tbody tr {
-    transition: all 0.3s ease;
+#appointmentsTable tbody tr:is(:hover, :focus-within) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(5, 4, 1, 0.12);
+    border-left-color: var(--accent-color);
+}
+/* ... existing code ... */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(84, 88, 133, 0.35);
+    background: var(--accent-color);
+    color: var(--text-dark);
+    border-color: var(--accent-color);
 }
 
 #appointmentsTable tbody tr:hover {
@@ -3923,6 +4161,61 @@ label[for="sortColumn"] {
 #appointmentsTable tbody tr:last-child td {
     border-bottom: none;
 }
+
+/* Order Controls*/
+
+/* Orders Controls Container */
+.orders-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.2rem;
+    padding: 1rem 1.5rem;
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+    margin-bottom: 1.75rem;
+}
+
+/* Quick Filter Buttons */
+.orders-controls .quick-filter {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: var(--white);
+    color: var(--text-dark);
+    transition: all 0.25s ease;
+}
+
+/* Hover + Active States */
+.orders-controls .quick-filter:hover,
+.orders-controls .quick-filter.active {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(196, 69, 54, 0.2);
+}
+
+/* Optional: If you have icons inside filters */
+.orders-controls .quick-filter i {
+    margin-right: 0.4rem;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* Consistent spacing with dropdown controls (if used together) */
+.orders-controls select,
+.orders-controls input {
+    min-width: 180px;
+}
+
+
+
 
 /* Status Styling */
 #appointmentsTable td:nth-child(8) {
@@ -3955,17 +4248,19 @@ label[for="sortColumn"] {
 /* Button Styles */
 .btn {
     display: inline-block;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.25rem;
     border-radius: 6px;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     text-align: center;
-    transition: all 0.3s ease;
-    border: none;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid transparent;
     cursor: pointer;
-    font-size: 0.85rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    font-size: 0.9rem;
+    background: var(--primary-color);
     color: var(--white);
+    box-shadow: 0 4px 10px rgba(84, 88, 133, 0.3);
 }
 
 .btn:hover {
@@ -4250,6 +4545,83 @@ span[style*="color: gray"] {
     opacity: 1;
 }
 
+/* Mobile Responsive Controls */
+@media (max-width: 600px) {
+
+    /* Stack controls smoothly */
+    .sort-controls,
+    .orders-controls {
+        justify-content: flex-start;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    }
+
+    /* Make dropdowns and inputs full-width */
+    #sortColumn,
+    .orders-controls select,
+    .orders-controls input[type="date"],
+    .orders-controls input[type="time"],
+    .orders-controls input[type="number"] {
+        min-width: 100%;
+        width: 100%;
+        padding: 0.7rem 1rem;
+        font-size: 1rem;
+    }
+
+    /* Ensure quick filters wrap nicely */
+    .orders-controls .quick-filter {
+        width: auto;
+        padding: 0.55rem 1.1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Better spacing between rows of controls */
+    .orders-controls > * {
+        flex: 1 1 100%;
+    }
+}
+
+/* Profile Page Styles */
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.container h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.container h2::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+.Acontainer h1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+    font-size: clamp(2.1rem, 3vw, 2.75rem);
+    color: var(--text-dark);
+    letter-spacing: 0.03em;
+    margin: 0 auto 2.5rem;
+    position: relative;
+}
 
 
 
