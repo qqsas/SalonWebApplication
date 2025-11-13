@@ -164,10 +164,10 @@ form {
     margin: var(--space-md) 0;
     border: 1px solid var(--gray-medium);
     transition: box-shadow var(--transition-normal);
-    min-width: 550px;
+    min-width: 750px;
     justify-content: center;
     align-items: center;
-    max-width: 650px;
+    max-width: 800px;
 }
 
 form:hover {
@@ -835,6 +835,8 @@ input[type="submit"]:disabled:hover,
     background-color: rgba(39, 174, 96, 0.1);
     border: 1px solid var(--success-color);
     color: var(--success-color);
+    align-items: center;
+    justify-content: center;
 }
 
 .order-message.error {

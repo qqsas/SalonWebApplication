@@ -2429,7 +2429,6 @@ footer {
 }
 
 .container {
-  max-width: 400px;
   width: 100%;
   margin: 0 auto;
 }
@@ -5044,7 +5043,6 @@ div {
    =========================== */
 
 .container {
-    max-width: 600px;
     margin: 60px auto;
     background: #ffffff;
     border-radius: 12px;
@@ -5060,13 +5058,11 @@ div {
     font-weight: 600;
     font-size: 28px;
     border-bottom: 2px solid #007bff;
-    display: inline-block;
     padding-bottom: 5px;
 }
 
 .container p {
     text-align: center;
-    color: #28a745;
     font-weight: 500;
     margin-bottom: 25px;
 }
