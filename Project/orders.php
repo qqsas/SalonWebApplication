@@ -71,6 +71,7 @@ $stmt->close();
   
     <h2>Your Orders</h2>
 
+
     <?php if (empty($orders)): ?>
         <p>No orders found.</p>
         <a href="products.php" class="btn">Browse Products</a>
@@ -335,3 +336,223 @@ quickFilters.forEach(button => {
 filterAndSortOrders();
 </script>
 
+
+<style>
+
+    /* === Orders Page Styling === */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ffffff;
+    color: #333;
+}
+
+/* Container */
+.container1 {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.container1 h2 {
+    color: #050506ff;
+    font-size: 2rem;              /* Larger text for emphasis */
+    text-align: center;           /* Centers the heading */
+    font-weight: 700;             /* Strong but not too heavy */
+    margin-top: 10px;             /* Nice distance from the top */
+    margin-bottom: 25px;          /* Balanced bottom spacing */
+    position: relative;           /* For underline positioning */
+    display: inline-block;        /* Keeps underline close to text */
+    left: 50%;
+    transform: translateX(-50%);  /* Center the inline-block element */
+}
+
+/* Subtle underline under the text only */
+.container1 h2::after {
+    content: "";
+    display: block;
+    width: 60px;                  /* Short underline */
+    height: 3px;                  /* Thickness of the line */
+    background-color: #1e3a8a;
+    margin: 8px auto 0;           /* Spacing below text */
+    border-radius: 2px;           /* Rounded line ends */
+}
+
+
+/* Filters */
+.filters {
+    background: #f0f4f8;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.filters label {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.filters input, 
+.filters select {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.filters input:focus, 
+.filters select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 5px rgba(37,99,235,0.3);
+    outline: none;
+}
+
+/* Buttons */
+.btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background-color: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+}
+
+.btn-cancel {
+    background-color: #dc2626;
+}
+
+.btn-cancel:hover {
+    background-color: #b91c1c;
+    box-shadow: 0 2px 6px rgba(220,38,38,0.3);
+}
+
+.btn-restore {
+    background-color: #16a34a;
+}
+
+.btn-restore:hover {
+    background-color: #15803d;
+    box-shadow: 0 2px 6px rgba(22,163,74,0.3);
+}
+
+.quick-filter {
+    background-color: #64748b;
+}
+
+.quick-filter:hover {
+    background-color: #475569;
+}
+
+/* Order Cards */
+.order-card {
+    background: #f9fafb;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.order-card h3 {
+    color: #1e3a8a;
+    margin-bottom: 12px;
+}
+
+.textOrder p {
+    margin: 5px 0;
+    color: #374151;
+}
+
+/* Status Colors */
+.status-pending { color: #eab308; font-weight: 600; }
+.status-paid { color: #16a34a; font-weight: 600; }
+.status-cancelled { color: #dc2626; font-weight: 600; }
+.status-completed { color: #0284c7; font-weight: 600; }
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+thead {
+    background: #e0e7ff;
+    color: #1e3a8a;
+}
+
+thead th {
+    padding: 10px;
+    text-align: left;
+}
+
+tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tbody td {
+    padding: 10px;
+}
+
+tbody tr:hover {
+    background-color: #f3f4f6;
+}
+
+/* Responsive Table */
+@media screen and (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody td {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 5px;
+    }
+
+    tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+}
+
+</style>
+
+
+<?php
+include 'footer.php';
+?>
