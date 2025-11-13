@@ -113,7 +113,7 @@ if ($insertStmt->execute()) {
     include 'header.php';
     ?>
 <div class="confirmation-container">
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <h1>Appointment Confirmed!</h1>
     
     <div class="confirmation-details">
