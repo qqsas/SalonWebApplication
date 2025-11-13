@@ -433,7 +433,6 @@ input[type="submit"]:disabled:hover,
     color: #666;
     font-size: 0.9em;
     display: block;
-    margin-top: 5px;
 }
 
 .form-group {
@@ -454,10 +453,10 @@ input[type="submit"]:disabled:hover,
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    min-width: 550px;
 }
 
 .form-actions {
-    margin-top: 25px;
     display: flex;
     gap: 10px;
 }
@@ -739,7 +738,6 @@ input[type="submit"]:disabled:hover,
     display: flex;
     gap: var(--space-sm);
     justify-content: flex-end;
-    margin-top: var(--space-lg);
     padding-top: var(--space-md);
     border-top: 1px solid var(--gray-light);
 }
@@ -983,7 +981,6 @@ input[type="submit"]:disabled:hover,
         .button-group {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
         }
         
         button[type="submit"] {
@@ -1044,10 +1041,115 @@ input[type="submit"]:disabled:hover,
         }
         
         .review-details h3 {
-            margin-top: 0;
             color: #333;
         }
         
         .review-details p {
             margin: 5px 0;
         }
+
+
+/* Responsive, dynamic input styles */
+
+/* Basic layout */
+.my-form{
+  width: 100%;
+  max-width: var(--max-form-width);
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);
+}
+
+/* Row container for side-by-side inputs */
+.form-row{
+  display: flex;
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+}
+
+/* Each label wraps its input for easy stacking and clickable label */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  /* Allow labels inside a .form-row to be flexible */
+}
+
+/* Make inputs fill available space and shrink correctly */
+.form-row > label {
+  flex: 1 1 0;   /* grow, shrink, base 0 to distribute evenly */
+  min-width: 0;  /* important to allow shrinking in flex containers */
+}
+
+/* For single stacked labels (full width) */
+label.stack {
+  width: 100%;
+  margin-bottom: var(--gap);
+}
+
+/* Input + textarea base styles */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  min-width: 550px;
+  box-sizing: border-box; /* include padding in width calculations */
+  padding: 10px 12px;
+  font-size: clamp(14px, 1.8vw, 16px); /* scales with viewport but bounded */
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .12s ease, box-shadow .12s ease, transform .06s ease;
+  color: var(--text);
+  min-height: 40px;
+  border: 1px solid #ccc;
+  border: 2px solid var(--gray-medium);
+}
+
+/* Focus / active state */
+input:focus,
+textarea:focus,
+select:focus{
+  border-color: var(--focus);
+  box-shadow: 0 0 0 4px rgba(91,140,255,0.12);
+}
+
+/* Disabled/read-only */
+input:disabled,
+input[readonly] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Small helper for very tight spaces (e.g. short code inputs) */
+.input--small {
+  max-width: 120px;
+  flex: 0 0 auto;
+}
+
+/* Submit button */
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--focus);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Responsive: stack rows into column on small screens */
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
