@@ -218,70 +218,305 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 </div>
 
+
+
 <style>
-.success { color: green; font-weight: bold; }
-.error { color: red; font-weight: bold; }
-.info { color: blue; font-weight: bold; }
-input[type="text"], input[type="email"], input[type="password"] {
-    width: 300%;
-    max-width: 400px;
-    padding: 20px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+/* === Neat Page Styles - Solid Colors, Clean Design === */
+
+/* Message Styles */
+.success {
+  color: #22c55e !important;
+  font-weight: 600 !important;
+  background-color: #f0fdf4 !important;
+  padding: 12px 16px !important;
+  border-radius: 6px !important;
+  border: 1px solid #bbf7d0 !important;
+  display: block !important;
+  margin: 10px 0 !important;
 }
-small { color: #666; font-size: 0.9em; }
-hr { margin: 20px 0; }
 
+.error {
+  color: #ef4444 !important;
+  font-weight: 600 !important;
+  background-color: #fef2f2 !important;
+  padding: 12px 16px !important;
+  border-radius: 6px !important;
+  border: 1px solid #fecaca !important;
+  display: block !important;
+  margin: 10px 0 !important;
+}
 
-/* Uniform Flat Buttons */
+.info {
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+  background-color: #eff6ff !important;
+  padding: 12px 16px !important;
+  border-radius: 6px !important;
+  border: 1px solid #bfdbfe !important;
+  display: block !important;
+  margin: 10px 0 !important;
+}
+
+/* Form Inputs - Fixed Width */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+select,
+textarea {
+  width: 100% !important;
+  max-width: 400px !important;
+  padding: 12px 16px !important;
+  margin: 8px 0 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  font-size: 15px !important;
+  background-color: #ffffff !important;
+  color: #374151 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Labels */
+label {
+  display: block !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 6px !important;
+  margin-top: 12px !important;
+}
+
+/* Small Text */
+small {
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+  display: block !important;
+  margin-top: 4px !important;
+}
+
+/* Horizontal Rule */
+hr {
+  margin: 24px 0 !important;
+  border: none !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Form Container */
+form {
+  max-width: 500px !important;
+  margin: 0 auto !important;
+  padding: 24px !important;
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 20px !important;
+}
+
+/* Uniform Flat Buttons - Solid Colors */
 .form-actions {
-    display: flex !important;
-    gap: 10px !important;
-    margin-top: 20px !important;
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: 24px !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
 }
 
 .form-actions button,
+.form-actions a,
+.form-actions input[type="submit"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 12px 24px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease, transform 0.1s ease !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  min-width: 120px !important;
+  text-align: center !important;
+}
+
+/* Update Profile / Submit Button - Solid Blue */
+.form-actions button,
+.form-actions input[type="submit"] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.form-actions button:hover,
+.form-actions input[type="submit"]:hover {
+  background-color: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+.form-actions button:active,
+.form-actions input[type="submit"]:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+
+/* Cancel / Secondary Button - Solid Gray (No Gradients) */
 .form-actions a {
-    display: inline-flex !important;
-    align-items: center !important ;
-    justify-content: center !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 10px 18px !important;
-    font-size: 15px !important;
-    font-weight: 650 !important;
-    text-decoration: none !important;
-    cursor: pointer !important;
-    transition: background-color 0.3s ease, transform 0.1s ease !important;
-    box-shadow:  #1f1abaff   !important;
-}
-
-/* Update Profile button */
-.form-actions button {
-    background-color: #4b6bccff !important; /* Flat blue */
-    color: #fff;
-}
-
-.form-actions button:hover {
-    background-color: #1f1abaff !important; /* Darker blue on hover */
-    transform: scale(1.02);
-}
-
-/* Cancel button */
-.form-actions a {
-    background-color: var(--primary-color);
-    color: #fff;
+  background-color: #6b7280 !important;
+  background-image: none !important;
+  color: #ffffff !important;
 }
 
 .form-actions a:hover {
-    background-color: #1f1abaff !important; /* Slightly darker gray on hover */
-    transform: scale(1.02);
+  background-color: #4b5563 !important;
+  background-image: none !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
+.form-actions a:active {
+  background-color: #4b5563 !important;
+  background-image: none !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
 
+/* Cancel button specific class */
+.form-actions a.btn-cancel,
+.form-actions button.btn-cancel {
+  background-color: var(--error-color) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
 
+.form-actions a.btn-cancel:hover,
+.form-actions button.btn-cancel:hover {
+  background-color: var(--error-color) !important;
+  background-image: none !important;
+}
+
+/* Primary Color Button Alternative */
+.form-actions a.btn-primary,
+.form-actions button.btn-primary {
+  background-color: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+.form-actions a.btn-primary:hover,
+.form-actions button.btn-primary:hover {
+  background-color: #1e40af !important;
+}
+
+/* Success Button */
+.form-actions button.btn-success,
+.form-actions a.btn-success {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
+.form-actions button.btn-success:hover,
+.form-actions a.btn-success:hover {
+  background-color: #16a34a !important;
+}
+
+/* Danger Button */
+.form-actions button.btn-danger,
+.form-actions a.btn-danger {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.form-actions button.btn-danger:hover,
+.form-actions a.btn-danger:hover {
+  background-color: #dc2626 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  form {
+    padding: 20px !important;
+    margin: 0 16px !important;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  select,
+  textarea {
+    max-width: 100% !important;
+  }
+
+  .form-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .form-actions button,
+  .form-actions a,
+  .form-actions input[type="submit"] {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}
+
+/* Page Container */
+.container {
+  max-width: 800px !important;
+  margin: 40px auto !important;
+  padding: 0 20px !important;
+}
+
+/* Headings */
+h1, h2, h3 {
+  color: #1f2937 !important;
+  margin-bottom: 16px !important;
+}
+
+h1 {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+}
+
+h2 {
+  font-size: 1.75rem !important;
+  font-weight: 600 !important;
+}
+
+h3 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+/* Paragraphs */
+p {
+  color: #374151 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 12px !important;
+}
 </style>
+
+
 
 <script>
 // Enhanced form validation and UX
