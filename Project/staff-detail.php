@@ -328,5 +328,5 @@ $services = $servicesResult->fetch_all(MYSQLI_ASSOC);
 </div>
 </div>
 
-<?php include 'footer.php'; ?>
+
 
