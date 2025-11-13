@@ -63,7 +63,7 @@ $feat_stmt->close();
     }
     </style>
     <title>Your Cart - Kumar Kailey Hair & Beauty</title>
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -118,3 +118,6 @@ $feat_stmt->close();
 </body>
 </html>
 
+<?php
+include 'footer.php';
+?>
