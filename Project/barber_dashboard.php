@@ -146,7 +146,7 @@ while ($row = $result->fetch_assoc()) {
 
         <!-- Improved Search and Filter Form -->
         <div class="search-filter-container">
-            <form method="GET" class="search-filter-form">
+            <form method="GET" class="search-filter-form" id="searchFilterForm">
                 <input type="hidden" name="view" value="<?php echo escape($view); ?>">
                 
                 <div class="search-section">
@@ -159,7 +159,7 @@ while ($row = $result->fetch_assoc()) {
 
                 <?php if ($view === 'appointments'): ?>
                 <div class="filter-section">
-                    <select name="status" class="filter-select">
+                    <select name="status" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Statuses</option>
                         <option value="scheduled" <?php echo $status === 'scheduled' ? 'selected' : ''; ?>>Scheduled</option>
                         <option value="confirmed" <?php echo $status === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
@@ -168,7 +168,7 @@ while ($row = $result->fetch_assoc()) {
                         <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                     </select>
                     
-                    <select name="filter" class="filter-select">
+                    <select name="filter" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Time</option>
                         <option value="today" <?php echo $filter === 'today' ? 'selected' : ''; ?>>Today</option>
                         <option value="week" <?php echo $filter === 'week' ? 'selected' : ''; ?>>This Week</option>
@@ -177,11 +177,11 @@ while ($row = $result->fetch_assoc()) {
                         <option value="past" <?php echo $filter === 'past' ? 'selected' : ''; ?>>Past</option>
                     </select>
                     
-                    <input type="date" name="date" class="filter-select" value="<?php echo escape($date); ?>" placeholder="Specific Date">
+                    <input type="date" name="date" class="filter-select" value="<?php echo escape($date); ?>" placeholder="Specific Date" onchange="document.getElementById('searchFilterForm').submit()">
                 </div>
                 <?php elseif ($view === 'reviews'): ?>
                 <div class="filter-section">
-                    <select name="rating" class="filter-select">
+                    <select name="rating" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Ratings</option>
                         <option value="5" <?php echo $rating === '5' ? 'selected' : ''; ?>>5 Stars</option>
                         <option value="4" <?php echo $rating === '4' ? 'selected' : ''; ?>>4+ Stars</option>
@@ -190,7 +190,7 @@ while ($row = $result->fetch_assoc()) {
                         <option value="1" <?php echo $rating === '1' ? 'selected' : ''; ?>>1+ Stars</option>
                     </select>
                     
-                    <select name="filter" class="filter-select">
+                    <select name="filter" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Time</option>
                         <option value="week" <?php echo $filter === 'week' ? 'selected' : ''; ?>>This Week</option>
                         <option value="month" <?php echo $filter === 'month' ? 'selected' : ''; ?>>This Month</option>
@@ -199,7 +199,7 @@ while ($row = $result->fetch_assoc()) {
                 </div>
                 <?php elseif ($view === 'products'): ?>
                 <div class="filter-section">
-                    <select name="category" class="filter-select">
+                    <select name="category" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Categories</option>
                         <?php
                         $catStmt = $conn->prepare("SELECT DISTINCT Category FROM Products WHERE IsDeleted = 0 ORDER BY Category");
@@ -212,7 +212,7 @@ while ($row = $result->fetch_assoc()) {
                         ?>
                     </select>
                     
-                    <select name="filter" class="filter-select">
+                    <select name="filter" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Stock</option>
                         <option value="in_stock" <?php echo $filter === 'in_stock' ? 'selected' : ''; ?>>In Stock</option>
                         <option value="low_stock" <?php echo $filter === 'low_stock' ? 'selected' : ''; ?>>Low Stock (< 10)</option>
