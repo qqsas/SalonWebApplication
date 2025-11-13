@@ -138,16 +138,18 @@ if (empty($related_products)) {
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($product['Name']) ?> - Product Details</title>
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .reviews-section {
-            margin: 40px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
+    .reviews-section {
+    margin: 40px auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    max-width: 800px;
+    width: 100%;
+}
         
         .reviews-header {
             display: flex;
@@ -272,6 +274,13 @@ if (empty($related_products)) {
                 align-items: flex-start;
             }
         }
+
+
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -286,7 +295,7 @@ if (empty($related_products)) {
             <img src="<?= $product_img ?>" 
                  class="item-detail__primary-image" 
                  alt="<?= htmlspecialchars($product['Name']) ?>"
-                 onerror="this.src='Img/default-product.jpg'">
+                 onerror="this.src='Img/default-image.jpg'">
         </div>
         <div class="item-detail__content">
             <h2 class="item-detail__title"><?= htmlspecialchars($product['Name']) ?></h2>
@@ -453,6 +462,13 @@ if (empty($related_products)) {
     </div>
 </div>
 <?php endif; ?>
+
+
+
+
+<?php
+include 'footer.php';
+?>
 
 </body>
 </html>
