@@ -323,3 +323,141 @@ if (togglePassword) {
 </script>
 
 </body>
+
+
+<style>
+
+/* Increase Card Size */
+.container {
+  max-width: 800px !important;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.card-body {
+  padding: 3rem !important;
+}
+
+/* Main Login Button - Solid Color */
+.btn-primary {
+  width: 100%;
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  padding: 0.75rem 1.5rem;
+  border: none !important;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(28, 35, 110, 0.3);
+  background: var(--primary-color) !important;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(28, 35, 110, 0.3);
+}
+
+/* Forgot Password Button - Solid Color */
+.container .card-body .link-small {
+  display: inline-block !important;
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  padding: 0.75rem 1.5rem !important;
+  margin-top: 0.8rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 5px rgba(28, 35, 110, 0.2) !important;
+  width: 100%;
+}
+
+.container .card-body .link-small:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(28, 35, 110, 0.3) !important;
+  background: var(--primary-color) !important;
+  text-decoration: none !important;
+}
+
+/* Register Here Button - Solid Color */
+.container .card-body a[href="Register.php"] {
+  display: inline-block !important;
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  padding: 0.75rem 1.5rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+  margin: 1rem auto 0 auto !important;
+  box-shadow: 0 2px 5px rgba(28, 35, 110, 0.2) !important;
+  width: 100%;
+}
+
+.container .card-body a[href="Register.php"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(28, 35, 110, 0.3) !important;
+  background: var(--primary-color) !important;
+  text-decoration: none !important;
+}
+
+/* Center the "Don't have an account?" text */
+.container .card-body .text-center.mt-3 {
+  text-align: center !important;
+  margin-top: 1.5rem !important;
+  color: var(--text-dark) !important;
+  font-size: 0.95rem !important;
+}
+
+/* Secondary Button (Use a different account) */
+.btn-secondary {
+  width: 100%;
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  padding: 0.75rem 1.5rem;
+  border: none !important;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(28, 35, 110, 0.3);
+  background: var(--primary-color) !important;
+}
+
+/* Responsive adjustments for larger card */
+@media (max-width: 600px) {
+  .container {
+    max-width: 95% !important;
+  }
+  
+  .card-body {
+    padding: 2rem !important;
+  }
+}
+
+</style>
