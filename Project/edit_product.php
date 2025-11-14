@@ -545,6 +545,7 @@ include 'header.php';
 <body>
 
 <div class="container">
+    <i class="fa fa-suitcase fa-5x" aria-hidden="true"></i>
     <h2>Edit Product</h2>
 
     <!-- Display session messages -->
