@@ -359,7 +359,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Barber</th><th class='table-header'>ForName</th><th class='table-header'>ForAge</th><th class='table-header'>Type</th><th class='table-header'>Time</th><th class='table-header'>Duration</th><th class='table-header'>Status</th><th class='table-header'>Cost</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Barber</th><th class='table-header'>Name</th><th class='table-header'>Age</th><th class='table-header'>Type</th><th class='table-header'>Time</th><th class='table-header'>Duration</th><th class='table-header'>Status</th><th class='table-header'>Cost</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
@@ -773,7 +773,7 @@ case 'services':
                         <th class='table-header'>ID</th>
                         <th class='table-header'>User</th>
                         <th class='table-header'>Products</th>
-                        <th class='table-header'>TotalPrice</th>
+                        <th class='table-header'>Total Price</th>
                         <th class='table-header'>Status</th>
                         <th class='table-header'>Date Created</th>
                         <th class='table-header'>Actions</th> 
@@ -933,7 +933,7 @@ case 'contacts':
     }
     
     echo "<div class='table-container'>";
-    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>ContactInfo</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>Contact Info</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
     while ($row = $result->fetch_assoc()) {
         $messagePreview = strlen($row['Message']) > 50 ? substr($row['Message'], 0, 50) . '...' : $row['Message'];
 

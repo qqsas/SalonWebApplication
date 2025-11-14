@@ -123,12 +123,13 @@
   gap: 0.25rem;
   text-decoration: none;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
-  font-size: clamp(0.82rem, 1.3vw, 0.88rem);
+  /* font-size: clamp(0.82rem, 1.3vw, 0.88rem); */
+  font-size: clamp(0.35rem, 0.75rem, 0.8rem);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #e9e1c5;
-  padding: 0.3rem 0.2rem;
+  /* padding: 0.3rem 0.2rem; */
   transition: color 0.25s ease, letter-spacing 0.25s ease;
 }
 
@@ -4335,14 +4336,14 @@ span[style*="color: gray"] {
 }
 
 /* Profile Icon Styling */
-.container::before {
+/* .container::before {
     content: "👤";
     font-size: 4rem;
     display: block;
     text-align: center;
     margin-bottom: 1rem;
     opacity: 0.8;
-}
+} */
 
 /* Member Since Styling */
 .container table tr:last-child td {
