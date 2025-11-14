@@ -600,7 +600,7 @@ include 'header.php';
 <body>
 
 <div class="container">
-    <i class="fa fa-scissors fa-5x" aria-hidden="true"></i>
+    <i class="section-icon fa fa-scissors fa-5x" aria-hidden="true"></i>
     <h2>Edit Service</h2>
 
     <!-- Display session messages -->

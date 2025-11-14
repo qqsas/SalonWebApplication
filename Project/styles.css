@@ -4345,6 +4345,13 @@ span[style*="color: gray"] {
     opacity: 0.8;
 } */
 
+.section-icon {
+  margin-bottom: 1.5rem;;
+  display: block;
+  opacity: 0.8;
+  color: rgba(156, 86, 189, 0.815);
+}
+
 /* Member Since Styling */
 .container table tr:last-child td {
     font-style: italic;
