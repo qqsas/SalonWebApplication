@@ -2594,7 +2594,7 @@ footer {
   height: 200px;
   object-fit: cover;
   border-bottom: 1px solid var(--gray-light);
-  background: linear-gradient(135deg, var(--background-light) 0%, var(--gray-light) 100%);
+  background: var(--background-light);
 }
 
 .product-details {
@@ -3779,7 +3779,7 @@ body.bg-light .container {
 }
 
 .cart-table thead {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    background:#1e293b;
 }
 
 .cart-table th {
@@ -3865,7 +3865,7 @@ body.bg-light .container {
 
 .button.primary:hover {
     transform: translateY(-2px);
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    background: #1e40af;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
@@ -5632,7 +5632,7 @@ span[style*="color: gray"] {
 }
 
 .time-column {
-    background: linear-gradient(135deg, var(--gray-light) 0%, #e8e8e8 100%);
+    background: var(--gray-light);
     color: var(--text-dark);
     font-weight: 700;
     padding: 0.5rem 0.75rem;
@@ -5663,7 +5663,7 @@ span[style*="color: gray"] {
 
 /* Calendar Slot States */
 .calendar td.available {
-    background: linear-gradient(135deg, var(--success-color) 0%, #2ecc71 100%);
+    background: var(--success-color);
     opacity: 0.75;
     border-color: rgba(39, 174, 96, 0.3);
 }
@@ -5677,7 +5677,7 @@ span[style*="color: gray"] {
 }
 
 .calendar td.booked {
-    background: linear-gradient(135deg, var(--error-color) 0%, #c0392b 100%);
+    background: var(--error-color);
     opacity: 0.65;
     cursor: not-allowed;
     border-color: rgba(231, 76, 60, 0.3);
@@ -5701,14 +5701,14 @@ span[style*="color: gray"] {
 }
 
 .calendar td.unavailable {
-    background: linear-gradient(135deg, var(--gray-medium) 0%, #95a5a6 100%);
+    background: var(--gray-medium);
     opacity: 0.5;
     cursor: not-allowed;
     border-color: rgba(189, 195, 199, 0.3);
 }
 
 .calendar td.selected {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #6c7a9f 100%);
+    background: var(--primary-color);
     border: 2px solid var(--accent-color);
     box-shadow: 0 0 0 2px rgba(84, 88, 133, 0.25), 0 2px 8px rgba(84, 88, 133, 0.3);
     z-index: 3;
@@ -5724,7 +5724,7 @@ span[style*="color: gray"] {
 
 /* Selected Time Display */
 .selected-time-display {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #6c7a9f 100%);
+    background: var(--primary-color);
     color: var(--white);
     padding: 1.25rem 2rem;
     border-radius: var(--border-radius);
@@ -5767,7 +5767,7 @@ span[style*="color: gray"] {
     display: flex;
     align-items: center;
     gap: 0.875rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #6c7a9f 100%);
+    background:  var(--primary-color);
     color: var(--white);
     border: none;
     padding: 1.25rem 3rem;
@@ -6213,7 +6213,7 @@ span[style*="color: gray"] {
     display: block;
     width: 100px;
     height: 4px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background: var(--primary-color) ;
     margin: 0.5rem auto;
     border-radius: 2px;
 }
@@ -6247,7 +6247,7 @@ span[style*="color: gray"] {
 }
 
 .container table th {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background: var(--primary-color);
     color: var(--white);
     padding: 1.25rem;
     text-align: left;
@@ -6290,7 +6290,7 @@ span[style*="color: gray"] {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background:  var(--primary-color);
     color: var(--white);
     padding: 0.75rem 1.5rem;
     text-decoration: none;
@@ -6305,7 +6305,7 @@ span[style*="color: gray"] {
 .container a:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-    background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+    background: var(--accent-color);
 }
 
 .container a::before {
