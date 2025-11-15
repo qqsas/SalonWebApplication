@@ -168,6 +168,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
 
     <!-- Improved Search Form with Display Filters -->
     <div class="search-container">
+        <?php if ($view !== 'overview' && $view !== 'features') { ?>
         <form method="GET" class="search-form">
             <input type="hidden" name="view" value="<?php echo escape($view); ?>">
             <div class="search-controls">
@@ -177,14 +178,14 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                     <a href="?view=<?php echo escape($view); ?>" class="clear-search">Clear Search</a>
                 <?php endif; ?>
             </div>
-            <?php 
-            if ($view !== 'overview' && $view !== 'features') {
-                echo getFilterDisplayOptions($view, $displayFilters[$view]);
-            }
-            ?>
+            
+            <?php echo getFilterDisplayOptions($view, $displayFilters[$view]); ?>
+            
+            
         </form>
+               <?php } ?>
     </div>
-
+    
     <?php
     if (isset($_GET['message'])) {
         $messageType = isset($_GET['success']) && $_GET['success'] ? 'success' : 'error';
