@@ -68,7 +68,8 @@ html {
 }
 
 body {
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
   background-color: var(--gray-light);
   color: var(--text-dark);
   line-height: 1.6;
@@ -96,7 +97,7 @@ h1 {
 }
 
 h1::after {
-  content: '';
+  content: "";
   display: block;
   width: 80px;
   height: 4px;
@@ -183,13 +184,23 @@ a:hover {
 
 /* Mobile menu toggle */
 .menu-toggle {
-  display: none;
+  color: #e9e1c5;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   cursor: pointer;
-  padding: 0.5rem;
-  color: var(--text-white);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.menu-toggle .burger-line {
+  width: 18px;
+  height: 2px;
+  margin: 3px 0;
+  background: currentColor;
+  border-radius: 999px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 /* Navigation links */
@@ -245,7 +256,9 @@ a:hover {
 /* Mobile styles */
 @media (max-width: 939px) {
   .menu-toggle {
-    display: block;
+    display: grid;
+    place-items: center;
+    margin-left: auto;
   }
 
   .HeaderNavBody {
@@ -401,7 +414,6 @@ a:hover {
    Tables
 ========================================= */
 
-
 .table-container {
   width: 85%;
   overflow-x: auto;
@@ -500,7 +512,7 @@ a:hover {
   }
 
   .data-table td:has(.action-buttons)::before {
-    content: 'Actions';
+    content: "Actions";
     position: static;
     display: block;
     margin-bottom: 0.5rem;
@@ -509,7 +521,7 @@ a:hover {
 
   @supports not selector(:has(*)) {
     .data-table td:last-child::before {
-      content: 'Actions';
+      content: "Actions";
       position: static;
       display: block;
       margin-bottom: 0.5rem;
@@ -541,7 +553,7 @@ a:hover {
     justify-content: flex-start;
   }
 
-  .action-buttons>.btn {
+  .action-buttons > .btn {
     flex: 1 1 auto;
     min-width: 100px;
     max-width: 48%;
@@ -615,7 +627,7 @@ a:hover {
   margin-bottom: 20px;
   margin: auto;
   width: fit-content;
-  grid-area: controls1 /span 3;
+  grid-area: controls1 / span 3;
   padding: 1rem;
   background: var(--background-white);
   border-radius: var(--border-radius);
@@ -802,10 +814,10 @@ a:hover {
 .overview-grid {
   display: grid;
   grid-template-areas:
-    'chart chart chart details details details'
-    'chart chart chart details details details'
-    'chart chart chart controls1 controls1 controls1'
-    'controls2 controls2 controls2 controls2 controls2 controls2';
+    "chart chart chart details details details"
+    "chart chart chart details details details"
+    "chart chart chart controls1 controls1 controls1"
+    "controls2 controls2 controls2 controls2 controls2 controls2";
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: auto auto auto auto;
   gap: 1.5rem;
@@ -836,7 +848,7 @@ a:hover {
   /* Prevent flex items from overflowing */
 }
 
-.action-buttons>.btn {
+.action-buttons > .btn {
   flex: 0 1 auto;
   min-width: 40%;
   white-space: nowrap;
@@ -1238,7 +1250,6 @@ footer a:hover {
    Responsive Design
 ========================================= */
 @media (max-width: 1200px) {
-
   .container,
   .container-fluid {
     padding: 0 1rem;
@@ -1383,7 +1394,6 @@ footer a:hover {
 
 /* Preference: reduced motion */
 @media (prefers-reduced-motion: reduce) {
-
   .dashboard-nav-link,
   .search-button,
   .clear-search,
@@ -1399,7 +1409,6 @@ footer a:hover {
 
 /* Print improvements */
 @media print {
-
   .dashboard-nav,
   .search-container,
   .add-btn,
@@ -1437,11 +1446,11 @@ footer a:hover {
 @media (max-width: 1200px) {
   .overview-grid {
     grid-template-areas:
-      'details details details details'
-      'chart chart chart chart'
-      'chart chart chart chart'
-      'controls1 controls1 controls1 controls1'
-      'controls2 controls2 controls2 controls2';
+      "details details details details"
+      "chart chart chart chart"
+      "chart chart chart chart"
+      "controls1 controls1 controls1 controls1"
+      "controls2 controls2 controls2 controls2";
     grid-template-columns: 1fr;
     gap: 1rem;
   }
@@ -1456,7 +1465,6 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
-
   .search-button {
     margin: 1rem 0;
   }
@@ -1550,7 +1558,7 @@ footer a:hover {
   }
 
   .data-table td:has(.action-buttons)::before {
-    content: 'Actions';
+    content: "Actions";
     position: static;
     display: block;
     margin-bottom: 0.5rem;
@@ -1559,7 +1567,7 @@ footer a:hover {
 
   @supports not selector(:has(*)) {
     .data-table td:last-child::before {
-      content: 'Actions';
+      content: "Actions";
       position: static;
       display: block;
       margin-bottom: 0.5rem;
@@ -1587,7 +1595,7 @@ footer a:hover {
     justify-content: flex-start;
   }
 
-  .action-buttons>.btn {
+  .action-buttons > .btn {
     flex: 1 1 auto;
     min-width: 100px;
     max-width: 48%;
@@ -1634,7 +1642,6 @@ footer a:hover {
   }
 
   .metrics-checkbox-group {
-    flex-direction: column;
     align-items: stretch;
   }
 
@@ -1649,7 +1656,6 @@ footer a:hover {
 }
 
 @media (max-width: 576px) {
-
   .container,
   .container-fluid {
     padding: 0 0.75rem;
@@ -1694,7 +1700,7 @@ footer a:hover {
     gap: 0.4rem;
   }
 
-  .action-buttons>.btn {
+  .action-buttons > .btn {
     min-width: 90px;
     max-width: 47%;
     font-size: 0.75rem;

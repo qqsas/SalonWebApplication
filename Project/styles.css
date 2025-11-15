@@ -2,7 +2,7 @@
 :root {
   --primary-color: #545885;
   --secondary-color: #5A502A;
-  --accent-color: #B2A783;
+  --accent-color: #a39259;
   --background-light: #fef5e7;
   --background-dark: #2c3e50;
   --text-dark: #050401;
@@ -1799,7 +1799,7 @@ footer {
 }
 
 .filter-button {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
   padding: 0.75rem 1.5rem;
   border: none;
@@ -1814,7 +1814,7 @@ footer {
 .filter-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 /* Product Section */
@@ -1953,14 +1953,14 @@ footer {
 }
 
 .product-buttons .btn:first-child {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
 .product-buttons .btn:first-child:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 .product-buttons button.btn {
@@ -2273,7 +2273,7 @@ footer {
 
 .staff-card .btn {
   display: inline-block;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
@@ -2290,7 +2290,7 @@ footer {
 .staff-card .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 /* Contact Information Styling */
@@ -2556,7 +2556,7 @@ footer {
 /* Button Styles */
 .btn-primary {
   width: 100%;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
   padding: 0.75rem 1.5rem;
   border: none;
@@ -2571,7 +2571,7 @@ footer {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 .btn-primary:active {
@@ -3101,14 +3101,14 @@ body.bg-light .container {
 }
 
 .button.primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
 .button.primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 .button.danger {
@@ -3445,7 +3445,8 @@ input[type="number"]:focus {
 .container .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
+  color: var(--text-dark);
 }
 
 /* Filters Section */
@@ -3592,7 +3593,8 @@ input[type="number"]:focus {
 }
 
 .order-card table a.btn:hover {
-  background: var(--accent-color);
+  background-color: var(--accent-color);
+  color: var(--text-dark);
 }
 
 .order-card table span[style*="color:green"] {
@@ -4024,14 +4026,15 @@ label[for="sortColumn"] {
   border: none;
   cursor: pointer;
   font-size: 0.85rem;
-  /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
 .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
+  color: var(--text-dark);
 }
 
 /* Cancel Button Specific */
@@ -4406,6 +4409,10 @@ span[style*="color: gray"] {
 }
 
 /* Role-specific styling */
+.admin-dashboard{
+  font-family:"Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+}
+
 .container table td:contains("Admin"),
 .container table td:contains("Manager") {
   color: var(--primary-color);
@@ -4441,7 +4448,7 @@ span[style*="color: gray"] {
 .container a:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 .container a::before {

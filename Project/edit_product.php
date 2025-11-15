@@ -665,7 +665,7 @@ include 'header.php';
         } else {
             echo 'admin_dashboard.php?view=products';
         }
-    ?>" class="btn-cancel">Cancel</a>
+    ?>" class="btn btn-cancel">Cancel</a>
 </div>
     </form>
 </div>
