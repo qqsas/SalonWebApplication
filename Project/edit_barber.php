@@ -2,6 +2,8 @@
 session_start();
 include 'db.php';
 
+$pageRoleRequirement = 'none';
+
 // --- Only allow admin access ---
 if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
     header("Location: Login.php");
@@ -288,7 +290,7 @@ while ($row = $res->fetch_assoc()) {
             </div>
 
             <div class="button-group">
-                <button type="submit">Update Barber</button>
+                <button type="submit" class="btn">Update Barber</button>
                 <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
             </div>
         </form>

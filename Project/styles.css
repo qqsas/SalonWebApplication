@@ -2624,8 +2624,8 @@ footer {
 
 /* Additional Utility Classes */
 .text-center.mt-3 {
-  margin-top: 1.5rem;
-  color: var(--text-light);
+  /* margin-top: 1.5rem;
+  color: var(--text-light); */
   font-size: 0.95rem;
 }
 
@@ -3426,8 +3426,9 @@ input[type="number"]:focus {
 }
 
 .container .btn {
-  display: inline-block;
+  display: block;
   /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
+  background-color: #0d5fdbbe;
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
@@ -3437,6 +3438,7 @@ input[type="number"]:focus {
   border: none;
   cursor: pointer;
   text-align: center;
+  width: fit-content;
   margin: 2rem auto;
 }
 
@@ -3606,6 +3608,8 @@ input[type="number"]:focus {
 }
 
 .btn-cancel {
+  font-weight: 600;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;;
   background: var(--error-color) !important;
   color: var(--white) !important;
 }
@@ -4335,6 +4339,10 @@ span[style*="color: gray"] {
   color: var(--text-dark);
   margin-bottom: 2rem;
   position: relative;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+  display: block;
+  padding-bottom: 5px;
 }
 
 .container h2::after {
@@ -4428,7 +4436,6 @@ span[style*="color: gray"] {
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  margin: 2rem auto;
 }
 
 .container a:hover {
@@ -4456,7 +4463,7 @@ span[style*="color: gray"] {
   margin: auto;
   margin-bottom: 1.5rem;
   text-align: center;
-  display: block;
+  display: block !important;
   opacity: 0.8;
   color: rgba(156, 86, 189, 0.815);
 }
@@ -5203,14 +5210,14 @@ div {
 }
 
 .container h2 {
-  text-align: center;
+  /* text-align: center;
   color: #333;
   margin-bottom: 30px;
   font-weight: 600;
   font-size: 28px;
   border-bottom: 2px solid #007bff;
   display: inline-block;
-  padding-bottom: 5px;
+  padding-bottom: 5px; */
 }
 
 .container p {

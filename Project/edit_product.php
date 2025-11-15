@@ -658,7 +658,7 @@ include 'header.php';
         </div>
 
 <div class="form-actions">
-    <button type="submit" class="btn-primary">Update Product</button>
+    <button type="submit" class="btn btn-primary">Update Product</button>
     <a href="<?php
         if (isset($_SESSION['Role']) && $_SESSION['Role'] === 'barber') {
             echo 'barber_dashboard.php';

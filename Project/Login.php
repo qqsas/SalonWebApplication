@@ -246,6 +246,7 @@ $showOtpForm = isset($_SESSION['pending_login']);
 </head>
 <body class="bg-light">
 <div class="container">
+    <i class="fa-solid fa-user section-icon fa-5x"></i>
   <div class="card">
     <div class="card-body">
       <h2>User Login</h2>
@@ -300,13 +301,13 @@ $showOtpForm = isset($_SESSION['pending_login']);
 
           <div class="form-action-row">
             <input type="submit" value="Login" class="btn-primary">
-            <a href="forgot_password.php" class="link-small">Forgot your password?</a>
+            <a href="forgot_password.php" class="link-small btn">Forgot your password?</a>
           </div>
         </form>
       <?php endif; ?>
 
       <p class="text-center mt-3">Don't have an account? </p>
-      <a href="Register.php" style="margin-left: 25%;">Register here</a>
+      <a href="Register.php" class="btn">Register here</a>
     </div>
   </div>
 </div>
@@ -321,5 +322,7 @@ if (togglePassword) {
     });
 }
 </script>
-
+<?php 
+include 'footer.php';  
+?>
 </body>
