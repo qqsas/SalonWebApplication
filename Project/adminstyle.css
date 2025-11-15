@@ -399,6 +399,8 @@ a:hover {
 /* =========================================
    Tables
 ========================================= */
+
+
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -425,7 +427,7 @@ a:hover {
 }
 
 .data-table th {
-  padding: 0.9rem 0;
+  padding: 0.9rem 0.75rem;
   background-color: var(--primary-color);
   color: var(--text-white);
   font-weight: 600;
@@ -472,7 +474,7 @@ a:hover {
   margin-right: auto;
 }
 
-.dashboard-controls { margin-bottom: 20px; margin:auto; width: fit-content;}
+.dashboard-controls { margin-bottom: 20px; margin:auto; width: fit-content; grid-area: controls1 / span 3;}
 .control-group { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .metrics-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;}
 .metric-checkbox { position: relative; display: flex; align-items: center; gap: 4px; }
@@ -480,7 +482,7 @@ a:hover {
 .metric-checkbox:hover .metric-tooltip { visibility: visible; }
 .btn-small { padding: 4px 10px; margin-right: 5px; font-size: 0.85rem; cursor: pointer; }
 .btn-primary { background: #3366CC; color: #fff; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; }
-.stats-overview { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+/* .stats-overview { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; } */
 .stat-card { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; }
 .chart-container { 
   width: 100%; 
@@ -490,9 +492,19 @@ a:hover {
   position: relative;
   min-width: 0; /* allow expansion/shrinkage inside flex layouts */
 }
-.chart-controls { margin-top: 50px; margin-bottom: 50px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%;}
+.chart-controls { margin-top: 50px; margin-bottom: 50px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; grid-area: controls2r / span 3;}
 .data-export { margin-top: 20px; }
 
+.overview-grid{
+  display: grid;
+  grid-template-areas:
+    'chart chart chart details details'
+    'chart chart chart details details'
+    'controls1 controls1 controls1 . .'
+    'controls2 controls2 controls2 . .';
+  max-width: fit-content;
+  margin: auto;
+}
 
 #overviewChart {
   width: 100%;
@@ -500,6 +512,7 @@ a:hover {
   height: 100%;
   display: block;
   margin-left: auto; margin-right: auto;
+  grid-area: chart;
 }
 
 /* =========================================
@@ -811,6 +824,7 @@ a:hover {
   box-shadow: var(--card-shadow);
   transition: var(--transition);
   text-align: center;
+  grid-area: details;
 }
 
 .stat-card:hover {
