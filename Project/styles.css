@@ -15,6 +15,12 @@
   --error-color: #e74c3c;
   --card-shadow: 0 4px 6px rgba(44, 62, 80, 0.1);
   --card-hover-shadow: 0 8px 15px rgba(44, 62, 80, 0.2);
+  --space-lg: 2.5rem;
+	--space-md: 1.5rem;
+	--space-sm: 1rem;
+	--space-xl: 4rem;
+	--space-xs: 0.5rem;
+	--space-xxl: 6rem;
 }
 
 /* Reset and base styles */
@@ -643,6 +649,8 @@
   transform: translate(-50%, -50%);
   opacity: 0.3;
 }
+
+
 
 /* You can set specific background images for services and staff */
 /* Example for services - you'll need to update these with actual image paths */
@@ -3419,16 +3427,17 @@ input[type="number"]:focus {
 
 .container .btn {
   display: inline-block;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   font-weight: 500;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
   text-align: center;
+  margin: 2rem auto;
 }
 
 .container .btn:hover {
@@ -4011,7 +4020,7 @@ label[for="sortColumn"] {
   border: none;
   cursor: pointer;
   font-size: 0.85rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
   color: var(--white);
 }
 
@@ -4410,16 +4419,16 @@ span[style*="color: gray"] {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   font-weight: 500;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  margin: auto;
+  margin: 2rem auto;
 }
 
 .container a:hover {
@@ -4716,6 +4725,7 @@ span[style*="color: gray"] {
   border-radius: 12px;
   box-shadow: var(--card-shadow);
   color: var(--text-dark);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .staff-details-container h1 {
@@ -4727,6 +4737,16 @@ span[style*="color: gray"] {
   padding-bottom: 0.4rem;
 }
 
+.staff-details-container h2 {
+    color: var(--text-dark);
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: var(--space-xxl) 0 var(--space-lg) 0;
+    position: relative;
+    text-align: center;
+}
+
 .staff-details-container p {
   margin: 0.6rem 0 1.2rem;
   line-height: 1.7;
@@ -4736,12 +4756,6 @@ span[style*="color: gray"] {
   color: var(--accent-color);
 }
 
-.staff-details-container h2 {
-  margin-top: 2.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: var(--background-dark);
-}
 
 /* ---------- SERVICES GRID ---------- */
 .services-grid {
@@ -4786,7 +4800,7 @@ span[style*="color: gray"] {
   margin-top: 1.2rem;
 }
 
-.btn {
+/* .btn {
   display: inline-block;
   background: var(--primary-color);
   color: var(--white);
@@ -4795,7 +4809,7 @@ span[style*="color: gray"] {
   text-decoration: none;
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s ease;
-}
+} */
 
 .btn:hover,
 .btn:focus {
@@ -5012,7 +5026,7 @@ button {
   background-color: var(--primary-color);
   color: var(--white);
   border: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   padding: 10px 20px;
   cursor: pointer;
 }
@@ -5121,7 +5135,7 @@ div {
 .confirmation-btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -5248,7 +5262,7 @@ form button {
   font-weight: 600;
   padding: 12px 20px;
   border: none;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   cursor: pointer;
   transition: background 0.3s ease;
 }

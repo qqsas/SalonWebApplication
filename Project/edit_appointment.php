@@ -335,7 +335,7 @@ include 'header.php';
             </div>
 
             <div class="button-group">
-                <button type="submit">Update Appointment</button>
+                <button type="submit" class="btn">Update Appointment</button>
                 <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
             </div>
         </form>
