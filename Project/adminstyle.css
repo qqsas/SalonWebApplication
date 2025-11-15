@@ -310,6 +310,7 @@ a:hover {
   margin: 2rem auto 6rem;
   max-width: fit-content;
   overflow-x: auto;
+  
 }
 
 .dashboard-nav-links {
@@ -431,9 +432,17 @@ a:hover {
 }
 
 /* Medium screens - switch to card layout for tables with many columns */
+@media (max-width: 1360px){
+  .dashboard-nav{
+    max-width: 90%;
+  }
+}
 @media (max-width: 1168px) {
   /* Table responsive styles - card layout */
 
+  .dashboard-nav{
+    max-width: 90%;
+  }
   .table-container {
     width: 90%;
     margin: 1.5rem auto;
