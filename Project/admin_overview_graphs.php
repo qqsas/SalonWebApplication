@@ -193,16 +193,13 @@ $activeMetrics = count($selectedMetrics);
     <div class="chart-controls">
         <button type="button" onclick="toggleDataPoints()" id="togglePointsBtn" class="btn-small">Hide Data Points</button>
         <button type="button" onclick="toggleGridLines()" id="toggleGridBtn" class="btn-small">Hide Grid</button>
+        <button type="button" onclick="exportCSV()" class="btn-small">Export as CSV</button>
+        <button type="button" onclick="exportJSON()" class="btn-small">Export as JSON</button>
         <button type="button" onclick="downloadChart()" class="btn-small">Download Chart</button>
         <button type="button" onclick="resetZoom()" class="btn-small">Reset Zoom</button>
     </div>
 </div>
-<!-- Export -->
-    <div class="data-export">
-        <h3>Export Data</h3>
-        <button type="button" onclick="exportCSV()" class="btn-small">Export as CSV</button>
-        <button type="button" onclick="exportJSON()" class="btn-small">Export as JSON</button>
-    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 
@@ -359,16 +356,38 @@ $activeMetrics = count($selectedMetrics);
     });
 
     // Ensure width re-expands with container using ResizeObserver
+    // Watch both the grid container and chart container for maximum responsiveness
     (function attachResizeObserver() {
-        const container = document.querySelector('.chart-container');
+        const gridContainer = document.querySelector('.overview-grid');
+        const chartContainer = document.querySelector('.chart-container');
         const canvas = document.getElementById('overviewChart');
-        if (!container || !canvas || !window.ResizeObserver) return;
-        const ro = new ResizeObserver(() => {
+        
+        if (!chartContainer || !canvas || !window.ResizeObserver) return;
+        
+        const resizeHandler = () => {
             // Reset canvas CSS width to fluid, then ask Chart.js to recompute
             canvas.style.width = '100%';
-            if (overviewChart) overviewChart.resize();
+            canvas.style.height = '100%';
+            if (overviewChart) {
+                // Small delay to ensure CSS has updated
+                requestAnimationFrame(() => {
+                    overviewChart.resize();
+                });
+            }
+        };
+        
+        const ro = new ResizeObserver(resizeHandler);
+        
+        // Observe both containers for maximum responsiveness
+        ro.observe(chartContainer);
+        if (gridContainer) {
+            ro.observe(gridContainer);
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            ro.disconnect();
         });
-        ro.observe(container);
     })();
 
     let pointsVisible = true;
