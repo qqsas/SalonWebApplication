@@ -31,7 +31,7 @@
   top: auto;
   z-index: 1200; /* was 100 — raise above the overlay */
   background-color: #050401;
-  padding: clamp(2rem, 2vw, 2rem) 0;
+  padding: clamp(0.85rem, 2vw, 1rem) 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
@@ -71,14 +71,13 @@
   font-size: clamp(1rem, 2vw, 1.15rem);
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  margin-right: auto;
 }
 
 .navbar-brand::after {
   content: "Kumar Kailey Hair & Beauty Salon";
   color: #e9e1c5;
-  font-weight: 800;
-  font-size: clamp(1.3rem, 2vw, 1.05rem);
+  font-weight: 600;
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
   letter-spacing: 0.03em;
   text-transform: none;
   white-space: nowrap;
@@ -107,9 +106,7 @@
 .navbar-nav {
   display: flex;
   align-items: center;
-  gap: clamp(0.4rem, 1.2vw, 0.85rem);
-  list-style: none;
-  margin: 0;
+  gap: 5px;
 }
 
 .nav-item {
@@ -124,8 +121,8 @@
   gap: 0.25rem;
   text-decoration: none;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
-  font-size: clamp(1rem, 1.3vw, 0.88rem);
-  font-weight: 600;
+  font-size: clamp(0.82rem, 1.3vw, 0.88rem);
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #e9e1c5;
@@ -7154,7 +7151,7 @@ body > .container .info {
     border-left: 4px solid var(--primary-color);
     padding: 1rem 1.5rem;
     border-radius: 8px;
-    color: var(--text-light);
+    color: var(--text-dark);
     margin-bottom: 2rem;
     box-shadow: var(--shadow);
 }
