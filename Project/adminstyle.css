@@ -310,7 +310,6 @@ a:hover {
   margin: 2rem auto 6rem;
   max-width: fit-content;
   overflow-x: auto;
-  
 }
 
 .dashboard-nav-links {
@@ -432,15 +431,15 @@ a:hover {
 }
 
 /* Medium screens - switch to card layout for tables with many columns */
-@media (max-width: 1360px){
-  .dashboard-nav{
+@media (max-width: 1360px) {
+  .dashboard-nav {
     max-width: 90%;
   }
 }
 @media (max-width: 1168px) {
   /* Table responsive styles - card layout */
 
-  .dashboard-nav{
+  .dashboard-nav {
     max-width: 90%;
   }
   .table-container {
@@ -471,7 +470,16 @@ a:hover {
     border: 1px solid var(--gray-light);
     border-radius: var(--border-radius);
     box-shadow: var(--card-shadow);
-    padding: 1rem;
+    padding: 0 0 1rem;
+  }
+
+  .data-table td:nth-child(odd) {
+    background-color: #ddddddee;
+  }
+  .data-table td:nth-child(1) {
+    padding-top: 1rem;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
   }
 
   .data-table td {
@@ -500,6 +508,7 @@ a:hover {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    padding-left: 1rem;
   }
 
   /* Action buttons column - special handling */
