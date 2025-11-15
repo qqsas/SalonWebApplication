@@ -455,8 +455,9 @@ while ($item = $order_items_result->fetch_assoc()) {
         </div>
 
         <div class="form-actions">
+        <button type="submit" class="btn">Update Order</button>
             <a href="admin_dashboard.php?view=orders" class="btn btn-cancel">Cancel</a>
-            <button type="submit" class="btn btn-update">Update Order</button>
+            
         </div>
     </form>
 </div>

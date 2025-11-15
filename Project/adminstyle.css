@@ -421,6 +421,7 @@ a:hover {
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
   position: relative;
+  padding: 1rem 0;
 }
 
 .data-table {

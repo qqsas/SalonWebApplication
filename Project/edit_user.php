@@ -119,8 +119,8 @@ $stmt->close();
         </select><br><br>
 
         <div class="button-group">
-            <button type="submit">Update User</button>
-            <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+            <button type="submit" class="btn">Update User</button>
+            <a href="admin_dashboard.php" class="btn btn-cancel" style="text-align: center;">Cancel</a>
         </div>
     </form>
 </div>

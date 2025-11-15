@@ -3428,7 +3428,7 @@ input[type="number"]:focus {
 .container .btn {
   display: block;
   /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
-  background-color: #0d5fdbbe;
+  /* background-color: #0d5fdbbe; */
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
@@ -4776,6 +4776,37 @@ span[style*="color: gray"] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
+}
+
+/* Scrollable form-group for services selection (edit_barber.php) */
+.form-group:has(.services-grid) {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group:has(.services-grid) .services-grid {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--border-radius-sm);
+  background: var(--gray-light);
+  margin-top: 0.5rem;
+}
+
+/* Fallback for browsers without :has() support */
+@supports not selector(:has(*)) {
+  .form-group .services-grid {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem;
+    border: 1px solid var(--gray-medium);
+    border-radius: var(--border-radius-sm);
+    background: var(--gray-light);
+    margin-top: 0.5rem;
+  }
 }
 
 /* ---------- SERVICE CARD ---------- */
