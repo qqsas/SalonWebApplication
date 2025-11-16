@@ -287,6 +287,7 @@ include 'header.php';
 
 <head>
     <title>Register</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         .error { 
             color: hsl(var(--secondary-hue), var(--saturation), 40%); 
@@ -298,6 +299,131 @@ include 'header.php';
             border-radius: var(--border-radius-sm);
             border-left: 4px solid var(--secondary-color);
         }
+
+
+
+        /* Card and Container Styling - Bigger Width */
+    .container {
+        max-width: 700px !important;
+        width: 100% !important;
+        margin: 2rem auto !important;
+        padding: 0 1.5rem !important;
+    }
+
+    .card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 12px !important;
+        border: none !important;
+    }
+
+    .card-body {
+        padding: 2.5rem !important;
+    }
+
+    /* Password Requirements - Darker Text */
+    .password-requirements {
+        color: #1a1a1a !important;
+        font-size: 0.9rem !important;
+    }
+
+    .password-requirements strong {
+        color: #000 !important;
+        font-weight: 600 !important;
+    }
+
+    .password-requirements ul {
+        color: #2d2d2d !important;
+    }
+
+    .password-requirements li {
+        color: #2d2d2d !important;
+    }
+    
+    /* REGISTER PAGE BUTTON OVERRIDES*/
+    .container .card-body #submitBtn,
+    .container .card-body a[href="Login.php"] {
+        display: inline-block !important;
+        padding: 0.8rem 1.4rem !important;
+        border-radius: 6px !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+        background-image: none !important; /* Remove gradient */
+    }
+
+    /* Create Account Button */
+    .container .card-body #submitBtn {
+        background-image: none !important;
+        background: var(--primary-color, #007bff) !important;
+        color: #fff !important;
+        width: 100% !important;
+        margin-top: 1rem !important;
+    }
+
+    /* Sign in here Button */
+    .container .card-body a[href="Login.php"] {
+        background-image: none !important;
+        background: var(--primary-color, #28a745) !important;
+        color: #fff !important;
+        margin-top: 1rem !important;
+        display: inline-block !important;
+        padding: 0.6rem 1.2rem !important;
+        border-radius: 6px !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* === Enhanced Hover Effects === */
+    .container .card-body #submitBtn:hover {
+        background-image: none !important;
+        background: var(--primary-color, #0056b3) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .container .card-body #submitBtn:active {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3) !important;
+    }
+
+    .container .card-body a[href="Login.php"]:hover {
+        background-image: none !important;
+        background: var(--primary-color, #218838) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .container .card-body a[href="Login.php"]:active {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    /* === Center and Spacing Fix === */
+    .container .card-body .text-center.mt-3 {
+        text-align: center !important;
+        margin-top: 1rem !important;
+        color: var(--text-color, #333) !important;
+    }
+
+    .container .card-body h2 {
+        margin-bottom: 1.5rem !important;
+        color: var(--primary-color, #007bff) !important;
+        text-align: center !important;
+    }
+
+
+
+
+
     </style>
 </head>
 <body class="bg-light">
