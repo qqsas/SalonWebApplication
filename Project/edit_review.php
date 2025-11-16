@@ -112,8 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="button-group">
-                <button type="submit">Update Status</button>
-                <a href="admin_dashboard.php" class="btn" style="text-align: center;">Cancel</a>
+                <button type="submit" class="btn">Update Status</button>
+                <a href="admin_dashboard.php" class="btn btn-cancel" style="text-align: center;">Cancel</a>
             </div>
         </form>
     </div>

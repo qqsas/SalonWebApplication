@@ -295,6 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="container">
+        <i class="section-icon fa-regular fa-image fa-5x"></i>
         <h2>Add Gallery Item</h2>
 
         <?php if (!empty($errors)): ?>

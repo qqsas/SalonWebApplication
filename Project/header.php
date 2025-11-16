@@ -1,6 +1,36 @@
 <?php
+// Enhanced session security
+// ini_set('session.cookie_httponly', 1);
+// ini_set('session.use_strict_mode', 1);
+// ini_set('session.cookie_samesite', 'Strict');
+// ini_set('session.gc_maxlifetime', 3600); // 1 hour
+
+// // Enable secure cookies if using HTTPS
+// if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+//     ini_set('session.cookie_secure', 1);
+// }
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+// Regenerate session ID periodically to prevent session fixation
+if (!isset($_SESSION['created'])) {
+    $_SESSION['created'] = time();
+} else if (time() - $_SESSION['created'] > 1800) { // 30 minutes
+    session_regenerate_id(true);
+    $_SESSION['created'] = time();
+}
+
+// Include security functions
+include 'security.php';
+
+// Check session security (IP validation)
+if (isset($_SESSION['UserID'])) {
+    if (!checkSessionSecurity()) {
+        header("Location: Login.php?error=session_invalid");
+        exit();
+    }
 }
 
 include 'db.php';

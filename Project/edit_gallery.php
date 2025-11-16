@@ -91,41 +91,265 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     }
 }
+
+function escape($str) {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
 ?>
 
-<h2>Edit Gallery Item</h2>
-
-<?php if (!empty($errors)): ?>
-    <div style="color:red;">
-        <ul>
-            <?php foreach ($errors as $e): ?>
-                <li><?= htmlspecialchars($e) ?></li>
-            <?php endforeach; ?>
-        </ul>
+<div class="admin-dashboard">
+    <div class="dashboard-header">
+        <div class="admin-welcome">
+            <h1>Edit Gallery Item</h1>
+            <p>Update gallery item details and image</p>
+        </div>
+        
+        <div class="back-navigation">
+            <a href="admin_dashboard.php?view=gallery" class="btn btn-secondary">
+                ← Back to Gallery
+            </a>
+        </div>
     </div>
-<?php endif; ?>
 
-<?php if ($success): ?>
-    <div style="color:green;"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
+    <div class="main-content">
+        <div class="container">
+            <div class="form-container">
+                <?php if (!empty($errors)): ?>
+                    <div class="error-message">
+                        <ul>
+                            <?php foreach ($errors as $e): ?>
+                                <li><?= escape($e) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
 
-<form method="POST" enctype="multipart/form-data">
-    <label>Title:</label><br>
-    <link href="addedit.css" rel="stylesheet">
-    <input type="text" name="Title" value="<?= htmlspecialchars($title) ?>" required><br><br>
+                <?php if ($success): ?>
+                    <div class="success-message"><?= escape($success) ?></div>
+                <?php endif; ?>
 
-    <label>Description:</label><br>
-    <textarea name="Description" rows="4"><?= htmlspecialchars($description) ?></textarea><br><br>
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    <div class="form-group">
+                        <label for="Title">Title: <span class="required">*</span></label>
+                        <input type="text" name="Title" id="Title" value="<?= escape($title) ?>" required maxlength="255">
+                        <small class="help-text">Required, max 255 characters</small>
+                    </div>
 
-    <label>Current Image:</label><br>
-    <img src="<?= htmlspecialchars($imgUrl) ?>" style="width:150px;height:150px;object-fit:cover;border-radius:10px;"><br><br>
+                    <div class="form-group">
+                        <label for="Description">Description:</label>
+                        <textarea name="Description" id="Description" rows="4" maxlength="1000"><?= escape($description) ?></textarea>
+                        <small class="help-text">Optional, max 1000 characters</small>
+                    </div>
 
-    <label>Replace Image (optional):</label><br>
-    <input type="file" name="ImgFile" accept="image/*"><br><br>
+                    <div class="form-group">
+                        <label>Current Image:</label>
+                        <?php if (!empty($imgUrl)): ?>
+                            <div class="current-image">
+                                <img src="<?= escape($imgUrl) ?>" alt="Current gallery image">
+                                <div class="image-info">Current image</div>
+                            </div>
+                        <?php else: ?>
+                            <p class="no-image">No image currently set</p>
+                        <?php endif; ?>
+                    </div>
 
-    <button type="submit">Save Changes</button>
-    <a class="btn" href="admin_dashboard.php?view=gallery">Cancel</a>
-</form>
+                    <div class="form-group">
+                        <label for="ImgFile">Replace Image (optional):</label>
+                        <input type="file" name="ImgFile" id="ImgFile" accept="image/jpeg,image/jpg,image/png,image/gif">
+                        <small class="help-text">Leave empty to keep current image. Allowed formats: JPG, JPEG, PNG, GIF</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Changes</button>
+                        <a href="admin_dashboard.php?view=gallery" class="btn btn-cancel">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-dashboard {
+    min-height: 100vh;
+    background-color: var(--gray-light);
+    padding: 2rem 0;
+}
+
+.dashboard-header {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-welcome h1 {
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.admin-welcome p {
+    color: var(--text-medium);
+    margin: 0;
+}
+
+.back-navigation {
+    display: flex;
+    align-items: center;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.form-container {
+    background: var(--background-white);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 1.5rem;
+    border: 1px solid #f5c6cb;
+}
+
+.error-message ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.5rem;
+}
+
+.error-message li {
+    margin-bottom: 0.25rem;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 1.5rem;
+    border: 1px solid #c3e6cb;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.help-text {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-medium);
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(84, 88, 133, 0.1);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+.current-image {
+    margin-bottom: 1rem;
+}
+
+.current-image img {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: var(--border-radius-sm);
+    border: 2px solid var(--gray-light);
+    box-shadow: var(--card-shadow);
+}
+
+.image-info {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+.no-image {
+    color: var(--text-light);
+    font-style: italic;
+    padding: 1rem;
+    background: var(--gray-light);
+    border-radius: var(--border-radius-sm);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.form-actions .btn {
+    flex: 1;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .current-image img {
+        max-width: 100%;
+    }
+}
+</style>
 
 <?php include 'footer.php'; ?>
 

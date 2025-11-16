@@ -736,8 +736,8 @@ include 'header.php';
         </div>
         
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Update Service</button>
-            <a href="admin_dashboard.php?view=services" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn">Update Service</button>
+            <a href="admin_dashboard.php?view=services" class="btn btn-cancel">Cancel</a>
         </div>
     </form>
 </div>

@@ -46,7 +46,11 @@ $services = $servicesResult->fetch_all(MYSQLI_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($barber['Name']) ?> - Staff Details</title>
+<<<<<<< HEAD
     <link href="styles.css" rel="stylesheet">
+=======
+    <!-- <link href="styles2.css" rel="stylesheet"> -->
+>>>>>>> 624f388f0ce434eb3ba16aa0f0b6cf08bc91cb2e
     <link href="mobile.css" rel="stylesheet" media="(max-width:768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>

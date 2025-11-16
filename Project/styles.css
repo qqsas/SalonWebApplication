@@ -2,7 +2,7 @@
 :root {
   --primary-color: #1c236e;
   --secondary-color: #5A502A;
-  --accent-color: #B2A783;
+  --accent-color: #a39259;
   --background-light: #fef5e7;
   --background-dark: #2c3e50;
   --text-dark: #050401;
@@ -16,6 +16,12 @@
   --card-shadow: 0 4px 6px rgba(44, 62, 80, 0.1);
   --card-hover-shadow: 0 8px 15px rgba(44, 62, 80, 0.2);
   --lightblue: #c5cde9;
+  --space-lg: 2.5rem;
+	--space-md: 1.5rem;
+	--space-sm: 1rem;
+	--space-xl: 4rem;
+	--space-xs: 0.5rem;
+	--space-xxl: 6rem;
 }
 
 /* Reset and base styles */
@@ -639,6 +645,8 @@
   transform: translate(-50%, -50%);
   opacity: 0.3;
 }
+
+
 
 /* You can set specific background images for services and staff */
 /* Example for services - you'll need to update these with actual image paths */
@@ -2550,6 +2558,7 @@ footer {
 
 .filter-button {
   background: var(--primary-color);
+  background-color: var(--primary-color);
   color: var(--white);
   padding: 0.75rem 1.5rem;
   border: none;
@@ -2564,7 +2573,7 @@ footer {
 .filter-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: var(--primary-color);
+  background-color: var(--accent-color);
 }
 
 /* Removes the blue focus ring and keeps the same background */
@@ -2718,7 +2727,7 @@ footer {
 }
 
 .product-buttons .btn:first-child {
-  background: var(--primary-color);
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
@@ -3402,8 +3411,8 @@ footer {
 
 /* Additional Utility Classes */
 .text-center.mt-3 {
-  margin-top: 1.5rem;
-  color: var(--text-light);
+  /* margin-top: 1.5rem;
+  color: var(--text-light); */
   font-size: 0.95rem;
 }
 
@@ -3883,14 +3892,14 @@ body.bg-light .container {
 }
 
 .button.primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
 .button.primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 .button.danger {
@@ -4214,23 +4223,27 @@ input[type="number"]:focus {
 }
 
 .container .btn {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  display: block;
+  /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
+  /* background-color: #0d5fdbbe; */
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   font-weight: 500;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
   text-align: center;
+  width: fit-content;
+  margin: 2rem auto;
 }
 
 .container .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
+  color: var(--text-dark);
 }
 
 /* Filters Section */
@@ -4377,7 +4390,8 @@ input[type="number"]:focus {
 }
 
 .order-card table a.btn:hover {
-  background: var(--accent-color);
+  background-color: var(--accent-color);
+  color: var(--text-dark);
 }
 
 .order-card table span[style*="color:green"] {
@@ -4393,6 +4407,8 @@ input[type="number"]:focus {
 }
 
 .btn-cancel {
+  font-weight: 600;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;;
   background: var(--error-color) !important;
   color: var(--white) !important;
 }
@@ -5026,14 +5042,15 @@ label[for="sortColumn"] {
   border: none;
   cursor: pointer;
   font-size: 0.85rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
 .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
+  color: var(--text-dark);
 }
 
 /* Cancel Button Specific */
@@ -6242,6 +6259,10 @@ span[style*="color: gray"] {
   color: var(--text-dark);
   margin-bottom: 2rem;
   position: relative;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+  display: block;
+  padding-bottom: 5px;
 }
 
 .container h2::after {
@@ -6305,6 +6326,10 @@ span[style*="color: gray"] {
 }
 
 /* Role-specific styling */
+.admin-dashboard{
+  font-family:"Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+}
+
 .container table td:contains("Admin"),
 .container table td:contains("Manager") {
   color: var(--primary-color);
@@ -6326,22 +6351,21 @@ span[style*="color: gray"] {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  /* background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); */
   color: var(--white);
   padding: 0.75rem 1.5rem;
   text-decoration: none;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   font-weight: 500;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  margin: auto;
 }
 
 .container a:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(196, 69, 54, 0.3);
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+  background-color: var(--accent-color);
 }
 
 .container a::before {
@@ -6363,7 +6387,7 @@ span[style*="color: gray"] {
   margin: auto;
   margin-bottom: 1.5rem;
   text-align: center;
-  display: block;
+  display: block !important;
   opacity: 0.8;
   color: rgba(156, 86, 189, 0.815);
 }
@@ -6632,6 +6656,7 @@ span[style*="color: gray"] {
   border-radius: 12px;
   box-shadow: var(--card-shadow);
   color: var(--text-dark);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .staff-details-container h1 {
@@ -6643,6 +6668,16 @@ span[style*="color: gray"] {
   padding-bottom: 0.4rem;
 }
 
+.staff-details-container h2 {
+    color: var(--text-dark);
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: var(--space-xxl) 0 var(--space-lg) 0;
+    position: relative;
+    text-align: center;
+}
+
 .staff-details-container p {
   margin: 0.6rem 0 1.2rem;
   line-height: 1.7;
@@ -6652,18 +6687,43 @@ span[style*="color: gray"] {
   color: var(--accent-color);
 }
 
-.staff-details-container h2 {
-  margin-top: 2.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: var(--background-dark);
-}
 
 /* ---------- SERVICES GRID ---------- */
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
+}
+
+/* Scrollable form-group for services selection (edit_barber.php) */
+.form-group:has(.services-grid) {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group:has(.services-grid) .services-grid {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--border-radius-sm);
+  background: var(--gray-light);
+  margin-top: 0.5rem;
+}
+
+/* Fallback for browsers without :has() support */
+@supports not selector(:has(*)) {
+  .form-group .services-grid {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem;
+    border: 1px solid var(--gray-medium);
+    border-radius: var(--border-radius-sm);
+    background: var(--gray-light);
+    margin-top: 0.5rem;
+  }
 }
 
 /* ---------- SERVICE CARD ---------- */
@@ -6702,7 +6762,7 @@ span[style*="color: gray"] {
   margin-top: 1.2rem;
 }
 
-.btn {
+/* .btn {
   display: inline-block;
   background: var(--primary-color);
   color: var(--white);
@@ -6711,7 +6771,7 @@ span[style*="color: gray"] {
   text-decoration: none;
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s ease;
-}
+} */
 
 .btn:hover,
 .btn:focus {
@@ -6872,7 +6932,7 @@ button {
   background-color: var(--primary-color);
   color: var(--white);
   border: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   padding: 10px 20px;
   cursor: pointer;
 }
@@ -6981,7 +7041,7 @@ div {
 .confirmation-btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -7049,14 +7109,14 @@ div {
 }
 
 .container h2 {
-  text-align: center;
+  /* text-align: center;
   color: #333;
   margin-bottom: 30px;
   font-weight: 600;
   font-size: 28px;
   border-bottom: 2px solid #007bff;
   display: inline-block;
-  padding-bottom: 5px;
+  padding-bottom: 5px; */
 }
 
 .container p {
@@ -7108,7 +7168,7 @@ form button {
   font-weight: 600;
   padding: 12px 20px;
   border: none;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   cursor: pointer;
   transition: background 0.3s ease;
 }
