@@ -498,9 +498,9 @@ case 'products':
         $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
         
         // Handle product image
-        $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'default-product.jpg';
+        $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'KSLOGO.png';
         $imagePath = "Img/" . $productImage;
-        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/default-product.jpg";
+        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/KSLOGO.png";
         
         echo "<tr class='table-row'> 
                 <td class='table-cell'>".escape($row['ProductID'])."</td> 
@@ -1142,12 +1142,19 @@ case 'contacts':
                 $imagePath = "" . escape($row['ImageUrl']);
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+                $galleryImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'KSLOGO.png';
+        $imagePath = "Img/" . $galleryImage;
+        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/KSLOGO.png";
 
                 echo "<tr class='table-row'>
                         <td class='table-cell'>" . escape($row['GalleryID']) . "</td>
                         <td class='table-cell'>" . escape($row['Title']) . "</td>
                         <td class='table-cell'>" . escape($row['Description']) . "</td>
-                        <td class='table-cell'><img src='" . escape($imagePath) . "' alt='Gallery Image' class='gallery-thumb'></td>
+                        <td class='table-cell'><img src='".escape($imageSrc)."' 
+                         alt='".escape($row['Name'])."' 
+                         class='product-thumb'
+                         style='width: 50px; height: 50px; object-fit: cover; border-radius: 4px;'
+                         onerror=\"this.src='Img/default-product.jpg'\"></td>
                         <td class='table-cell'>" . escape($row['CreatedAt']) . "</td>
                         <td class='table-cell $statusClass'>$statusText</td>
                         <td class='table-cell'>
