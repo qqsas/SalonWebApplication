@@ -40,7 +40,7 @@ $hasPhone = !empty(trim($appointment['Number'] ?? ''));
 <html>
 <head>
     <title>Appointment Details</title>
-    <link rel="stylesheet" href="barberstyle.css">
+    <link rel="stylesheet" href="addedit.css">
     <style>
         .contact-unavailable {
             color: #666;

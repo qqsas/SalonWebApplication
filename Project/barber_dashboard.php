@@ -146,7 +146,7 @@ while ($row = $result->fetch_assoc()) {
 
         <!-- Improved Search and Filter Form -->
         <div class="search-filter-container">
-            <form method="GET" class="search-filter-form">
+            <form method="GET" class="search-filter-form" id="searchFilterForm">
                 <input type="hidden" name="view" value="<?php echo escape($view); ?>">
                 
                 <div class="search-section">
@@ -159,7 +159,7 @@ while ($row = $result->fetch_assoc()) {
 
                 <?php if ($view === 'appointments'): ?>
                 <div class="filter-section">
-                    <select name="status" class="filter-select">
+                    <select name="status" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Statuses</option>
                         <option value="scheduled" <?php echo $status === 'scheduled' ? 'selected' : ''; ?>>Scheduled</option>
                         <option value="confirmed" <?php echo $status === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
@@ -168,7 +168,7 @@ while ($row = $result->fetch_assoc()) {
                         <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                     </select>
                     
-                    <select name="filter" class="filter-select">
+                    <select name="filter" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Time</option>
                         <option value="today" <?php echo $filter === 'today' ? 'selected' : ''; ?>>Today</option>
                         <option value="week" <?php echo $filter === 'week' ? 'selected' : ''; ?>>This Week</option>
@@ -177,11 +177,11 @@ while ($row = $result->fetch_assoc()) {
                         <option value="past" <?php echo $filter === 'past' ? 'selected' : ''; ?>>Past</option>
                     </select>
                     
-                    <input type="date" name="date" class="filter-select" value="<?php echo escape($date); ?>" placeholder="Specific Date">
+                    <input type="date" name="date" class="filter-select" value="<?php echo escape($date); ?>" placeholder="Specific Date" onchange="document.getElementById('searchFilterForm').submit()">
                 </div>
                 <?php elseif ($view === 'reviews'): ?>
                 <div class="filter-section">
-                    <select name="rating" class="filter-select">
+                    <select name="rating" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Ratings</option>
                         <option value="5" <?php echo $rating === '5' ? 'selected' : ''; ?>>5 Stars</option>
                         <option value="4" <?php echo $rating === '4' ? 'selected' : ''; ?>>4+ Stars</option>
@@ -190,7 +190,7 @@ while ($row = $result->fetch_assoc()) {
                         <option value="1" <?php echo $rating === '1' ? 'selected' : ''; ?>>1+ Stars</option>
                     </select>
                     
-                    <select name="filter" class="filter-select">
+                    <select name="filter" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Time</option>
                         <option value="week" <?php echo $filter === 'week' ? 'selected' : ''; ?>>This Week</option>
                         <option value="month" <?php echo $filter === 'month' ? 'selected' : ''; ?>>This Month</option>
@@ -199,7 +199,7 @@ while ($row = $result->fetch_assoc()) {
                 </div>
                 <?php elseif ($view === 'products'): ?>
                 <div class="filter-section">
-                    <select name="category" class="filter-select">
+                    <select name="category" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Categories</option>
                         <?php
                         $catStmt = $conn->prepare("SELECT DISTINCT Category FROM Products WHERE IsDeleted = 0 ORDER BY Category");
@@ -212,7 +212,7 @@ while ($row = $result->fetch_assoc()) {
                         ?>
                     </select>
                     
-                    <select name="filter" class="filter-select">
+                    <select name="filter" class="filter-select" onchange="document.getElementById('searchFilterForm').submit()">
                         <option value="">All Stock</option>
                         <option value="in_stock" <?php echo $filter === 'in_stock' ? 'selected' : ''; ?>>In Stock</option>
                         <option value="low_stock" <?php echo $filter === 'low_stock' ? 'selected' : ''; ?>>Low Stock (< 10)</option>
@@ -272,7 +272,7 @@ while ($row = $result->fetch_assoc()) {
                 // Add Appointment button
                 echo "<div class='section-header'>";
                 echo "<h2>My Appointments (Total: $totalRecords)</h2>";
-                echo "<a href='add_appointment.php' class='btn btn-primary add-appointment-btn'>+ Add Appointment</a>";
+                echo "<a href='add_appointment.php' class='add-btn'>+ Add Appointment</a>";
                 echo "</div>";
                 
                 $orderBy = "a.Time " . ($filter === 'past' ? "DESC" : "ASC");
@@ -348,55 +348,6 @@ while ($row = $result->fetch_assoc()) {
                 displayPagination($totalPages, $page, 'appointments', $searchParam, $filter, $status, $date);
                 
                 // Add CSS for the new button and layout
-                echo "
-                <style>
-                .section-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                    flex-wrap: wrap;
-                    gap: 15px;
-                }
-                .add-appointment-btn {
-                    background-color: #28a745;
-                    color: white;
-                    padding: 10px 20px;
-                    text-decoration: none;
-                    border-radius: 4px;
-                    font-weight: 600;
-                    transition: background-color 0.2s;
-                    white-space: nowrap;
-                }
-                .add-appointment-btn:hover {
-                    background-color: #218838;
-                    color: white;
-                    text-decoration: none;
-                }
-                .no-appointments {
-                    text-align: center;
-                    padding: 40px;
-                    background: #f8f9fa;
-                    border-radius: 8px;
-                    margin: 20px 0;
-                }
-                .no-appointments p {
-                    margin-bottom: 15px;
-                    color: #6c757d;
-                    font-size: 1.1em;
-                }
-                @media (max-width: 768px) {
-                    .section-header {
-                        flex-direction: column;
-                        align-items: flex-start;
-                    }
-                    .add-appointment-btn {
-                        align-self: stretch;
-                        text-align: center;
-                    }
-                }
-                </style>
-                ";
                 break;
 
             case 'services':
@@ -408,6 +359,7 @@ while ($row = $result->fetch_assoc()) {
                                         $where, $params, $types);
                 $totalPages = ceil($totalRecords / $limit);
                 
+                echo "<h2>My Services (Total: $totalRecords)</h2>";
                 // Only show "Add Service" if allowed
                 if (!empty($features['allow services'])) {
                     echo '<a href="add_barber_service.php?barberID='.$barberID.'&view=services&search='.$searchParam.'" class="add-btn">
@@ -415,7 +367,6 @@ while ($row = $result->fetch_assoc()) {
                           </a>';
                 }
 
-                echo "<h2>My Services (Total: $totalRecords)</h2>";
                 
                 $stmt = $conn->prepare("SELECT bs.*, s.Name, s.Description, s.Price, s.Time 
                                         FROM BarberServices bs 
@@ -870,10 +821,10 @@ while ($row = $result->fetch_assoc()) {
                 $totalRecords = $stmt->get_result()->fetch_assoc()['total'];
                 $totalPages = ceil($totalRecords / $limit);
 
+                echo "<h2>All Products (Total: $totalRecords)</h2>";
                 echo '<a href="add_product.php?view=products&search='.$searchParam.'&category='.urlencode($category).'&filter='.$filter.'" class="add-btn">
                         <span>+</span> Add Product
                       </a>';
-                echo "<h2>All Products (Total: $totalRecords)</h2>";
 
                 // Fetch products
                 $stmt = $conn->prepare("SELECT * FROM Products p WHERE $where ORDER BY p.Name LIMIT ? OFFSET ?");
