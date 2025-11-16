@@ -35,7 +35,7 @@ foreach ($cartItems as $item) {
 <head>
     <meta charset="UTF-8">
     <title>Checkout - Kumar Kailey Hair & Beauty</title>
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -241,3 +241,323 @@ foreach ($cartItems as $item) {
 </body>
 </html>
 
+<style>
+
+
+body > .container {
+  max-width: 900px !important;
+  margin: 50px auto !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 40px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+body > .container h2 {
+  color: #1e3a8a !important;
+  text-align: center !important;
+  font-size: 1.9rem !important;
+  margin-bottom: 30px !important;
+  border-bottom: 2px solid #e5e7eb !important;
+  padding-bottom: 12px !important;
+  position: relative !important;
+}
+
+body > .container h2::after {
+  display: none !important;
+}
+
+/* === Table - Proper Styling - Solid Colors Only === */
+body > .container table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin-bottom: 30px !important;
+  font-size: 0.95rem !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+body > .container table thead {
+  background-color: #1e3a8a !important;
+  background-image: none !important;
+}
+
+body > .container table th {
+  background-color: #1e3a8a !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  padding: 16px 14px !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  border: none !important;
+  border-bottom: 2px solid #1e40af !important;
+}
+
+body > .container table th:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body > .container table tbody tr {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+body > .container table tbody tr:hover {
+  background-color: #f9fafb !important;
+  background-image: none !important;
+}
+
+body > .container table tbody tr:last-child {
+  border-bottom: none !important;
+  font-weight: 600 !important;
+  background-color: #f3f4f6 !important;
+  background-image: none !important;
+}
+
+body > .container table td {
+  padding: 14px !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  border: none !important;
+  color: #374151 !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+body > .container table td:not(:last-child) {
+  border-right: 1px solid #e5e7eb !important;
+}
+
+body > .container table tbody tr:last-child td {
+  border-top: 2px solid #d1d5db !important;
+  border-right: none !important;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+body > .container table td img.product-img {
+  width: 60px !important;
+  height: 60px !important;
+  object-fit: cover !important;
+  border-radius: 4px !important;
+  border: 1px solid #d1d5db !important;
+  background: #ffffff !important;
+}
+
+/* === Info Section === */
+body > .container .info {
+  background: #f9fafb !important;
+  padding: 18px 20px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  margin-bottom: 30px !important;
+  color: #374151 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+}
+
+/* === Forms === */
+body > .container form {
+  background: #f9fafb !important;
+  padding: 25px !important;
+  border-radius: 10px !important;
+  border: 1px solid #e5e7eb !important;
+  margin-bottom: 30px !important;
+}
+
+body > .container .form-group {
+  margin-bottom: 20px !important;
+}
+
+body > .container .form-group-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+}
+
+body > .container .form-group.half-width {
+  width: 100% !important;
+}
+
+body > .container .form-label {
+  display: block !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin-bottom: 8px !important;
+}
+
+body > .container .form-input {
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+  font-size: 0.95rem !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  color: #374151 !important;
+}
+
+body > .container .form-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  outline: none !important;
+}
+
+body > .container .form-text {
+  font-size: 0.8rem !important;
+  color: #6b7280 !important;
+  margin-top: 4px !important;
+}
+
+/* === Buttons - Properly Aligned === */
+body > .container .btn {
+  display: inline-block !important;
+  text-decoration: none !important;
+  padding: 12px 28px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  transition: background-color 0.2s ease, transform 0.2s ease !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  min-width: 180px !important;
+  vertical-align: middle !important;
+}
+
+body > .container .btn:hover {
+  transform: translateY(-1px) !important;
+}
+
+body > .container .btn:active {
+  transform: translateY(0) !important;
+}
+
+/* Reserve In-Store Button */
+body > .container .btn-reserve {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2) !important;
+}
+
+body > .container .btn-reserve:hover {
+  background-color: #1d4ed8 !important;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* Place Order Button */
+body > .container .btn-place {
+  background-color: #1e3a8a !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2) !important;
+}
+
+body > .container .btn-place:hover {
+  background-color: #1e40af !important;
+  box-shadow: 0 4px 6px rgba(30, 58, 138, 0.3) !important;
+}
+
+/* Cancel / Return Button */
+body > .container .btn-cancel {
+  background-color: var(--error-color) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2) !important;
+}
+
+body > .container .btn-cancel:hover {
+  background-color: #4b5563 !important;
+  box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3) !important;
+}
+
+/* Button Containers - Proper Alignment */
+body > .container form .form-group:last-of-type {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 15px !important;
+  flex-wrap: wrap !important;
+  margin-top: 25px !important;
+}
+
+body > .container form .btn {
+  flex: 0 1 auto !important;
+  max-width: 240px !important;
+}
+
+/* Reserve form buttons alignment */
+body > .container form[method="POST"]:first-of-type {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 15px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 20px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+body > .container form[method="POST"]:first-of-type .btn {
+  margin: 0 !important;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  body > .container {
+    padding: 25px !important;
+    margin: 1.5rem auto !important;
+  }
+
+  body > .container h2 {
+    font-size: 1.6rem !important;
+  }
+
+  body > .container table {
+    font-size: 0.85rem !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  body > .container table th,
+  body > .container table td {
+    padding: 10px 8px !important;
+    font-size: 0.85rem !important;
+  }
+
+  body > .container table th:not(:last-child),
+  body > .container table td:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  body > .container table td:not(:last-child) {
+    border-right: 1px solid #e5e7eb !important;
+  }
+
+  body > .container .btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 10px !important;
+    display: block !important;
+  }
+
+  body > .container form .form-group:last-of-type {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  body > .container form[method="POST"]:first-of-type {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  body > .container .form-group-row {
+    flex-direction: column !important;
+  }
+}
+</style>

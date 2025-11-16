@@ -257,17 +257,9 @@ $services = $conn->query("SELECT ServicesID, Name, Time, Price FROM Services WHE
     <meta charset="UTF-8">
     <title>Add New Appointment - Admin</title>
     <link rel="stylesheet" href="addedit.css">
-    <style>
-        .error ul { margin: 0; padding-left: 20px; }
-        input:invalid, select:invalid { border-color: red; }
-        .pseudo-section { border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-top: 10px; }
-        .pseudo-section label { display: block; margin-top: 5px; }
-        .service-option { display: flex; justify-content: space-between; }
-        .service-details { font-size: 0.9em; color: #666; }
-    </style>
 </head>
 <body>
-<div class="form-container">
+<div class="container">
     <h2>Add New Appointment</h2>
 
     <?php if (!empty($errors)): ?>
@@ -299,7 +291,8 @@ $services = $conn->query("SELECT ServicesID, Name, Time, Price FROM Services WHE
             <label>OR Create New (Pseudo) User:</label>
             <input type="text" name="NewUserName" placeholder="Enter new user's name" required maxlength="100">
             <input type="email" name="NewUserEmail" placeholder="Enter new user's email (optional)" maxlength="100">
-            <input type="tel" name="NewUserPhone" placeholder="Enter new user's phone (optional)" pattern="[0-9+\-\s()]{10,20}" maxlength="20">
+            <input type="tel" name="NewUserPhone" placeholder="Enter new user's phone (optional)" pattern="[0-9+\-\s()]{10,20}" maxlength="100">
+</br>
             <small>Provide either email or phone number. Age will be automatically set to 1.</small>
         </div>
 

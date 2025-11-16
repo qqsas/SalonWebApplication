@@ -6,71 +6,30 @@ include 'header.php';
 // Handle input
 $searchTerm = $_GET['search'] ?? '';
 $sortOption = $_GET['sort'] ?? 'newest';
-$selectedCategories = $_GET['category'] ?? []; // array now
-
-if (!is_array($selectedCategories)) {
-    $selectedCategories = [$selectedCategories];
+$rawSelectedCategories = $_GET['category'] ?? [];
+if (!is_array($rawSelectedCategories)) {
+    $rawSelectedCategories = [$rawSelectedCategories];
 }
 
-// Fetch all unique categories from Products table (handling JSON arrays)
-$allCategories = [];
+$categoryOptions = [
+    'Hair Care' => 'Hair Care',
+    'Hair Products' => 'Hair Products',
+];
 
-// First, extract categories from JSON arrays
-$jsonCategoryQuery = $conn->query("
-    SELECT Category 
-    FROM Products 
-    WHERE Category IS NOT NULL 
-    AND Category != 'null' 
-    AND Category LIKE '[%'
-");
+$normalizedCategoryMap = [
+    'hair care' => 'Hair Care',
+    'hair products' => 'Hair Products',
+];
 
-if ($jsonCategoryQuery) {
-    while ($row = $jsonCategoryQuery->fetch_assoc()) {
-        if (!empty($row['Category'])) {
-            try {
-                $categories = json_decode($row['Category'], true);
-                if (is_array($categories)) {
-                    foreach ($categories as $category) {
-                        if (!empty($category) && is_string($category)) {
-                            $allCategories[] = trim($category);
-                        }
-                    }
-                }
-            } catch (Exception $e) {
-                continue;
-            }
-        }
+$selectedCategories = [];
+foreach ($rawSelectedCategories as $cat) {
+    $key = strtolower(trim($cat));
+    if (isset($normalizedCategoryMap[$key])) {
+        $selectedCategories[] = $normalizedCategoryMap[$key];
     }
 }
+$selectedCategories = array_values(array_unique($selectedCategories));
 
-// Also get legacy single categories
-$legacyCategoryQuery = $conn->query("
-    SELECT Category 
-    FROM Products 
-    WHERE Category IS NOT NULL 
-    AND Category != '' 
-    AND Category NOT LIKE '[%'
-");
-
-if ($legacyCategoryQuery) {
-    while ($row = $legacyCategoryQuery->fetch_assoc()) {
-        if (!empty($row['Category'])) {
-            $category = trim($row['Category']);
-            $category = str_replace(['\"', '"', '[', ']'], '', $category);
-            if (!empty($category)) {
-                $allCategories[] = $category;
-            }
-        }
-    }
-}
-
-// Clean and deduplicate categories
-$allCategories = array_map(function($cat) {
-    return trim(str_replace(['\"', '"', '[', ']', '\\'], '', $cat));
-}, $allCategories);
-$allCategories = array_filter($allCategories);
-$allCategories = array_unique($allCategories);
-sort($allCategories);
 
 // Base query
 $query = "SELECT ProductID, Name, Price, Category, Stock, ImgUrl, CreatedAt 
@@ -89,7 +48,7 @@ if (!empty($searchTerm)) {
     $types .= "ss";
 }
 
-// Category filter - handle multiple selected categories
+// Category filter - handle multiple selected categories (limited to hair care/products)
 if (!empty($selectedCategories)) {
     $query .= " AND (";
     $categoryConditions = [];
@@ -166,8 +125,113 @@ unset($product); // Break reference
     <link href="mobile.css" rel="stylesheet" media="(max-width: 768px)">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .checkbox-group { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; }
-        .checkbox-group label { display:flex; align-items:center; gap:5px; }
+       .filter-category-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .filter-category-wrapper label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--gray-darker, #000000ff);
+        }
+
+        .filter-category {
+            width: 100%;
+        }
+
+        .dropdown-checkbox {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 1rem 1rem;
+            border: 1px solid var(--gray-medium);
+            border-radius: 10px;
+            background: var(--white);
+            color: var(--text-dark);
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .dropdown-toggle:hover,
+        .dropdown-checkbox.open .dropdown-toggle {
+            border-color: var(--gray-medium);
+            box-shadow: 0 0 0 3px rgba(84, 88, 133, 0.12);
+        }
+
+        .dropdown-toggle .summary-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .dropdown-toggle .chevron {
+            margin-left: 0.75rem;
+            transition: transform 0.25s ease;
+        }
+
+        .dropdown-checkbox.open .dropdown-toggle .chevron {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.35rem);
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 1px solid rgba(44, 62, 80, 0.12);
+            border-radius: 12px;
+            box-shadow: 0 18px 30px rgba(5, 4, 1, 0.12);
+            padding: 0.75rem;
+            display: none;
+            z-index: 25;
+        }
+
+        .dropdown-checkbox.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-option {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.45rem 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-option:hover {
+            background: rgba(84, 88, 133, 0.12);
+        }
+
+        .dropdown-option input[type="checkbox"] {
+            accent-color: var(--primary-color);
+            width: 16px;
+            height: 16px;
+        }
+
+        .dropdown-actions {
+            margin-top: 0.6rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .dropdown-actions button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.4rem 0.6rem;
+        }
     </style>
 </head>
 <body>
@@ -178,7 +242,7 @@ unset($product); // Break reference
 <div class="filter-container">
     <form method="get" class="filter-form" id="productFilterForm">
         <input type="text" name="search" id="productSearch" class="filter-search"
-               placeholder="Search products or categories..." value="<?= htmlspecialchars($searchTerm) ?>">
+               placeholder="Search products" value="<?= htmlspecialchars($searchTerm) ?>">
 
         <select name="sort" id="productSort" class="filter-sort">
             <option value="newest" <?= $sortOption === 'newest' ? 'selected' : '' ?>>Newest</option>
@@ -188,19 +252,33 @@ unset($product); // Break reference
             <option value="name_desc" <?= $sortOption === 'name_desc' ? 'selected' : '' ?>>Name: Z to A</option>
         </select>
 
-        <!-- Checkboxes for multiple categories -->
-        <div class="checkbox-group">
-            <?php foreach ($allCategories as $cat): ?>
-                <label>
-                    <input type="checkbox" name="category[]" value="<?= htmlspecialchars($cat) ?>"
-                        <?= in_array($cat, $selectedCategories) ? 'checked' : '' ?>>
-                    <?= htmlspecialchars($cat) ?>
-                </label>
-            <?php endforeach; ?>
+        <div class="filter-category-wrapper dropdown-checkbox" id="categoryDropdown">
+            
+            <button type="button" class="dropdown-toggle" id="categoryToggle">
+                <span class="summary-text" id="categorySummary">
+                    <?= empty($selectedCategories) ? 'All Categories' : htmlspecialchars(implode(', ', $selectedCategories)) ?>
+                </span>
+               <span class="chevron">&#9662;</span>
+            </button>
+            <div class="dropdown-menu">
+                <?php foreach ($categoryOptions as $value => $label): ?>
+                    <label class="dropdown-option">
+                        <input type="checkbox" name="category[]" value="<?= htmlspecialchars($value) ?>"
+                            <?= in_array($value, $selectedCategories, true) ? 'checked' : '' ?>>
+                        <span><?= htmlspecialchars($label) ?></span>
+                    </label>
+                <?php endforeach; ?>
+                <div class="dropdown-actions">
+                    <button type="button" id="clearCategories">Clear</button>
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="filter-button" id="applyButton">Apply</button>
     </form>
+
+
+  
 </div>
 
 <!-- Product Listing Section -->
@@ -220,7 +298,7 @@ unset($product); // Break reference
                     <img src="<?= $product_img ?>" 
                          alt="<?= htmlspecialchars($product['Name']) ?>" 
                          class="product-image"
-                         onerror="this.src='Img/default-product.jpg'">
+                         onerror="this.src='Img/Logo.jpeg'">
                     <div class="product-details">
                         <h2 class="product-name"><?= htmlspecialchars($product['Name']) ?></h2>
                         <p class="product-price">R<?= number_format($product['Price'], 2) ?></p>
@@ -271,13 +349,58 @@ const sortSelect = document.getElementById('productSort');
 const productsGrid = document.getElementById('productsGrid');
 const productCards = Array.from(productsGrid ? productsGrid.children : []);
 const noResults = document.querySelector('.no-results');
-const categoryCheckboxes = document.querySelectorAll('.checkbox-group input[type=checkbox]');
+const categoryDropdown = document.getElementById('categoryDropdown');
+const categoryToggle = document.getElementById('categoryToggle');
+const categorySummary = document.getElementById('categorySummary');
+const categoryCheckboxes = categoryDropdown ? categoryDropdown.querySelectorAll('input[type="checkbox"]') : [];
+const clearCategoriesBtn = document.getElementById('clearCategories');
 
 function getSelectedCategories() {
     return Array.from(categoryCheckboxes)
-                .filter(chk => chk.checked)
-                .map(chk => chk.value.toLowerCase());
+        .filter(chk => chk.checked)
+        .map(chk => chk.value.toLowerCase());
 }
+
+function updateCategorySummary() {
+    if (!categorySummary) return;
+    const selected = Array.from(categoryCheckboxes)
+        .filter(chk => chk.checked)
+        .map(chk => chk.value);
+    categorySummary.textContent = selected.length ? selected.join(', ') : 'All Categories';
+}
+
+if (categoryToggle && categoryDropdown) {
+    categoryToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        categoryDropdown.classList.toggle('open');
+    });
+}
+
+document.addEventListener('click', (e) => {
+    if (!categoryDropdown) return;
+    if (!categoryDropdown.contains(e.target)) {
+        categoryDropdown.classList.remove('open');
+    }
+});
+
+categoryCheckboxes.forEach(chk => {
+    chk.addEventListener('change', () => {
+        updateCategorySummary();
+        filterProducts();
+        sortProducts();
+    });
+});
+
+if (clearCategoriesBtn) {
+    clearCategoriesBtn.addEventListener('click', () => {
+        categoryCheckboxes.forEach(chk => chk.checked = false);
+        updateCategorySummary();
+        filterProducts();
+        sortProducts();
+    });
+}
+
+updateCategorySummary();
 
 // FILTER FUNCTION
 function filterProducts() {
@@ -327,8 +450,9 @@ function sortProducts() {
 // EVENT LISTENERS
 searchInput.addEventListener('input', () => { filterProducts(); sortProducts(); });
 sortSelect.addEventListener('change', sortProducts);
-categoryCheckboxes.forEach(chk => chk.addEventListener('change', () => { filterProducts(); sortProducts(); }));
-
+if (categorySelect) {
+    categorySelect.addEventListener('change', () => { filterProducts(); sortProducts(); });
+}
 const applyButton = document.getElementById('applyButton');
 applyButton.addEventListener('click', () => { filterProducts(); sortProducts(); });
 
@@ -341,6 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php
 include 'footer.php';
 ?>
+
 </body>
 </html>
 

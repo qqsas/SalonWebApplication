@@ -145,7 +145,7 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
 <head>
     <meta charset="UTF-8">
     <title>Book Appointment - <?= htmlspecialchars($service['Name']) ?></title>
-    <link href="styles2.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -540,6 +540,11 @@ $endDateDisplay = date('M j, Y', strtotime(end($dates)));
             });
         });
     </script>
+
+
+<?php
+include 'footer.php';
+?>
 
 </body>
 </html>
