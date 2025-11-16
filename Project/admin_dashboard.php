@@ -13,7 +13,7 @@ $search = $_GET['search'] ?? '';
 $searchParam = urlencode($search);
 $searchLike = $search ? "%" . strtolower($search) . "%" : "%";
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$limit = 20;
+$limit = 12;
 $offset = ($page - 1) * $limit;
 
 // Initialize display filters for each section
@@ -168,6 +168,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
 
     <!-- Improved Search Form with Display Filters -->
     <div class="search-container">
+        <?php if ($view !== 'overview' && $view !== 'features') { ?>
         <form method="GET" class="search-form">
             <input type="hidden" name="view" value="<?php echo escape($view); ?>">
             <div class="search-controls">
@@ -177,14 +178,14 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
                     <a href="?view=<?php echo escape($view); ?>" class="clear-search">Clear Search</a>
                 <?php endif; ?>
             </div>
-            <?php 
-            if ($view !== 'overview' && $view !== 'features') {
-                echo getFilterDisplayOptions($view, $displayFilters[$view]);
-            }
-            ?>
+            
+            <?php echo getFilterDisplayOptions($view, $displayFilters[$view]); ?>
+            
+            
         </form>
+               <?php } ?>
     </div>
-
+    
     <?php
     if (isset($_GET['message'])) {
         $messageType = isset($_GET['success']) && $_GET['success'] ? 'success' : 'error';
@@ -359,7 +360,7 @@ function getFilterDisplayOptions($currentView, $currentFilter) {
             }
             
             echo "<div class='table-container'>";
-            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Barber</th><th class='table-header'>ForName</th><th class='table-header'>ForAge</th><th class='table-header'>Type</th><th class='table-header'>Time</th><th class='table-header'>Duration</th><th class='table-header'>Status</th><th class='table-header'>Cost</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+            echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Barber</th><th class='table-header'>Name</th><th class='table-header'>Age</th><th class='table-header'>Type</th><th class='table-header'>Time</th><th class='table-header'>Duration</th><th class='table-header'>Status</th><th class='table-header'>Cost</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
             while ($row = $result->fetch_assoc()) {
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
@@ -497,9 +498,9 @@ case 'products':
         $categoriesDisplay = !empty($categories) ? implode(', ', array_map('escape', $categories)) : 'No categories';
         
         // Handle product image
-        $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'default-product.jpg';
+        $productImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'KSLOGO.png';
         $imagePath = "Img/" . $productImage;
-        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/default-product.jpg";
+        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/KSLOGO.png";
         
         echo "<tr class='table-row'> 
                 <td class='table-cell'>".escape($row['ProductID'])."</td> 
@@ -773,7 +774,7 @@ case 'services':
                         <th class='table-header'>ID</th>
                         <th class='table-header'>User</th>
                         <th class='table-header'>Products</th>
-                        <th class='table-header'>TotalPrice</th>
+                        <th class='table-header'>Total Price</th>
                         <th class='table-header'>Status</th>
                         <th class='table-header'>Date Created</th>
                         <th class='table-header'>Actions</th> 
@@ -933,7 +934,7 @@ case 'contacts':
     }
     
     echo "<div class='table-container'>";
-    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>ContactInfo</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
+    echo "<table class='data-table'> <thead><tr> <th class='table-header'>ID</th><th class='table-header'>User</th><th class='table-header'>Message</th><th class='table-header'>Contact Info</th><th class='table-header'>Date Created</th><th class='table-header'>Status</th><th class='table-header'>Actions</th> </tr></thead><tbody>";
     while ($row = $result->fetch_assoc()) {
         $messagePreview = strlen($row['Message']) > 50 ? substr($row['Message'], 0, 50) . '...' : $row['Message'];
 
@@ -1141,12 +1142,19 @@ case 'contacts':
                 $imagePath = "" . escape($row['ImageUrl']);
                 $statusClass = $row['IsDeleted'] ? 'status-deleted' : 'status-active';
                 $statusText = $row['IsDeleted'] ? "Deleted" : "Active";
+                $galleryImage = !empty($row['ImgUrl']) ? $row['ImgUrl'] : 'KSLOGO.png';
+        $imagePath = "Img/" . $galleryImage;
+        $imageSrc = (!empty($row['ImgUrl']) && file_exists($imagePath)) ? $imagePath : "Img/KSLOGO.png";
 
                 echo "<tr class='table-row'>
                         <td class='table-cell'>" . escape($row['GalleryID']) . "</td>
                         <td class='table-cell'>" . escape($row['Title']) . "</td>
                         <td class='table-cell'>" . escape($row['Description']) . "</td>
-                        <td class='table-cell'><img src='" . escape($imagePath) . "' alt='Gallery Image' class='gallery-thumb'></td>
+                        <td class='table-cell'><img src='".escape($imageSrc)."' 
+                         alt='".escape($row['Name'])."' 
+                         class='product-thumb'
+                         style='width: 50px; height: 50px; object-fit: cover; border-radius: 4px;'
+                         onerror=\"this.src='Img/default-product.jpg'\"></td>
                         <td class='table-cell'>" . escape($row['CreatedAt']) . "</td>
                         <td class='table-cell $statusClass'>$statusText</td>
                         <td class='table-cell'>
@@ -1228,6 +1236,28 @@ case 'contacts':
         const messages = document.querySelectorAll('.message');
         messages.forEach(msg => msg.style.display = 'none');
     }, 5000);
+    </script>
+    
+    <script>
+    // Add data-label attributes to table cells for responsive mobile layout
+    document.addEventListener('DOMContentLoaded', function() {
+        const tables = document.querySelectorAll('.data-table');
+        
+        tables.forEach(table => {
+            const headers = table.querySelectorAll('thead th');
+            const headerTexts = Array.from(headers).map(th => th.textContent.trim());
+            
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, index) => {
+                    if (index < headerTexts.length && !cell.hasAttribute('data-label')) {
+                        cell.setAttribute('data-label', headerTexts[index]);
+                    }
+                });
+            });
+        });
+    });
     </script>
     ";
     ?>

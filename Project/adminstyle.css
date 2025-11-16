@@ -2,30 +2,30 @@
    Global Color Palette & Theme Variables
 ========================================= */
 :root {
-  /* Primary Colors */
-  --primary-color: #c44536;
-  --primary-dark: #a53a2e;
-  --primary-light: #d67c70;
+  /* Primary Colors - Cool Blue-Purple */
+  --primary-color: #545885;
+  --primary-dark: #43476a;
+  --primary-light: #6b6fa0;
 
-  /* Secondary Colors */
-  --secondary-color: #e67e22;
-  --secondary-dark: #c86a1a;
-  --secondary-light: #f0a76c;
+  /* Secondary Colors - Deep Purple */
+  --secondary-color: #6c5ce7;
+  --secondary-dark: #5641c4;
+  --secondary-light: #8579ed;
 
-  /* Accent Colors */
-  --accent-color: #d35400;
-  --accent-dark: #b34700;
-  --accent-light: #e27a33;
+  /* Accent Colors - Blue */
+  --accent-color: #4a90e2;
+  --accent-dark: #3a7bc8;
+  --accent-light: #6ba3e8;
 
   /* Background Colors */
-  --background-light: #fef5e7;
-  --background-dark: #2c3e50;
-  --background-darker: #1a252f;
+  --background-light: #f8f9fa;
+  --background-dark: #050401;
+  --background-darker: #000000;
   --background-white: #ffffff;
 
   /* Text Colors */
-  --text-dark: #2c3e50;
-  --text-medium: #34495e;
+  --text-dark: #050401;
+  --text-medium: #2c3e50;
   --text-light: #7f8c8d;
   --text-lighter: #95a5a6;
   --text-white: #ffffff;
@@ -68,7 +68,8 @@ html {
 }
 
 body {
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
   background-color: var(--gray-light);
   color: var(--text-dark);
   line-height: 1.6;
@@ -96,7 +97,7 @@ h1 {
 }
 
 h1::after {
-  content: '';
+  content: "";
   display: block;
   width: 80px;
   height: 4px;
@@ -176,19 +177,30 @@ a:hover {
 }
 
 .navbar-brand img {
+  filter: invert(1);
   height: 30px;
   margin-right: 10px;
 }
 
 /* Mobile menu toggle */
 .menu-toggle {
-  display: none;
+  color: #e9e1c5;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   cursor: pointer;
-  padding: 0.5rem;
-  color: var(--text-white);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.menu-toggle .burger-line {
+  width: 18px;
+  height: 2px;
+  margin: 3px 0;
+  background: currentColor;
+  border-radius: 999px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 /* Navigation links */
@@ -213,6 +225,7 @@ a:hover {
   transition: color 0.3s ease;
   padding: 0.5rem 0;
   font-size: 0.8rem;
+  text-transform: uppercase;
 }
 
 .nav-link:hover {
@@ -243,7 +256,9 @@ a:hover {
 /* Mobile styles */
 @media (max-width: 939px) {
   .menu-toggle {
-    display: block;
+    display: grid;
+    place-items: center;
+    margin-left: auto;
   }
 
   .HeaderNavBody {
@@ -292,8 +307,8 @@ a:hover {
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
   padding: 1rem;
-  margin: 1.5rem auto;
-  max-width: 1200px;
+  margin: 2rem auto 6rem;
+  max-width: fit-content;
   overflow-x: auto;
 }
 
@@ -343,6 +358,7 @@ a:hover {
   gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 }
 
 .search-input {
@@ -363,7 +379,6 @@ a:hover {
 }
 
 .search-button {
-  margin-top: 12px;
   padding: 0.75rem 1.5rem;
   background-color: var(--primary-color);
   border: none;
@@ -398,29 +413,189 @@ a:hover {
 /* =========================================
    Tables
 ========================================= */
+
 .table-container {
-  width: 100%;
+  width: 85%;
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
+  position: relative;
+  padding: 1rem 0;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--background-white);
   min-width: 800px;
+}
+
+/* Medium screens - switch to card layout for tables with many columns */
+@media (max-width: 1360px) {
+  .dashboard-nav {
+    max-width: 90%;
+  }
+}
+@media (max-width: 1168px) {
+  /* Table responsive styles - card layout */
+
+  .dashboard-nav {
+    max-width: 90%;
+  }
+  .table-container {
+    width: 90%;
+    margin: 1.5rem auto;
+    padding: 1.2rem 0;
+  }
+
+  .data-table {
+    min-width: 0;
+    display: block;
+    width: 100%;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .data-table tr {
+    display: block;
+    margin-bottom: 2rem;
+    background: var(--background-white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    padding: 0 0 1rem;
+  }
+
+  .data-table td:nth-child(odd) {
+    background-color: #ddddddee;
+  }
+  .data-table td:nth-child(1) {
+    padding-top: 1rem;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+
+  .data-table td {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 0;
+    text-align: left !important;
+    border: none;
+    border-bottom: 1px solid var(--gray-light);
+    position: relative;
+    padding-left: 40% !important;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    width: 35%;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-left: 1rem;
+  }
+
+  /* Action buttons column - special handling */
+  /* Use :has() if supported, fallback to :last-child */
+  .data-table td:has(.action-buttons) {
+    padding-left: 0;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid var(--gray-light);
+  }
+
+  /* Fallback for browsers without :has() support */
+  @supports not selector(:has(*)) {
+    .data-table td:last-child {
+      padding-left: 0;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 2px solid var(--gray-light);
+    }
+  }
+
+  .data-table td:has(.action-buttons)::before {
+    content: "Actions";
+    position: static;
+    display: block;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  @supports not selector(:has(*)) {
+    .data-table td:last-child::before {
+      content: "Actions";
+      position: static;
+      display: block;
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+  }
+
+  .table-row {
+    border-width: 2px !important;
+    border-style: solid !important;
+    border-color: var(--background-dark) !important;
+  }
+
+  /* Inline forms in mobile tables */
+  .data-table .inline-form {
+    width: 100%;
+  }
+
+  .data-table .inline-form select {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .action-buttons > .btn {
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 48%;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+  }
 }
 
 .data-table th,
 .data-table td {
-  padding: 0.9rem 0.75rem;
   text-align: left;
   border-bottom: 1px solid var(--gray-light);
 }
 
+.data-table td {
+  padding: 0.9rem 0.75rem;
+}
+
 .data-table th {
+  padding: 0.9rem 0.75rem;
   background-color: var(--primary-color);
   color: var(--text-white);
   font-weight: 600;
@@ -467,34 +642,218 @@ a:hover {
   margin-right: auto;
 }
 
-.dashboard-controls { margin-bottom: 20px; margin:auto; width: fit-content;}
-.control-group { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-.metrics-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;}
-.metric-checkbox { position: relative; display: flex; align-items: center; gap: 4px; }
-.metric-tooltip { visibility: hidden; background: #333; color: #fff; border-radius: 4px; padding: 2px 6px; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); font-size: 0.75rem; }
-.metric-checkbox:hover .metric-tooltip { visibility: visible; }
-.btn-small { padding: 4px 10px; margin-right: 5px; font-size: 0.85rem; cursor: pointer; }
-.btn-primary { background: #3366CC; color: #fff; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; }
-.stats-overview { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-.stat-card { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; }
-.chart-container { 
-  width: 100%; 
-  max-width: 1200px; 
-  height: clamp(300px, 40vw, 500px); 
-  margin: 0 auto 20px; 
-  position: relative;
-  min-width: 0; /* allow expansion/shrinkage inside flex layouts */
+.dashboard-controls {
+  margin-bottom: 20px;
+  margin: auto;
+  width: fit-content;
+  grid-area: controls1 / span 3;
+  padding: 1rem;
+  background: var(--background-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
 }
-.chart-controls { margin-top: 50px; margin-bottom: 50px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%;}
-.data-export { margin-top: 20px; }
 
+.control-group {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.metrics-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 0.75rem;
+  background: var(--background-light);
+  border-radius: var(--border-radius-sm);
+}
+
+.metric-checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.4rem 0.6rem;
+  background: var(--background-white);
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition);
+}
+
+.metric-checkbox:hover {
+  background: var(--primary-light);
+  color: var(--text-white);
+}
+
+.metric-tooltip {
+  visibility: hidden;
+  background: #333;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 6px;
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.metric-checkbox:hover .metric-tooltip {
+  visibility: visible;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  margin-right: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--gray-medium);
+  background: var(--background-white);
+  color: var(--text-dark);
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.btn-small:hover {
+  background: var(--primary-color);
+  color: var(--text-white);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--text-white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card {
+  background: var(--background-white);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  flex: 1;
+  grid-area: details;
+  transition: var(--transition);
+  height: fit-content;
+}
+
+.stat-card h3 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  border-bottom: 2px solid var(--gray-light);
+  padding-bottom: 0.5rem;
+}
+
+.stat-card p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  color: var(--text-dark);
+}
+
+.stat-card p strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.chart-container {
+  width: 100%;
+  height: clamp(300px, 40vw, 500px);
+  position: relative;
+  min-width: 0;
+  grid-area: chart;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-controls {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  grid-area: controls2;
+  padding: 1rem;
+  background: var(--background-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.data-export {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--background-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.data-export h3 {
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-areas:
+    "chart chart chart details details details"
+    "chart chart chart details details details"
+    "chart chart chart controls1 controls1 controls1"
+    "controls2 controls2 controls2 controls2 controls2 controls2";
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto auto auto auto;
+  gap: 1.5rem;
+  max-width: 85%;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  align-items: start;
+}
 
 #overviewChart {
   width: 100%;
   max-width: 100%;
   height: 100%;
   display: block;
-  margin-left: auto; margin-right: auto;
+  /* margin-left: auto; margin-right: auto;
+  grid-area: chart; */
 }
 
 /* =========================================
@@ -504,10 +863,14 @@ a:hover {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  min-width: 0;
+  /* Prevent flex items from overflowing */
 }
 
-.action-buttons>.btn {
-  width: 45%;
+.action-buttons > .btn {
+  flex: 0 1 auto;
+  min-width: 40%;
+  white-space: nowrap;
   margin-top: auto;
   margin-bottom: auto;
 }
@@ -615,12 +978,12 @@ a:hover {
 }
 
 .restore-btn {
-  background-color: var(--info-color);
+  background-color: var(--accent-color);
   color: var(--text-white);
 }
 
 .restore-btn:hover {
-  background-color: #2980b9;
+  background-color: var(--accent-dark);
 }
 
 /* =========================================
@@ -806,6 +1169,7 @@ a:hover {
   box-shadow: var(--card-shadow);
   transition: var(--transition);
   text-align: center;
+  grid-area: details;
 }
 
 .stat-card:hover {
@@ -904,8 +1268,7 @@ footer a:hover {
 /* =========================================
    Responsive Design
 ========================================= */
-@media (max-width: 992px) {
-
+@media (max-width: 1200px) {
   .container,
   .container-fluid {
     padding: 0 1rem;
@@ -1019,7 +1382,6 @@ footer a:hover {
 /* Preference: dark color scheme tweaks */
 @media (prefers-color-scheme: dark) {
   .data-table {
-    background: #fff;
     color: var(--text-dark);
   }
 
@@ -1030,7 +1392,7 @@ footer a:hover {
   .data-table th {
     background: var(--primary-color);
     border-bottom-color: #4a5568;
-    color: var(--text-light);
+    color: var(--text-white);
   }
 }
 
@@ -1051,7 +1413,6 @@ footer a:hover {
 
 /* Preference: reduced motion */
 @media (prefers-reduced-motion: reduce) {
-
   .dashboard-nav-link,
   .search-button,
   .clear-search,
@@ -1067,7 +1428,6 @@ footer a:hover {
 
 /* Print improvements */
 @media print {
-
   .dashboard-nav,
   .search-container,
   .add-btn,
@@ -1101,7 +1461,34 @@ footer a:hover {
   }
 }
 
+/* Responsive Grid Layout */
+@media (max-width: 1200px) {
+  .overview-grid {
+    grid-template-areas:
+      "details details details details"
+      "chart chart chart chart"
+      "chart chart chart chart"
+      "controls1 controls1 controls1 controls1"
+      "controls2 controls2 controls2 controls2";
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .chart-container {
+    height: clamp(300px, 50vh, 500px);
+  }
+
+  .stat-card {
+    margin-top: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .search-button {
+    margin: 1rem 0;
+  }
+
+  .container,
   .search-form {
     flex-direction: column;
   }
@@ -1110,13 +1497,137 @@ footer a:hover {
     min-width: 100%;
   }
 
+  /* Table responsive styles - card layout on mobile */
+  .table-container {
+    width: 100%;
+    margin: 1rem auto;
+    padding: 1.2rem 0;
+  }
+
+  .data-table {
+    min-width: 0;
+    display: block;
+    width: 100%;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .data-table tr {
+    display: block;
+    margin-bottom: 2rem;
+    background: var(--background-white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    padding: 1rem;
+  }
+
+  .data-table td {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 0;
+    text-align: left !important;
+    border: none;
+    border-bottom: 1px solid var(--gray-light);
+    position: relative;
+    padding-left: 40%;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    width: 35%;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Action buttons column - special handling */
+  /* Use :has() if supported, fallback to :last-child */
+  .data-table td:has(.action-buttons) {
+    padding-left: 0;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid var(--gray-light);
+  }
+
+  /* Fallback for browsers without :has() support */
+  @supports not selector(:has(*)) {
+    .data-table td:last-child {
+      padding-left: 0;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 2px solid var(--gray-light);
+    }
+  }
+
+  .data-table td:has(.action-buttons)::before {
+    content: "Actions";
+    position: static;
+    display: block;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  @supports not selector(:has(*)) {
+    .data-table td:last-child::before {
+      content: "Actions";
+      position: static;
+      display: block;
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+  }
+
+  /* Inline forms in mobile tables */
+  .data-table .inline-form {
+    width: 100%;
+  }
+
+  .data-table .inline-form select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Action buttons - ensure they don't get squished */
   .action-buttons {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .action-buttons > .btn {
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 48%;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
   }
 
   .btn {
-    width: 100%;
+    width: auto;
+    min-width: 100px;
     justify-content: center;
   }
 
@@ -1129,10 +1640,41 @@ footer a:hover {
     padding: 0.5rem 0.7rem;
     min-width: 2.2rem;
   }
+
+  .overview-grid {
+    padding: 0 0.5rem;
+    gap: 1rem;
+  }
+
+  .chart-container {
+    height: clamp(300px, 45vh, 450px);
+  }
+
+  .dashboard-controls,
+  .chart-controls {
+    padding: 0.75rem;
+  }
+
+  .control-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metrics-checkbox-group {
+    align-items: stretch;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quick-actions button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 576px) {
-
   .container,
   .container-fluid {
     padding: 0 0.75rem;
@@ -1146,10 +1688,48 @@ footer a:hover {
     font-size: 1.3rem;
   }
 
-  .data-table th,
+  .table-container {
+    width: 100%;
+    margin: 0.75rem auto;
+  }
+
+  .data-table tr {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
   .data-table td {
-    padding: 0.7rem 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.6rem 0;
+    padding-left: 35%;
+    font-size: 0.85rem;
+  }
+
+  .data-table td::before {
+    font-size: 0.75rem;
+    width: 32%;
+  }
+
+  /* Action buttons column on very small screens */
+  .data-table td:last-child {
+    padding-left: 0;
+  }
+
+  /* Ensure buttons remain visible and usable on very small screens */
+  .action-buttons {
+    gap: 0.4rem;
+  }
+
+  .action-buttons > .btn {
+    min-width: 90px;
+    max-width: 47%;
+    font-size: 0.75rem;
+    padding: 0.45rem 0.6rem;
+    line-height: 1.3;
+  }
+
+  .data-table .inline-form select {
+    font-size: 0.85rem;
+    padding: 0.4rem;
   }
 
   .stat-card {

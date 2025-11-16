@@ -21,6 +21,8 @@ $stmt->close();
 
 <?php include 'header.php'; ?>
 
+<<<<<<< HEAD
+=======
 <style>
 /* Profile Page Styling */
 .container {
@@ -198,9 +200,10 @@ $stmt->close();
 
 
 </style>
+>>>>>>> main
 
 <div class="container">
-    
+    <i class="section-icon fa-solid fa-user fa-5x"></i>
     <h2>My Profile</h2>
 
     <!-- Modern Card Layout -->

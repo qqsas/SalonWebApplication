@@ -545,6 +545,7 @@ include 'header.php';
 <body>
 
 <div class="container">
+    <i class="section-icon fa fa-suitcase fa-5x" aria-hidden="true"></i>
     <h2>Edit Product</h2>
 
     <!-- Display session messages -->
@@ -657,14 +658,14 @@ include 'header.php';
         </div>
 
 <div class="form-actions">
-    <button type="submit" class="btn-primary">Update Product</button>
+    <button type="submit" class="btn">Update Product</button>
     <a href="<?php
         if (isset($_SESSION['Role']) && $_SESSION['Role'] === 'barber') {
             echo 'barber_dashboard.php';
         } else {
             echo 'admin_dashboard.php?view=products';
         }
-    ?>" class="btn-cancel">Cancel</a>
+    ?>" class="btn btn-cancel">Cancel</a>
 </div>
     </form>
 </div>

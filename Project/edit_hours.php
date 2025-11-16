@@ -122,8 +122,8 @@ function escape($str) {
                     </div>
                     
                     <div class='form-actions'>
-                        <button type='submit' class='btn btn-primary save-hours-btn'>Save Working Hours</button>
-                        <a href='admin_dashboard.php?view=working_hours&search=<?php echo $searchParam; ?>&page=<?php echo $page; ?>' class='btn btn-secondary'>Cancel</a>
+                        <button type='submit' class='btn'>Save Working Hours</button>
+                        <a href='admin_dashboard.php?view=working_hours&search=<?php echo $searchParam; ?>&page=<?php echo $page; ?>' class='btn btn-cancel'>Cancel</a>
                     </div>
                 </form>
             </div>
@@ -172,7 +172,7 @@ function escape($str) {
                         </div>
                         
                         <div class='form-actions'>
-                            <button type='submit' class='btn btn-warning add-unavailability-btn'>Add Unavailability</button>
+                            <button type='submit' class='btn btn-warning'>Add Unavailability</button>
                         </div>
                     </div>
                 </form>
@@ -364,43 +364,342 @@ function escape($str) {
         </script>
 
         <style>
-        .required {
-            color: #dc3545;
-            font-weight: bold;
+        .admin-dashboard {
+            min-height: 100vh;
+            background-color: var(--gray-light);
+            padding: 2rem 0;
+        }
+
+        .dashboard-header {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .admin-welcome h1 {
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .admin-welcome p {
+            color: var(--text-medium);
+            margin: 0.25rem 0;
+        }
+
+        .barber-name {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .back-navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .availability-settings {
+            background: var(--background-white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .availability-settings h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .working-hours-section {
+            margin-bottom: 3rem;
+        }
+
+        .availability-form {
+            margin-top: 1.5rem;
+        }
+
+        .availability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .availability-day {
+            background: var(--gray-light);
+            padding: 1.25rem;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--gray-medium);
+            transition: all 0.2s ease;
+        }
+
+        .availability-day:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(84, 88, 133, 0.1);
+        }
+
+        .day-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .time-input {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--gray-medium);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(84, 88, 133, 0.1);
+        }
+
+        .time-input:disabled {
+            background: var(--gray-light);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .time-separator {
+            color: var(--text-medium);
+            font-weight: 500;
+        }
+
+        .working-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .working-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .working-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .save-hours-btn {
+            flex: 1;
+        }
+
+        .unavailability-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--gray-light);
+        }
+
+        .section-title {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .unavailability-form {
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 2rem;
+        }
+
+        .unavailability-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group.full-width {
+            grid-column: 1 / -1;
         }
 
         .input-label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
             font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .input-field {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-medium);
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(84, 88, 133, 0.1);
         }
 
         .input-field:required {
             border-left: 3px solid #dc3545;
         }
-        
+
+        .required {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
         .time-options-info {
-            background-color: #f8f9fa;
-            border-left: 4px solid #17a2b8;
-            padding: 10px 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+            background-color: #e7f3ff;
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            border-radius: var(--border-radius-sm);
         }
-        
+
         .time-options-info p {
-            margin: 0;
-            font-size: 0.9em;
-            color: #495057;
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: var(--text-dark);
         }
-        
+
         .time-options-info ul {
-            margin: 5px 0 0 0;
-            padding-left: 20px;
+            margin: 0.5rem 0 0 0;
+            padding-left: 1.5rem;
         }
-        
+
         .time-options-info li {
-            font-size: 0.85em;
-            margin-bottom: 3px;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-medium);
+        }
+
+        .add-unavailability-btn {
+            width: 100%;
+        }
+
+        .existing-unavailability {
+            margin-top: 2rem;
+        }
+
+        .no-unavailability {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-style: italic;
+            background: var(--gray-light);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .unavailability-table {
+            margin-top: 1rem;
+        }
+
+        .unavailability-item {
+            transition: background-color 0.2s ease;
+        }
+
+        .unavailability-item:hover {
+            background-color: var(--gray-light);
+        }
+
+        .remove-unavailability-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .availability-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .time-inputs {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .time-separator {
+                display: none;
+            }
         }
         </style>
 

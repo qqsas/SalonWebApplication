@@ -600,6 +600,7 @@ include 'header.php';
 <body>
 
 <div class="container">
+    <i class="section-icon fa fa-scissors fa-5x" aria-hidden="true"></i>
     <h2>Edit Service</h2>
 
     <!-- Display session messages -->
@@ -735,8 +736,8 @@ include 'header.php';
         </div>
         
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Update Service</button>
-            <a href="admin_dashboard.php?view=services" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn">Update Service</button>
+            <a href="admin_dashboard.php?view=services" class="btn btn-cancel">Cancel</a>
         </div>
     </form>
 </div>
