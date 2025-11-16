@@ -130,5 +130,10 @@ if (applyButton) {
 }
 </script>
 
+<?php
+include 'footer.php';
+?>
+
+
 </body>
 

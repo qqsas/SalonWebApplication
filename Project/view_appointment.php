@@ -397,3 +397,6 @@ $result->data_seek(0); // Reset result pointer
     <?php endif; ?>
 </div>
 
+<?php
+include 'footer.php';
+?>
